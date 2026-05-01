@@ -1,18 +1,53 @@
 'use client';
-import { ReactNode } from 'react';
-import { useSidebarStore } from '../../stores/sidebar.store';
+import { ReactNode, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Toaster } from 'react-hot-toast';
+import Sidebar from '@/components/layout/Sidebar';
+import { useAuth } from '@/hooks/useAuth';
 
 interface DashboardLayoutProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-    const toggleSidebar = useSidebarStore((state) => state.toggle);
+  const { isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
 
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading) {
     return (
-        <div>
-            <button onClick={toggleSidebar}>Toggle Sidebar</button>
-            {children}
-        </div>
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div
+          className="h-10 w-10 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent"
+          aria-label="Loading dashboard"
+        />
+      </div>
     );
+  }
+
+  if (!isAuthenticated) return null;
+
+  return (
+    <div className="flex h-screen bg-gray-50">
+      <Sidebar />
+      <main className="flex-1 overflow-y-auto">{children}</main>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            borderRadius: '10px',
+            background: '#333',
+            color: '#fff',
+            fontSize: '14px',
+          },
+        }}
+      />
+    </div>
+  );
 }
