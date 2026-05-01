@@ -3,10 +3,14 @@ import { supplierService } from "@/services/supplier.service";
 import { CreateSupplierRequest, UpdateSupplierRequest } from "@/types/supplier.types";
 import { PaginationParams } from "@/types/api.types";
 
-export function useSuppliers(params?: PaginationParams) {
+export function useSuppliers(
+  params?: PaginationParams,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["suppliers", params],
     queryFn: () => supplierService.getAll(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
   });
 }
 

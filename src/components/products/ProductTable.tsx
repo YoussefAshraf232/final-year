@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Table from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
@@ -25,10 +26,12 @@ export default function ProductTable({ products, isLoading, onDelete }: ProductT
       render: (product: Product) => (
         <div className="flex items-center gap-3">
           {product.photo ? (
-            <img
+            <Image
               src={product.photo}
               alt={product.name}
-              className="w-10 h-10 rounded-lg object-cover border border-gray-200"
+              width={40}
+              height={40}
+              className="rounded-lg object-cover border border-gray-200"
             />
           ) : (
             <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-400">

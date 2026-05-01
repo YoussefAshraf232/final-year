@@ -3,11 +3,15 @@ import { internalInvoiceService } from "@/services/internal-invoice.service";
 import { CreateInternalInvoiceRequest } from "@/types/internal-invoice.types";
 import { PaginationParams } from "@/types/api.types";
 
-export function useInternalInvoices(params?: PaginationParams) {
+export function useInternalInvoices(
+  params?: PaginationParams,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["internal-invoices", params],
     queryFn: () =>
       internalInvoiceService.getAll(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
   });
 }
 

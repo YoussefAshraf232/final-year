@@ -3,10 +3,14 @@ import { salesInvoiceService } from "@/services/sales-invoice.service";
 import { CreateSalesInvoiceRequest } from "@/types/sales-invoice.types";
 import { PaginationParams } from "@/types/api.types";
 
-export function useSalesInvoices(params?: PaginationParams) {
+export function useSalesInvoices(
+  params?: PaginationParams,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["sales-invoices", params],
     queryFn: () => salesInvoiceService.getAll(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
   });
 }
 

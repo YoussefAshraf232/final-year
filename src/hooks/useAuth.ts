@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth as useAuthContext } from "@/context/AuthContext";
+import { GUEST_TOKEN } from "@/constants/auth";
 import { hasPermission, PERMISSIONS } from "@/constants/roles";
 import { UserRole } from "@/types/user.types";
 
@@ -41,6 +42,7 @@ export function useAuth() {
   const isAdmin = auth.user?.role === "ADMIN";
   const isManager = auth.user?.role === "MANAGER";
   const isEmployee = auth.user?.role === "EMPLOYEE";
+  const isGuest = auth.token === GUEST_TOKEN;
 
   return {
     ...auth,
@@ -55,5 +57,6 @@ export function useAuth() {
     isAdmin,
     isManager,
     isEmployee,
+    isGuest,
   };
 }

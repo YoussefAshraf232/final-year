@@ -3,11 +3,15 @@ import { returnPurchaseInvoiceService } from "@/services/return-purchase-invoice
 import { CreateReturnPurchaseInvoiceRequest } from "@/types/return-purchase-invoice.types";
 import { PaginationParams } from "@/types/api.types";
 
-export function useReturnPurchaseInvoices(params?: PaginationParams) {
+export function useReturnPurchaseInvoices(
+  params?: PaginationParams,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["return-purchase-invoices", params],
     queryFn: () =>
       returnPurchaseInvoiceService.getAll(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
   });
 }
 

@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
@@ -27,12 +28,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         }
       }}
     >
-      <div className="aspect-video w-full rounded-lg bg-gray-100 mb-4 overflow-hidden">
+      <div className="aspect-video w-full rounded-lg bg-gray-100 mb-4 overflow-hidden relative">
         {product.photo ? (
-          <img
+          <Image
             src={product.photo}
             alt={product.name}
-            className="w-full h-full object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">

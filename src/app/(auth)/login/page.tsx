@@ -12,7 +12,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { LoginFormData, loginSchema } from '@/lib/validators';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, loginAsGuest } = useAuth();
+  const guestModeEnabled = process.env.NEXT_PUBLIC_ENABLE_GUEST_MODE === 'true';
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
     register,
@@ -34,6 +35,12 @@ export default function LoginPage() {
     } catch {
       setSubmitError('Unable to sign in with those credentials.');
     }
+  };
+
+  const handleGuestSignIn = () => {
+    setSubmitError(null);
+    loginAsGuest();
+    toast.success('Signed in as guest');
   };
 
   return (
@@ -69,6 +76,17 @@ export default function LoginPage() {
         <Button type="submit" fullWidth isLoading={isSubmitting}>
           Sign in
         </Button>
+        {guestModeEnabled && (
+          <Button
+            type="button"
+            variant="outline"
+            fullWidth
+            onClick={handleGuestSignIn}
+            disabled={isSubmitting}
+          >
+            Continue as guest
+          </Button>
+        )}
       </form>
 
       <p className="mt-5 text-center text-sm text-gray-500">

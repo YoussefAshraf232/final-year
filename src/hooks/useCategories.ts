@@ -3,10 +3,14 @@ import { categoryService } from "@/services/category.service";
 import { CreateCategoryRequest, UpdateCategoryRequest } from "@/types/category.types";
 import { PaginationParams } from "@/types/api.types";
 
-export function useCategories(params?: PaginationParams) {
+export function useCategories(
+  params?: PaginationParams,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["categories", params],
     queryFn: () => categoryService.getAll(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
   });
 }
 

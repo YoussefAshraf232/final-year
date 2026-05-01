@@ -1,6 +1,10 @@
 import { z } from "zod";
 
 const userRoles = ["ADMIN", "MANAGER", "EMPLOYEE"] as const;
+const ALLOWED_IMAGE_DOMAINS = [
+  "images.unsplash.com",
+  "your-cdn.example.com",
+];
 
 const requiredNumber = (message: string, schema = z.number({ error: message })) =>
   z.preprocess(
@@ -18,6 +22,26 @@ const positiveInt = (requiredMessage: string, positiveMessage: string) =>
   requiredNumber(
     requiredMessage,
     z.number({ error: requiredMessage }).int().positive(positiveMessage)
+  );
+
+const safeImageUrl = z
+  .string()
+  .optional()
+  .refine(
+    (url) => {
+      if (!url) return true;
+
+      try {
+        const parsed = new URL(url);
+        return (
+          parsed.protocol === "https:" &&
+          ALLOWED_IMAGE_DOMAINS.includes(parsed.hostname)
+        );
+      } catch {
+        return false;
+      }
+    },
+    { message: "Image must be HTTPS and from an allowed domain" }
   );
 
 export const loginSchema = z.object({
@@ -63,7 +87,7 @@ export const productSchema = z.object({
     .string()
     .min(1, "Description is required")
     .max(1000, "Description is too long"),
-  photo: z.string().optional(),
+  photo: safeImageUrl,
   currentPrice: positiveNumber(
     "Price is required",
     "Price must be greater than 0"

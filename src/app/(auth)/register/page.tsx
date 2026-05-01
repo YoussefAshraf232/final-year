@@ -8,8 +8,6 @@ import toast from 'react-hot-toast';
 import Button from '@/components/ui/Button';
 import Card, { CardDescription, CardTitle } from '@/components/ui/Card';
 import Input from '@/components/ui/Input';
-import Select from '@/components/ui/Select';
-import { ROLE_OPTIONS } from '@/constants/roles';
 import { useAuth } from '@/hooks/useAuth';
 import { RegisterFormData, registerSchema } from '@/lib/validators';
 
@@ -33,7 +31,7 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     setSubmitError(null);
     try {
-      await registerUser(data);
+      await registerUser({ ...data, role: 'EMPLOYEE' });
       toast.success('Account created');
     } catch {
       setSubmitError('Unable to create the account. Please check the details and try again.');
@@ -76,13 +74,6 @@ export default function RegisterPage() {
           autoComplete="new-password"
           error={errors.password?.message}
           {...register('password')}
-        />
-        <Select
-          id="role"
-          label="Role"
-          options={ROLE_OPTIONS}
-          error={errors.role?.message}
-          {...register('role')}
         />
         <Button type="submit" fullWidth isLoading={isSubmitting}>
           Create account
