@@ -44,7 +44,7 @@ export default function StatCard({
                   trend.isPositive ? 'text-emerald-600' : 'text-red-600'
                 )}
               >
-                {trend.isPositive ? '↑' : '↓'} {Math.abs(trend.value)}% vs last month
+                {trend.isPositive ? '+' : '-'}{Math.abs(trend.value)}% vs last month
               </span>
             </div>
           )}

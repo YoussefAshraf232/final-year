@@ -39,7 +39,7 @@ export default function LowStockAlert({ items, isLoading }: LowStockAlertProps) 
         </div>
       ) : items.length === 0 ? (
         <p className="text-sm text-gray-400 text-center py-6">
-          No low stock alerts 🎉
+          No low stock alerts
         </p>
       ) : (
         <div className="space-y-3">

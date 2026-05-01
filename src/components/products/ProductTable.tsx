@@ -46,14 +46,14 @@ export default function ProductTable({ products, isLoading, onDelete }: ProductT
       key: 'category',
       label: 'Category',
       render: (product: Product) => (
-        <Badge variant="info">{product.category?.name || '—'}</Badge>
+        <Badge variant="info">{product.category?.name || 'N/A'}</Badge>
       ),
     },
     {
       key: 'supplier',
       label: 'Supplier',
       render: (product: Product) => (
-        <span className="text-gray-600">{product.supplier?.name || '—'}</span>
+        <span className="text-gray-600">{product.supplier?.name || 'N/A'}</span>
       ),
     },
     {

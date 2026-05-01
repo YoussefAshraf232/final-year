@@ -35,7 +35,11 @@ export default function Topbar({ title, subtitle, actions }: TopbarProps) {
 
         <div className="flex items-center gap-3">
           {actions}
-          <button className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Notifications">
+          <button
+            type="button"
+            className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            aria-label="Notifications"
+          >
             <Bell className="h-5 w-5 text-gray-500" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
           </button>

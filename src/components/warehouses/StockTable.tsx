@@ -26,7 +26,7 @@ export default function StockTable({ stock, isLoading }: StockTableProps) {
       label: 'Category',
       render: (item: WarehouseProduct) => (
         <Badge variant="info">
-          {item.product?.category?.name || '—'}
+          {item.product?.category?.name || 'N/A'}
         </Badge>
       ),
     },
@@ -35,7 +35,7 @@ export default function StockTable({ stock, isLoading }: StockTableProps) {
       label: 'Unit Price',
       render: (item: WarehouseProduct) => (
         <span className="text-gray-700">
-          {item.product ? formatCurrency(item.product.currentPrice) : '—'}
+          {item.product ? formatCurrency(item.product.currentPrice) : 'N/A'}
         </span>
       ),
     },
@@ -58,7 +58,7 @@ export default function StockTable({ stock, isLoading }: StockTableProps) {
         <span className="font-semibold text-gray-900">
           {item.product
             ? formatCurrency(item.product.currentPrice * item.amount)
-            : '—'}
+            : 'N/A'}
         </span>
       ),
     },

@@ -16,8 +16,16 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Card
-      className="cursor-pointer hover:shadow-md transition-shadow"
+      role="button"
+      tabIndex={0}
+      className="cursor-pointer hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
       onClick={() => router.push(ROUTES.PRODUCT_DETAIL(product.id))}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          router.push(ROUTES.PRODUCT_DETAIL(product.id));
+        }
+      }}
     >
       <div className="aspect-video w-full rounded-lg bg-gray-100 mb-4 overflow-hidden">
         {product.photo ? (
@@ -37,7 +45,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
             {product.name}
           </h3>
-          <Badge variant="info">{product.category?.name || '—'}</Badge>
+          <Badge variant="info">{product.category?.name || 'N/A'}</Badge>
         </div>
         <p className="text-xs text-gray-500 line-clamp-2">{product.description}</p>
         <div className="flex items-center justify-between pt-2 border-t border-gray-100">
