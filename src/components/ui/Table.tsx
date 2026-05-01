@@ -1,7 +1,7 @@
 import { cn } from '@/lib/utils';
 
 interface Column<T> {
-  key: string;
+  key: keyof T | string;
   label: string;
   render?: (item: T) => React.ReactNode;
   className?: string;
@@ -47,7 +47,7 @@ export default function Table<T>({
           <tr className="border-b border-gray-200 bg-gray-50/50">
             {columns.map((col) => (
               <th
-                key={col.key}
+                key={String(col.key)}
                 className={cn(
                   'px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider',
                   col.className
@@ -69,8 +69,8 @@ export default function Table<T>({
               )}
             >
               {columns.map((col) => (
-                <td key={col.key} className={cn('px-4 py-3.5 text-gray-700', col.className)}>
-                  {col.render ? col.render(item) : (item as Record<string, any>)[col.key]}
+                <td key={String(col.key)} className={cn('px-4 py-3.5 text-gray-700', col.className)}>
+                  {col.render ? col.render(item) : String(item[col.key as keyof T] ?? '')}
                 </td>
               ))}
             </tr>

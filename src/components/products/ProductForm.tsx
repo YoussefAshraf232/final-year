@@ -2,6 +2,7 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { productSchema, ProductFormData } from '@/lib/validators';
 import Input from '@/components/ui/Input';
 import Select from '@/components/ui/Select';
@@ -24,7 +25,7 @@ export default function ProductForm({ initialData, onSubmit, isLoading }: Produc
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ProductFormData>({
+  } = useForm<z.input<typeof productSchema>, unknown, ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: initialData
       ? {

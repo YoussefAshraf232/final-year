@@ -5,6 +5,14 @@ import Badge from '@/components/ui/Badge';
 import InvoiceItemsTable from './InvoiceItemsTable';
 import { formatCurrency, formatDateTime } from '@/lib/formatters';
 
+interface InvoiceDetailsItem {
+  productId: number;
+  amount: number;
+  price?: number;
+  sellingPrice?: number;
+  product?: { name: string };
+}
+
 interface InvoiceDetailsProps {
   invoice: {
     id: number;
@@ -12,7 +20,7 @@ interface InvoiceDetailsProps {
     totalPrice: number;
     discount?: number;
     reason?: string;
-    items?: any[];
+    items?: InvoiceDetailsItem[];
   };
   type: 'sale' | 'purchase' | 'return' | 'return-purchase' | 'transfer';
   parties?: { label: string; value: string }[];
