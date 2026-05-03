@@ -33,11 +33,11 @@ export default function StaffTable({ staff, isLoading, onRemove }: StaffTablePro
       label: 'Role',
       render: (item: WarehouseUser) =>
         item.user?.role ? (
-          <Badge variant={ROLE_COLORS[item.user.role] as any}>
+          <Badge variant={ROLE_COLORS[item.user.role]}>
             {item.user.role}
           </Badge>
         ) : (
-          '—'
+          'N/A'
         ),
     },
     {
@@ -64,9 +64,11 @@ export default function StaffTable({ staff, isLoading, onRemove }: StaffTablePro
       render: (item: WarehouseUser) =>
         !item.leaveDate && onRemove ? (
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => onRemove(item.userId)}
+            aria-label={`Remove ${item.user?.username || `user ${item.userId}`}`}
           >
             <UserMinus className="h-4 w-4 text-red-500" />
           </Button>

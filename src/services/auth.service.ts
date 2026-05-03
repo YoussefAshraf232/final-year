@@ -6,6 +6,7 @@ import {
   User,
 } from "@/types/user.types";
 import { ApiResponse } from "@/types/api.types";
+import { tokenStorage } from "@/lib/tokenStorage";
 
 export const authService = {
   login: (data: LoginRequest) =>
@@ -18,7 +19,6 @@ export const authService = {
     api.get<ApiResponse<User>>("/auth/me"),
 
   logout: () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    tokenStorage.clear();
   },
 };

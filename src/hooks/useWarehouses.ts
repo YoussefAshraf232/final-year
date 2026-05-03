@@ -7,10 +7,14 @@ import {
 } from "@/types/warehouse.types";
 import { PaginationParams } from "@/types/api.types";
 
-export function useWarehouses(params?: PaginationParams) {
+export function useWarehouses(
+  params?: PaginationParams,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["warehouses", params],
     queryFn: () => warehouseService.getAll(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
   });
 }
 

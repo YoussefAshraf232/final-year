@@ -79,12 +79,12 @@ const InvoicePrint = forwardRef<HTMLDivElement, InvoicePrintProps>(
                 {priceField && (
                   <>
                     <td className="py-2 text-right">
-                      {getPrice(item) !== undefined ? formatCurrency(getPrice(item)!) : '—'}
+                      {getPrice(item) !== undefined ? formatCurrency(getPrice(item)!) : 'N/A'}
                     </td>
                     <td className="py-2 text-right font-medium">
                       {getPrice(item) !== undefined
                         ? formatCurrency(getPrice(item)! * item.amount)
-                        : '—'}
+                        : 'N/A'}
                     </td>
                   </>
                 )}

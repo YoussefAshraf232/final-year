@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Get initials from a name (e.g., "John Doe" 101D)
+// Get initials from a name (e.g., "John Doe" -> "JD")
 export function getInitials(name: string): string {
   return name
     .split(" ")
@@ -27,7 +27,7 @@ export function sleep(ms: number): Promise<void> {
 }
 
 // Generate a query string from an object
-export function toQueryString(params: Record<string, any>): string {
+export function toQueryString(params: Record<string, unknown>): string {
   const filtered = Object.entries(params).filter(
     ([, value]) => value !== undefined && value !== null && value !== ""
   );

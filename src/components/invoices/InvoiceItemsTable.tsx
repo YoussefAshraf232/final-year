@@ -48,7 +48,7 @@ export default function InvoiceItemsTable({
               const price = priceField === 'sellingPrice' ? item.sellingPrice : item.price;
               return (
                 <span className="text-gray-700">
-                  {price !== undefined ? formatCurrency(price) : '—'}
+                  {price !== undefined ? formatCurrency(price) : 'N/A'}
                 </span>
               );
             },
@@ -60,7 +60,7 @@ export default function InvoiceItemsTable({
               const price = priceField === 'sellingPrice' ? item.sellingPrice : item.price;
               return (
                 <span className="font-semibold text-gray-900">
-                  {price !== undefined ? formatCurrency(price * item.amount) : '—'}
+                  {price !== undefined ? formatCurrency(price * item.amount) : 'N/A'}
                 </span>
               );
             },

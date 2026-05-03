@@ -1,7 +1,14 @@
 "use client";
 
 import { useAuth as useAuthContext } from "@/context/AuthContext";
-import { hasPermission, PERMISSIONS } from "@/constants/roles";
+import { GUEST_TOKEN } from "@/constants/auth";
+import {
+  canAccessRoute,
+  hasAnyRole,
+  hasPermission,
+  Permission,
+  PERMISSIONS,
+} from "@/constants/roles";
 import { UserRole } from "@/types/user.types";
 
 // This hook wraps AuthContext and adds permission helpers
@@ -11,36 +18,43 @@ export function useAuth() {
   // Permission checks
   const canManageUsers = hasPermission(
     auth.user?.role,
-    PERMISSIONS.manageUsers
+    PERMISSIONS.userView
   );
 
   const canManageWarehouses = hasPermission(
     auth.user?.role,
-    PERMISSIONS.manageWarehouses
+    PERMISSIONS.warehouseUpdate
   );
 
   const canCreateInvoice = hasPermission(
     auth.user?.role,
-    PERMISSIONS.createInvoice
+    PERMISSIONS.salesCreate
   );
 
   const canViewReports = hasPermission(
     auth.user?.role,
-    PERMISSIONS.viewReports
+    PERMISSIONS.reportView
   );
 
   const canDeleteInvoice = hasPermission(
     auth.user?.role,
-    PERMISSIONS.deleteInvoice
+    PERMISSIONS.salesCancel
   );
 
   // Generic role check
   const hasRole = (roles: UserRole[]) =>
-    hasPermission(auth.user?.role, roles);
+    hasAnyRole(auth.user?.role, roles);
+
+  const can = (permission: Permission) =>
+    hasPermission(auth.user?.role, permission);
+
+  const canAccess = (route: string) =>
+    canAccessRoute(auth.user?.role, route);
 
   const isAdmin = auth.user?.role === "ADMIN";
   const isManager = auth.user?.role === "MANAGER";
   const isEmployee = auth.user?.role === "EMPLOYEE";
+  const isGuest = auth.token === GUEST_TOKEN;
 
   return {
     ...auth,
@@ -50,10 +64,13 @@ export function useAuth() {
     canCreateInvoice,
     canViewReports,
     canDeleteInvoice,
+    can,
+    canAccess,
     // Role checks
     hasRole,
     isAdmin,
     isManager,
     isEmployee,
+    isGuest,
   };
 }

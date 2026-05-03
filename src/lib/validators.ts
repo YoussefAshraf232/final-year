@@ -1,8 +1,36 @@
-﻿import { z } from "zod";
+import { z } from "zod";
+import { isAllowedImageUrl } from "./imageSafety";
 
-// 222222222222222222
-// Auth
-// 22222222222222222
+const userRoles = ["ADMIN", "MANAGER", "EMPLOYEE"] as const;
+const requiredNumber = (message: string, schema = z.number({ error: message })) =>
+  z.preprocess(
+    (value) => (value === "" || Number.isNaN(value) ? undefined : value),
+    schema
+  );
+
+const nonNegativeNumber = (requiredMessage: string, message: string) =>
+  requiredNumber(
+    requiredMessage,
+    z.number({ error: requiredMessage }).min(0, message)
+  );
+
+const positiveInt = (requiredMessage: string, positiveMessage: string) =>
+  requiredNumber(
+    requiredMessage,
+    z.number({ error: requiredMessage }).int().positive(positiveMessage)
+  );
+
+const safeImageUrl = z
+  .string()
+  .optional()
+  .refine(
+    (url) => {
+      if (!url) return true;
+      return isAllowedImageUrl(url);
+    },
+    { message: "Image must be HTTPS and from an allowed domain" }
+  );
+
 export const loginSchema = z.object({
   email: z
     .string()
@@ -27,14 +55,8 @@ export const registerSchema = z.object({
     .string()
     .min(1, "Password is required")
     .min(6, "Password must be at least 6 characters"),
-  role: z.enum(["ADMIN", "MANAGER", "EMPLOYEE"], {
-    required_error: "Role is required",
-  }),
 });
 
-// 222222222222222222
-// Category
-// 222222222222222222
 export const categorySchema = z.object({
   name: z
     .string()
@@ -42,37 +64,54 @@ export const categorySchema = z.object({
     .max(100, "Category name is too long"),
 });
 
-// 222222222222222222
-// Product
-// 222222222222222222
 export const productSchema = z.object({
   name: z
     .string()
     .min(1, "Product name is required")
     .max(200, "Product name is too long"),
+  sku: z
+    .string()
+    .min(1, "SKU is required")
+    .max(100, "SKU is too long"),
+  barcode: z.string().max(100, "Barcode is too long").optional(),
   description: z
     .string()
     .min(1, "Description is required")
     .max(1000, "Description is too long"),
-  photo: z
+  photo: safeImageUrl,
+  unitOfMeasure: z
     .string()
-    .optional(),
-  currentPrice: z
-    .number({ required_error: "Price is required", invalid_type_error: "Price must be a number" })
-    .positive("Price must be greater than 0"),
-  categoryId: z
-    .number({ required_error: "Category is required", invalid_type_error: "Select a category" })
-    .int()
-    .positive("Select a category"),
-  supplierId: z
-    .number({ required_error: "Supplier is required", invalid_type_error: "Select a supplier" })
-    .int()
-    .positive("Select a supplier"),
+    .min(1, "Unit of measure is required")
+    .max(30, "Unit of measure is too long"),
+  brand: z.string().max(100, "Brand is too long").optional(),
+  manufacturer: z.string().max(100, "Manufacturer is too long").optional(),
+  status: z.enum(["ACTIVE", "INACTIVE", "DISCONTINUED"]).default("ACTIVE"),
+  currentPrice: nonNegativeNumber(
+    "Price is required",
+    "Price cannot be negative"
+  ),
+  costPrice: nonNegativeNumber(
+    "Cost price is required",
+    "Cost price cannot be negative"
+  ),
+  openingStock: nonNegativeNumber(
+    "Opening stock is required",
+    "Opening stock cannot be negative"
+  ),
+  reorderLevel: nonNegativeNumber(
+    "Reorder level is required",
+    "Reorder level cannot be negative"
+  ),
+  taxCategory: z.string().max(100, "Tax category is too long").optional(),
+  isSerialTracked: z.boolean().default(false),
+  isBatchTracked: z.boolean().default(false),
+  categoryId: positiveInt("Select a category", "Select a category"),
+  supplierId: positiveInt("Select a supplier", "Select a supplier"),
+}).refine((data) => !(data.isSerialTracked && data.isBatchTracked), {
+  message: "Choose serial tracking or batch tracking, not both",
+  path: ["isBatchTracked"],
 });
 
-// 222222222222222222
-// Customer
-// 222222222222222222
 export const customerSchema = z.object({
   name: z
     .string()
@@ -84,9 +123,6 @@ export const customerSchema = z.object({
     .max(500, "Address is too long"),
 });
 
-// 222222222222222222
-// Supplier
-// 222222222222222222
 export const supplierSchema = z.object({
   name: z
     .string()
@@ -102,21 +138,14 @@ export const supplierSchema = z.object({
     .max(20, "Phone number is too long"),
 });
 
-// 222222222222222222
-// Warehouse
-// 222222222222222222
 export const warehouseSchema = z.object({
   address: z
     .string()
     .min(1, "Address is required")
     .max(500, "Address is too long"),
-  isCentral: z
-    .boolean(),
+  isCentral: z.boolean(),
 });
 
-// 222222222222222222
-// User
-// 222222222222222222
 export const createUserSchema = z.object({
   username: z
     .string()
@@ -130,122 +159,74 @@ export const createUserSchema = z.object({
     .string()
     .min(1, "Password is required")
     .min(6, "Password must be at least 6 characters"),
-  role: z.enum(["ADMIN", "MANAGER", "EMPLOYEE"], {
-    required_error: "Role is required",
-  }),
+  role: z.enum(userRoles, { error: "Role is required" }),
 });
 
 export const updateUserSchema = z.object({
-  username: z
-    .string()
-    .min(3, "Username must be at least 3 characters")
-    .optional(),
-  email: z
-    .string()
-    .email("Invalid email address")
-    .optional(),
-  role: z
-    .enum(["ADMIN", "MANAGER", "EMPLOYEE"])
-    .optional(),
+  username: z.string().min(3, "Username must be at least 3 characters").optional(),
+  email: z.string().email("Invalid email address").optional(),
+  role: z.enum(userRoles).optional(),
 });
 
-// 222222222222222222
-// Invoice Items (shared shape)
-// 222222222222222222
 const invoiceItemSchema = z.object({
-  productId: z
-    .number({ required_error: "Product is required" })
-    .int()
-    .positive("Select a product"),
-  amount: z
-    .number({ required_error: "Amount is required" })
-    .int()
-    .positive("Amount must be at least 1"),
+  productId: positiveInt("Product is required", "Select a product"),
+  amount: positiveInt("Amount is required", "Amount must be at least 1"),
+  discountPercent: z.number().min(0, "Discount cannot be negative").max(100, "Discount cannot exceed 100%").default(0),
+  taxRate: z.number().min(0, "Tax cannot be negative").max(100, "Tax cannot exceed 100%").default(0),
 });
 
-// ——————————————————————————————
-// Sales Invoice
-// ——————————————————————————————
 export const salesInvoiceSchema = z.object({
-  customerId: z
-    .number({ required_error: "Customer is required" })
-    .int()
-    .positive("Select a customer"),
-  warehouseId: z
-    .number({ required_error: "Warehouse is required" })
-    .int()
-    .positive("Select a warehouse"),
-  discount: z
-    .number()
-    .min(0, "Discount cannot be negative")
-    .default(0),
+  customerId: positiveInt("Customer is required", "Select a customer"),
+  warehouseId: positiveInt("Warehouse is required", "Select a warehouse"),
+  discount: z.number().min(0, "Discount cannot be negative").default(0),
+  invoiceDiscountPercent: z.number().min(0, "Discount cannot be negative").max(100, "Discount cannot exceed 100%").default(0),
   items: z
     .array(
       invoiceItemSchema.extend({
-        sellingPrice: z
-          .number({ required_error: "Price is required" })
-          .positive("Price must be greater than 0"),
+        sellingPrice: nonNegativeNumber(
+          "Price is required",
+          "Price cannot be negative"
+        ),
+        serialNumbers: z.array(z.string().min(1)).optional(),
+        batchId: z.number().int().positive().optional(),
       })
     )
     .min(1, "At least one item is required"),
 });
 
-// ——————————————————————————————
-// Purchase Invoice
-// ——————————————————————————————
 export const purchaseInvoiceSchema = z.object({
-  supplierId: z
-    .number({ required_error: "Supplier is required" })
-    .int()
-    .positive("Select a supplier"),
-  warehouseId: z
-    .number({ required_error: "Warehouse is required" })
-    .int()
-    .positive("Select a warehouse"),
+  supplierId: positiveInt("Supplier is required", "Select a supplier"),
+  warehouseId: positiveInt("Warehouse is required", "Select a warehouse"),
   items: z
     .array(
       invoiceItemSchema.extend({
-        price: z
-          .number({ required_error: "Price is required" })
-          .positive("Price must be greater than 0"),
+        price: nonNegativeNumber(
+          "Price is required",
+          "Price cannot be negative"
+        ),
+        serialNumbers: z.array(z.string().min(1)).optional(),
+        batchId: z.number().int().positive().optional(),
       })
     )
     .min(1, "At least one item is required"),
 });
 
-// ——————————————————————————————
-// Return Invoice (Customer)
-// ——————————————————————————————
 export const returnInvoiceSchema = z.object({
-  customerId: z
-    .number({ required_error: "Customer is required" })
-    .int()
-    .positive("Select a customer"),
-  salesInvoiceId: z
-    .number({ required_error: "Sales invoice is required" })
-    .int()
-    .positive("Select a sales invoice"),
+  customerId: positiveInt("Customer is required", "Select a customer"),
+  salesInvoiceId: positiveInt("Sales invoice is required", "Select a sales invoice"),
   reason: z
     .string()
     .min(1, "Reason is required")
     .max(500, "Reason is too long"),
-  items: z
-    .array(invoiceItemSchema)
-    .min(1, "At least one item is required"),
+  items: z.array(invoiceItemSchema).min(1, "At least one item is required"),
 });
 
-// ——————————————————————————————
-// Return Purchase Invoice (Supplier)
-// ——————————————————————————————
 export const returnPurchaseInvoiceSchema = z.object({
-  supplierId: z
-    .number({ required_error: "Supplier is required" })
-    .int()
-    .positive("Select a supplier"),
-  purchaseInvoiceId: z
-    .number({ required_error: "Purchase invoice is required" })
-    .int()
-    .positive("Select a purchase invoice"),
+  supplierId: positiveInt("Supplier is required", "Select a supplier"),
+  purchaseInvoiceId: positiveInt(
+    "Purchase invoice is required",
+    "Select a purchase invoice"
+  ),
   reason: z
     .string()
     .min(1, "Reason is required")
@@ -253,37 +234,32 @@ export const returnPurchaseInvoiceSchema = z.object({
   items: z
     .array(
       invoiceItemSchema.extend({
-        price: z
-          .number({ required_error: "Price is required" })
-          .positive("Price must be greater than 0"),
+        price: nonNegativeNumber(
+          "Price is required",
+          "Price cannot be negative"
+        ),
       })
     )
     .min(1, "At least one item is required"),
 });
 
-// ——————————————————————————————
-// Internal Invoice (Transfer)
-// ——————————————————————————————
-export const internalInvoiceSchema = z.object({
-  fromWarehouseId: z
-    .number({ required_error: "Source warehouse is required" })
-    .int()
-    .positive("Select source warehouse"),
-  toWarehouseId: z
-    .number({ required_error: "Destination warehouse is required" })
-    .int()
-    .positive("Select destination warehouse"),
-  items: z
-    .array(invoiceItemSchema)
-    .min(1, "At least one item is required"),
-}).refine((data) => data.fromWarehouseId !== data.toWarehouseId, {
-  message: "Source and destination warehouses must be different",
-  path: ["toWarehouseId"],
-});
+export const internalInvoiceSchema = z
+  .object({
+    fromWarehouseId: positiveInt(
+      "Source warehouse is required",
+      "Select source warehouse"
+    ),
+    toWarehouseId: positiveInt(
+      "Destination warehouse is required",
+      "Select destination warehouse"
+    ),
+    items: z.array(invoiceItemSchema).min(1, "At least one item is required"),
+  })
+  .refine((data) => data.fromWarehouseId !== data.toWarehouseId, {
+    message: "Source and destination warehouses must be different",
+    path: ["toWarehouseId"],
+  });
 
-// ——————————————————————————————
-// Infer Types (optional — use if you want form types from schemas)
-// ——————————————————————————————
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
 export type CategoryFormData = z.infer<typeof categorySchema>;
@@ -296,6 +272,7 @@ export type UpdateUserFormData = z.infer<typeof updateUserSchema>;
 export type SalesInvoiceFormData = z.infer<typeof salesInvoiceSchema>;
 export type PurchaseInvoiceFormData = z.infer<typeof purchaseInvoiceSchema>;
 export type ReturnInvoiceFormData = z.infer<typeof returnInvoiceSchema>;
-export type ReturnPurchaseInvoiceFormData = z.infer<typeof returnPurchaseInvoiceSchema>;
+export type ReturnPurchaseInvoiceFormData = z.infer<
+  typeof returnPurchaseInvoiceSchema
+>;
 export type InternalInvoiceFormData = z.infer<typeof internalInvoiceSchema>;
-

@@ -3,11 +3,15 @@ import { purchaseInvoiceService } from "@/services/purchase-invoice.service";
 import { CreatePurchaseInvoiceRequest } from "@/types/purchase-invoice.types";
 import { PaginationParams } from "@/types/api.types";
 
-export function usePurchaseInvoices(params?: PaginationParams) {
+export function usePurchaseInvoices(
+  params?: PaginationParams,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["purchase-invoices", params],
     queryFn: () =>
       purchaseInvoiceService.getAll(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
   });
 }
 

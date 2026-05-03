@@ -3,10 +3,14 @@ import { customerService } from "@/services/customer.service";
 import { CreateCustomerRequest, UpdateCustomerRequest } from "@/types/customer.types";
 import { PaginationParams } from "@/types/api.types";
 
-export function useCustomers(params?: PaginationParams) {
+export function useCustomers(
+  params?: PaginationParams,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["customers", params],
     queryFn: () => customerService.getAll(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
   });
 }
 

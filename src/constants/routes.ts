@@ -23,6 +23,10 @@ export const ROUTES = {
   WAREHOUSE_STOCK: (id: number) => `/warehouses/${id}/stock`,
   WAREHOUSE_STAFF: (id: number) => `/warehouses/${id}/staff`,
 
+  // Stock
+  STOCK: "/stock",
+  STOCK_MOVEMENTS: "/stock/movements",
+
   // Customers
   CUSTOMERS: "/customers",
   CUSTOMER_NEW: "/customers/new",
@@ -71,4 +75,7 @@ export const ROUTES = {
   REPORTS_SALES: "/reports/sales",
   REPORTS_PURCHASES: "/reports/purchases",
   REPORTS_INVENTORY: "/reports/inventory",
+
+  // Audit
+  AUDIT_LOGS: "/audit-logs",
 } as const;

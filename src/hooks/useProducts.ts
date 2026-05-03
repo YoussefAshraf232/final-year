@@ -4,10 +4,14 @@ import { ProductFilterParams } from "@/types/product.types";
 import { CreateProductRequest, UpdateProductRequest } from "@/types/product.types";
 
 // GET all products
-export function useProducts(params?: ProductFilterParams) {
+export function useProducts(
+  params?: ProductFilterParams,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["products", params],
     queryFn: () => productService.getAll(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
   });
 }
 

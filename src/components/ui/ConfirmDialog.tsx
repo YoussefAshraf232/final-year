@@ -47,10 +47,10 @@ export default function ConfirmDialog({
         <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
         <p className="text-sm text-gray-500 mb-6">{message}</p>
         <div className="flex items-center gap-3 w-full">
-          <Button variant="outline" fullWidth onClick={onClose} disabled={isLoading}>
+          <Button type="button" variant="outline" fullWidth onClick={onClose} disabled={isLoading}>
             {cancelLabel}
           </Button>
-          <Button variant={variant} fullWidth onClick={onConfirm} isLoading={isLoading}>
+          <Button type="button" variant={variant} fullWidth onClick={onConfirm} isLoading={isLoading}>
             {confirmLabel}
           </Button>
         </div>

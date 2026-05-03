@@ -11,6 +11,8 @@ import {
 import { useRouter } from "next/navigation";
 import { User, LoginRequest, RegisterRequest } from "@/types/user.types";
 import { authService } from "@/services/auth.service";
+import { GUEST_TOKEN } from "@/constants/auth";
+import { tokenStorage } from "@/lib/tokenStorage";
 
 // Define what the context provides
 interface AuthContextType {
@@ -20,6 +22,7 @@ interface AuthContextType {
     isAuthenticated: boolean;
     login: (data: LoginRequest) => Promise<void>;
     register: (data: RegisterRequest) => Promise<void>;
+    loginAsGuest: () => void;
     logout: () => void;
 }
 
@@ -37,16 +40,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const loadUser = () => {
             try {
-                const storedToken = localStorage.getItem("token");
-                const storedUser = localStorage.getItem("user");
+                const storedToken = tokenStorage.getToken();
+                const storedUser = tokenStorage.getUser<User>();
 
                 if (storedToken && storedUser) {
                     setToken(storedToken);
-                    setUser(JSON.parse(storedUser));
+                    setUser(storedUser);
                 }
             } catch {
-                localStorage.removeItem("token");
-                localStorage.removeItem("user");
+                tokenStorage.clear();
             } finally {
                 setIsLoading(false);
             }
@@ -61,8 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const response = await authService.login(data);
             const { token: newToken, user: newUser } = response.data.data;
 
-            localStorage.setItem("token", newToken);
-            localStorage.setItem("user", JSON.stringify(newUser));
+            tokenStorage.setToken(newToken);
+            tokenStorage.setUser(newUser);
             setToken(newToken);
             setUser(newUser);
             router.push("/dashboard");
@@ -78,6 +80,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
         [router]
     );
+
+    const loginAsGuest = useCallback(() => {
+        if (process.env.NEXT_PUBLIC_ENABLE_GUEST_MODE !== "true") {
+            return;
+        }
+
+        const guestUser: User = {
+            id: 0,
+            username: "Guest",
+            email: "guest@demo.local",
+            role: "EMPLOYEE",
+            joinedAt: new Date().toISOString(),
+            leftAt: null,
+        };
+
+        tokenStorage.setToken(GUEST_TOKEN);
+        tokenStorage.setUser(guestUser);
+        setToken(GUEST_TOKEN);
+        setUser(guestUser);
+        router.push("/dashboard");
+    }, [router]);
 
     // Logout
     const logout = useCallback(() => {
@@ -96,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 isAuthenticated: !!token && !!user,
                 login,
                 register,
+                loginAsGuest,
                 logout,
             }}
         >

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { ChevronDown, LogOut } from 'lucide-react';
+import { ChevronDown, LogOut, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { sidebarLinks } from '@/constants/sidebar-links';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,7 +13,7 @@ import { getInitials } from '@/lib/utils';
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { user, logout, isAdmin } = useAuth();
+  const { user, logout, isAdmin, isGuest, can } = useAuth();
   const isOpen = useSidebarStore((s) => s.isOpen);
   const close = useSidebarStore((s) => s.close);
 
@@ -24,6 +24,7 @@ export default function Sidebar() {
         <div
           className="fixed inset-0 bg-black/40 z-40 lg:hidden"
           onClick={close}
+          aria-hidden="true"
         />
       )}
 
@@ -51,16 +52,23 @@ export default function Sidebar() {
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
           {sidebarLinks.map((link) => {
             // Hide admin-only links
-            if (link.adminOnly && !isAdmin) return null;
+            if (link.adminOnly && !isGuest && !isAdmin) return null;
+            if (link.permission && !isGuest && !can(link.permission)) return null;
 
             // Has children (dropdown)
             if ('children' in link && link.children) {
+              const visibleItems = link.children.filter(
+                (item) => isGuest || !item.permission || can(item.permission)
+              );
+
+              if (visibleItems.length === 0) return null;
+
               return (
                 <SidebarDropdown
                   key={link.label}
                   label={link.label}
-                  icon={link.icon}
-                  items={link.children}
+                  icon={link.icon!}
+                  items={visibleItems}
                   pathname={pathname}
                 />
               );
@@ -95,8 +103,10 @@ export default function Sidebar() {
               </p>
             </div>
             <button
+              type="button"
               onClick={logout}
               className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Logout"
               title="Logout"
             >
               <LogOut className="h-4 w-4" />
@@ -116,7 +126,7 @@ function SidebarDropdown({
   pathname,
 }: {
   label: string;
-  icon: any;
+  icon: LucideIcon;
   items: { label: string; href: string }[];
   pathname: string;
 }) {
@@ -126,7 +136,9 @@ function SidebarDropdown({
   return (
     <div>
       <button
+        type="button"
         onClick={() => setIsExpanded(!isExpanded)}
+        aria-expanded={isExpanded}
         className={cn(
           'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors',
           isChildActive

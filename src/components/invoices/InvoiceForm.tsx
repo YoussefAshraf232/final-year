@@ -9,10 +9,23 @@ import { Plus, Trash2 } from 'lucide-react';
 import { useProducts } from '@/hooks/useProducts';
 
 interface InvoiceFormItem {
-  productId: number;
+  productId: number | '';
   amount: number;
-  price?: number;
-  sellingPrice?: number;
+  price?: number | '';
+  sellingPrice?: number | '';
+}
+
+interface InvoiceFormValues {
+  customerId?: number | '';
+  supplierId?: number | '';
+  warehouseId?: number | '';
+  discount?: number | '';
+  reason?: string;
+  salesInvoiceId?: number | '';
+  purchaseInvoiceId?: number | '';
+  fromWarehouseId?: number | '';
+  toWarehouseId?: number | '';
+  items: InvoiceFormItem[];
 }
 
 interface InvoiceFormProps {
@@ -24,7 +37,7 @@ interface InvoiceFormProps {
     placeholder?: string;
   }[];
   itemPriceField?: 'price' | 'sellingPrice' | null;
-  onSubmit: (data: any) => void;
+  onSubmit: (data: InvoiceFormValues) => void;
   isLoading?: boolean;
   submitLabel?: string;
 }
@@ -36,29 +49,38 @@ export default function InvoiceForm({
   isLoading,
   submitLabel = 'Create Invoice',
 }: InvoiceFormProps) {
-  const { register, handleSubmit, control, formState: { errors } } = useForm({
+  const { register, handleSubmit, control } = useForm<InvoiceFormValues>({
     defaultValues: {
       ...Object.fromEntries(fields.map((f) => [f.name, ''])),
-      items: [{ productId: '', amount: 1, ...(itemPriceField ? { [itemPriceField]: '' } : {}) }],
-    },
+      items: [
+        {
+          productId: '',
+          amount: 1,
+          ...(itemPriceField ? { [itemPriceField]: '' } : {}),
+        },
+      ],
+    } as InvoiceFormValues,
   });
 
-  const { fields: itemFields, append, remove } = useFieldArray({
+  const { fields: itemFields, append, remove } = useFieldArray<InvoiceFormValues, 'items'>({
     control,
     name: 'items',
   });
 
-  const { data: productsData } = useProducts({ size: 200 });
+  const {
+    data: productsData,
+    isLoading: isProductsLoading,
+    isError: isProductsError,
+  } = useProducts({ size: 200 });
   const productOptions = (productsData?.content || []).map((p) => ({
     value: p.id,
-    label: `${p.name} — $${p.currentPrice}`,
+    label: `${p.name} - $${p.currentPrice}`,
   }));
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Top-level fields */}
       <Card>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {fields.map((field) =>
             field.type === 'select' ? (
               <Select
@@ -67,7 +89,7 @@ export default function InvoiceForm({
                 label={field.label}
                 placeholder={field.placeholder}
                 options={field.options || []}
-                {...register(field.name, { valueAsNumber: true })}
+                {...register(field.name as keyof InvoiceFormValues & string, { valueAsNumber: true })}
               />
             ) : (
               <Input
@@ -76,7 +98,7 @@ export default function InvoiceForm({
                 label={field.label}
                 type={field.type}
                 placeholder={field.placeholder}
-                {...register(field.name, {
+                {...register(field.name as keyof InvoiceFormValues & string, {
                   valueAsNumber: field.type === 'number',
                 })}
               />
@@ -85,9 +107,8 @@ export default function InvoiceForm({
         </div>
       </Card>
 
-      {/* Items */}
       <Card>
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between">
           <h3 className="text-base font-semibold text-gray-900">Items</h3>
           <Button
             type="button"
@@ -109,36 +130,36 @@ export default function InvoiceForm({
           {itemFields.map((field, index) => (
             <div
               key={field.id}
-              className="flex items-end gap-4 p-4 rounded-lg bg-gray-50 border border-gray-100"
+              className="grid grid-cols-1 gap-4 rounded-lg border border-gray-100 bg-gray-50 p-4 sm:grid-cols-[minmax(0,1fr)_7rem_9rem_auto] sm:items-end"
             >
-              <div className="flex-1">
+              <div>
                 <Select
                   id={`items.${index}.productId`}
                   label="Product"
-                  placeholder="Select product"
+                  placeholder={isProductsLoading ? 'Loading products...' : 'Select product'}
                   options={productOptions}
+                  disabled={isProductsLoading || isProductsError}
                   {...register(`items.${index}.productId`, { valueAsNumber: true })}
                 />
+                {isProductsError && (
+                  <p className="mt-1.5 text-xs text-red-500">Products could not be loaded.</p>
+                )}
               </div>
-              <div className="w-28">
-                <Input
-                  id={`items.${index}.amount`}
-                  label="Qty"
-                  type="number"
-                  min={1}
-                  {...register(`items.${index}.amount`, { valueAsNumber: true })}
-                />
-              </div>
+              <Input
+                id={`items.${index}.amount`}
+                label="Qty"
+                type="number"
+                min={1}
+                {...register(`items.${index}.amount`, { valueAsNumber: true })}
+              />
               {itemPriceField && (
-                <div className="w-36">
-                  <Input
-                    id={`items.${index}.${itemPriceField}`}
-                    label="Price"
-                    type="number"
-                    step="0.01"
-                    {...register(`items.${index}.${itemPriceField}`, { valueAsNumber: true })}
-                  />
-                </div>
+                <Input
+                  id={`items.${index}.${itemPriceField}`}
+                  label="Price"
+                  type="number"
+                  step="0.01"
+                  {...register(`items.${index}.${itemPriceField}`, { valueAsNumber: true })}
+                />
               )}
               <Button
                 type="button"
@@ -146,7 +167,8 @@ export default function InvoiceForm({
                 size="sm"
                 onClick={() => remove(index)}
                 disabled={itemFields.length <= 1}
-                className="mb-0.5"
+                className="justify-self-start sm:mb-0.5"
+                aria-label="Remove item"
               >
                 <Trash2 className="h-4 w-4 text-red-500" />
               </Button>

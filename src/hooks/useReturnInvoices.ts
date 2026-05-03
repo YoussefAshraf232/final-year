@@ -3,10 +3,14 @@ import { returnInvoiceService } from "@/services/return-invoice.service";
 import { CreateReturnInvoiceRequest } from "@/types/return-invoice.types";
 import { PaginationParams } from "@/types/api.types";
 
-export function useReturnInvoices(params?: PaginationParams) {
+export function useReturnInvoices(
+  params?: PaginationParams,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["return-invoices", params],
     queryFn: () => returnInvoiceService.getAll(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
   });
 }
 
