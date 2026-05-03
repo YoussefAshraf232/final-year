@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Table from '@/components/ui/Table';
@@ -7,6 +8,7 @@ import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import { Product } from '@/types/product.types';
 import { formatCurrency } from '@/lib/formatters';
+import { isAllowedImageUrl } from '@/lib/imageSafety';
 import { ROUTES } from '@/constants/routes';
 import { Edit, Trash2, Eye } from 'lucide-react';
 
@@ -26,13 +28,7 @@ export default function ProductTable({ products, isLoading, onDelete }: ProductT
       render: (product: Product) => (
         <div className="flex items-center gap-3">
           {product.photo ? (
-            <Image
-              src={product.photo}
-              alt={product.name}
-              width={40}
-              height={40}
-              className="rounded-lg object-cover border border-gray-200"
-            />
+            <ProductThumb product={product} />
           ) : (
             <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-400">
               IMG
@@ -40,7 +36,9 @@ export default function ProductTable({ products, isLoading, onDelete }: ProductT
           )}
           <div>
             <p className="font-medium text-gray-900">{product.name}</p>
-            <p className="text-xs text-gray-400 line-clamp-1">{product.description}</p>
+            <p className="text-xs text-gray-400 line-clamp-1">
+              {product.sku ? `${product.sku} · ${product.description}` : product.description}
+            </p>
           </div>
         </div>
       ),
@@ -60,8 +58,32 @@ export default function ProductTable({ products, isLoading, onDelete }: ProductT
       ),
     },
     {
+      key: 'status',
+      label: 'Status',
+      render: (product: Product) => (
+        <Badge
+          variant={
+            product.status === 'DISCONTINUED'
+              ? 'danger'
+              : product.status === 'INACTIVE'
+                ? 'warning'
+                : 'success'
+          }
+        >
+          {product.status || 'ACTIVE'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'reorderLevel',
+      label: 'Reorder',
+      render: (product: Product) => (
+        <span className="text-gray-600">{product.reorderLevel ?? 0}</span>
+      ),
+    },
+    {
       key: 'currentPrice',
-      label: 'Price',
+      label: 'Selling Price',
       render: (product: Product) => (
         <span className="font-semibold text-gray-900">
           {formatCurrency(product.currentPrice)}
@@ -117,6 +139,30 @@ export default function ProductTable({ products, isLoading, onDelete }: ProductT
       isLoading={isLoading}
       emptyMessage="No products found"
       onRowClick={(p) => router.push(ROUTES.PRODUCT_DETAIL(p.id))}
+    />
+  );
+}
+
+function ProductThumb({ product }: { product: Product }) {
+  const [failed, setFailed] = useState(false);
+  const canRenderImage = !!product.photo && isAllowedImageUrl(product.photo) && !failed;
+
+  if (!canRenderImage) {
+    return (
+      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-400">
+        IMG
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={product.photo}
+      alt={product.name}
+      width={40}
+      height={40}
+      className="rounded-lg object-cover border border-gray-200"
+      onError={() => setFailed(true)}
     />
   );
 }

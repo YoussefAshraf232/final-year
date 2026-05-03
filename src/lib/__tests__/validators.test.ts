@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   loginSchema,
   productSchema,
+  registerSchema,
   salesInvoiceSchema,
 } from '../validators';
 
@@ -26,13 +27,23 @@ describe('loginSchema', () => {
 });
 
 describe('productSchema', () => {
+  const validProduct = {
+    name: 'X',
+    sku: 'SKU-X',
+    description: 'Y',
+    currentPrice: 1,
+    costPrice: 0,
+    openingStock: 0,
+    reorderLevel: 0,
+    unitOfMeasure: 'pcs',
+    categoryId: 1,
+    supplierId: 1,
+  };
+
   it('rejects negative price', () => {
     const result = productSchema.safeParse({
-      name: 'X',
-      description: 'Y',
+      ...validProduct,
       currentPrice: -1,
-      categoryId: 1,
-      supplierId: 1,
     });
 
     expect(result.success).toBe(false);
@@ -40,12 +51,8 @@ describe('productSchema', () => {
 
   it('accepts an allowed HTTPS image URL', () => {
     const result = productSchema.safeParse({
-      name: 'X',
-      description: 'Y',
+      ...validProduct,
       photo: 'https://images.unsplash.com/photo.jpg',
-      currentPrice: 1,
-      categoryId: 1,
-      supplierId: 1,
     });
 
     expect(result.success).toBe(true);
@@ -53,15 +60,26 @@ describe('productSchema', () => {
 
   it('rejects malicious image url', () => {
     const result = productSchema.safeParse({
-      name: 'X',
-      description: 'Y',
+      ...validProduct,
       photo: 'http://attacker.com/x.png',
-      currentPrice: 1,
-      categoryId: 1,
-      supplierId: 1,
     });
 
     expect(result.success).toBe(false);
+  });
+});
+
+describe('registerSchema', () => {
+  it('does not accept a role from public registration', () => {
+    const result = registerSchema.safeParse({
+      username: 'employee',
+      email: 'employee@example.com',
+      password: '123456',
+      role: 'ADMIN',
+    });
+
+    expect(result.success).toBe(true);
+    if (!result.success) throw new Error('expected registration to pass');
+    expect('role' in result.data).toBe(false);
   });
 });
 

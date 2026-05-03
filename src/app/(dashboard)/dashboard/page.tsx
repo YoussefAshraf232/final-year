@@ -8,6 +8,9 @@ import LowStockAlert from '@/components/dashboard/LowStockAlert';
 import RecentInvoices from '@/components/dashboard/RecentInvoices';
 import Topbar from '@/components/layout/Topbar';
 import BreadCrumb from '@/components/layout/BreadCrumb';
+import DemoModeBanner from '@/components/ui/DemoModeBanner';
+import ErrorState from '@/components/ui/ErrorState';
+import LoadingState from '@/components/ui/LoadingState';
 import {
   Package,
   Users,
@@ -98,36 +101,34 @@ const fallbackRecentInvoices = [
 
 export default function DashboardPage() {
   const { isGuest } = useAuth();
-  const { data: stats, isLoading } = useDashboardStats();
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || isGuest;
-  const displayStats = stats || (isDemoMode ? fallbackStats : null);
+  const { data: stats, isLoading, error, refetch } = useDashboardStats();
+  const showDemoData = isGuest;
+  const showError = !showDemoData && !!error;
+  const displayStats = showDemoData ? fallbackStats : stats;
 
-  if (isLoading && !isDemoMode) {
+  if (isLoading && !showDemoData) {
     return (
       <>
         <Topbar title="Dashboard" subtitle="Overview of your inventory system" />
         <div className="p-6">
           <BreadCrumb items={[{ label: 'Dashboard' }]} />
-          <div className="flex items-center justify-center py-16">
-            <div
-              className="h-8 w-8 animate-spin rounded-full border-2 border-indigo-500 border-t-transparent"
-              aria-label="Loading dashboard"
-            />
-          </div>
+          <LoadingState label="Loading dashboard" />
         </div>
       </>
     );
   }
 
-  if (!displayStats) {
+  if (showError || !displayStats) {
     return (
       <>
         <Topbar title="Dashboard" subtitle="Overview of your inventory system" />
         <div className="p-6">
           <BreadCrumb items={[{ label: 'Dashboard' }]} />
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            Could not load dashboard data. Please check your connection.
-          </div>
+          <ErrorState
+            title="Could not load dashboard"
+            message="Authenticated users are not shown mock dashboard numbers when the API fails."
+            onRetry={() => void refetch()}
+          />
         </div>
       </>
     );
@@ -199,11 +200,7 @@ export default function DashboardPage() {
       <div className="p-6">
         <BreadCrumb items={[{ label: 'Dashboard' }]} />
 
-        {isDemoMode && (
-          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            Showing demo dashboard data because demo mode is enabled.
-          </div>
-        )}
+        {showDemoData && <DemoModeBanner resource="dashboard data" />}
 
         <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
           {statCards.map((card) => (
@@ -224,13 +221,13 @@ export default function DashboardPage() {
             purchaseData={displayStats.monthlyPurchaseData}
           />
           <LowStockAlert
-            items={isDemoMode ? fallbackLowStockItems : []}
+            items={showDemoData ? fallbackLowStockItems : []}
             isLoading={false}
           />
         </div>
 
         <RecentInvoices
-          invoices={isDemoMode ? fallbackRecentInvoices : []}
+          invoices={showDemoData ? fallbackRecentInvoices : []}
           isLoading={false}
         />
       </div>

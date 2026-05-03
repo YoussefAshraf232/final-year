@@ -12,7 +12,6 @@ Email security@yourdomain.com. Do not open public issues for vulnerabilities.
 ## Production Checklist
 
 - [ ] `NEXT_PUBLIC_ENABLE_GUEST_MODE=false`
-- [ ] `NEXT_PUBLIC_DEMO_MODE=false`
 - [ ] CSP `connect-src` matches the production API
 - [ ] Image domain allowlist is updated in `next.config.ts` and `validators.ts`
 - [ ] HTTPS is enforced at the edge

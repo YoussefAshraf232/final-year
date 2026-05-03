@@ -2,6 +2,7 @@
 
 import { Menu, Bell } from 'lucide-react';
 import { useSidebarStore } from '@/stores/sidebar.store';
+import { useUnreadNotifications } from '@/hooks/useNotifications';
 
 interface TopbarProps {
   title: string;
@@ -11,6 +12,8 @@ interface TopbarProps {
 
 export default function Topbar({ title, subtitle, actions }: TopbarProps) {
   const toggle = useSidebarStore((s) => s.toggle);
+  const { data: notifications } = useUnreadNotifications();
+  const unreadCount = notifications?.totalElements ?? 0;
 
   return (
     <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-gray-200/60">
@@ -38,10 +41,15 @@ export default function Topbar({ title, subtitle, actions }: TopbarProps) {
           <button
             type="button"
             className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            aria-label="Notifications"
+            aria-label={unreadCount > 0 ? `${unreadCount} unread notifications` : 'No unread notifications'}
+            title={unreadCount > 0 ? `${unreadCount} unread notifications` : 'No unread notifications'}
           >
             <Bell className="h-5 w-5 text-gray-500" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
+            {unreadCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 min-w-4 rounded-full bg-red-500 px-1 text-center text-[10px] font-semibold leading-4 text-white">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
           </button>
         </div>
       </div>

@@ -4,6 +4,8 @@ import { useState, useMemo } from 'react';
 import Topbar from '@/components/layout/Topbar';
 import BreadCrumb from '@/components/layout/BreadCrumb';
 import Card from '@/components/ui/Card';
+import DemoModeBanner from '@/components/ui/DemoModeBanner';
+import ErrorState from '@/components/ui/ErrorState';
 import Input from '@/components/ui/Input';
 import Table from '@/components/ui/Table';
 import Button from '@/components/ui/Button';
@@ -41,12 +43,13 @@ export default function WarehousesPage() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search.trim(), 300);
 
-  const { data, isLoading, error } = useWarehouses(
+  const { data, isLoading, error, refetch } = useWarehouses(
     { page: 0, size: 100, search: debouncedSearch || undefined },
     { enabled: !isGuest }
   );
 
-  const showDemoData = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || isGuest;
+  const showDemoData = isGuest;
+  const showError = !showDemoData && !!error;
   const backendWarehouses = data?.content ?? [];
   const baseWarehouses = showDemoData ? fallbackWarehouses : backendWarehouses;
 
@@ -117,31 +120,35 @@ export default function WarehousesPage() {
       <div className="p-6">
         <BreadCrumb items={[{ label: 'Warehouses' }]} />
 
-        {showDemoData && (
-          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            Showing demo warehouses because demo mode is enabled.
-          </div>
-        )}
+        {showDemoData && <DemoModeBanner resource="warehouses" />}
 
-        <Card>
-          <div className="mb-4 max-w-md">
-            <Input
-              id="warehouse-search"
-              label="Search"
-              placeholder="Search warehouses"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </div>
-
-          <Table
-            columns={columns}
-            data={filteredWarehouses}
-            keyExtractor={(w) => w.id}
-            isLoading={!showDemoData && isLoading}
-            emptyMessage="No warehouses found"
+        {showError ? (
+          <ErrorState
+            title="Could not load warehouses"
+            message="Authenticated users are not shown demo warehouses when the API fails."
+            onRetry={() => void refetch()}
           />
-        </Card>
+        ) : (
+          <Card>
+            <div className="mb-4 max-w-md">
+              <Input
+                id="warehouse-search"
+                label="Search"
+                placeholder="Search warehouses"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </div>
+
+            <Table
+              columns={columns}
+              data={filteredWarehouses}
+              keyExtractor={(w) => w.id}
+              isLoading={!showDemoData && isLoading}
+              emptyMessage="No warehouses found"
+            />
+          </Card>
+        )}
       </div>
     </>
   );

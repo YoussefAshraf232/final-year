@@ -4,7 +4,10 @@ import { useState, useMemo } from 'react';
 import Topbar from '@/components/layout/Topbar';
 import BreadCrumb from '@/components/layout/BreadCrumb';
 import Card from '@/components/ui/Card';
+import DemoModeBanner from '@/components/ui/DemoModeBanner';
+import ErrorState from '@/components/ui/ErrorState';
 import Input from '@/components/ui/Input';
+import Pagination from '@/components/ui/Pagination';
 import Table from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
@@ -12,6 +15,7 @@ import { ROLE_COLORS } from '@/constants/roles';
 import { useAuth } from '@/hooks/useAuth';
 import { useUsers } from '@/hooks/useUsers';
 import { useDebounce } from '@/hooks/useDebounce';
+import { usePagination } from '@/hooks/usePagination';
 import { User } from '@/types/user.types';
 import { Edit, Trash2 } from 'lucide-react';
 
@@ -46,14 +50,17 @@ export default function UsersPage() {
   const { isGuest, isAdmin } = useAuth();
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search.trim(), 300);
-  const isDemoMode = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || isGuest;
+  const { page, setPage, resetPage, paginationParams } = usePagination({
+    initialSize: 10,
+  });
+  const showDemoData = isGuest;
 
-  const { data, isLoading, error } = useUsers(
-    { page: 0, size: 100, search: debouncedSearch || undefined },
-    { enabled: isAdmin && !isDemoMode }
+  const { data, isLoading, error, refetch } = useUsers(
+    { ...paginationParams, search: debouncedSearch || undefined },
+    { enabled: isAdmin && !showDemoData }
   );
 
-  const showDemoData = isDemoMode;
+  const showError = !showDemoData && !!error;
   const backendUsers = data?.content ?? [];
   const baseUsers = showDemoData ? fallbackUsers : backendUsers;
 
@@ -67,7 +74,7 @@ export default function UsersPage() {
     );
   }, [baseUsers, debouncedSearch]);
 
-  if (!isAdmin) {
+  if (!showDemoData && !isAdmin) {
     return (
       <>
         <Topbar title="Access Denied" />
@@ -76,6 +83,9 @@ export default function UsersPage() {
             <div className="text-center py-8">
               <p className="text-gray-600">
                 You do not have permission to view this page.
+              </p>
+              <p className="mt-2 text-sm text-gray-400">
+                User management requires the <span className="font-medium">user.view</span> permission.
               </p>
             </div>
           </Card>
@@ -138,37 +148,49 @@ export default function UsersPage() {
       <div className="p-6">
         <BreadCrumb items={[{ label: 'Users' }]} />
 
-        {showDemoData && (
-          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            Showing demo users because demo mode is enabled.
-          </div>
-        )}
+        {showDemoData && <DemoModeBanner resource="users" />}
 
-        {error && !showDemoData && (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            Could not load users. Please check your connection.
-          </div>
-        )}
-
-        <Card>
-          <div className="mb-4 max-w-md">
-            <Input
-              id="user-search"
-              label="Search"
-              placeholder="Search users"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </div>
-
-          <Table
-            columns={columns}
-            data={filteredUsers}
-            keyExtractor={(u) => u.id}
-            isLoading={!showDemoData && isLoading}
-            emptyMessage="No users found"
+        {showError ? (
+          <ErrorState
+            title="Could not load users"
+            message="Authenticated admins are not shown demo users when the API fails."
+            onRetry={() => void refetch()}
           />
-        </Card>
+        ) : (
+          <Card>
+            <div className="mb-4 max-w-md">
+              <Input
+                id="user-search"
+                label="Search"
+                placeholder="Search users"
+                value={search}
+                onChange={(event) => {
+                  setSearch(event.target.value);
+                  resetPage();
+                }}
+              />
+            </div>
+
+            <Table
+              columns={columns}
+              data={filteredUsers}
+              keyExtractor={(u) => u.id}
+              isLoading={!showDemoData && isLoading}
+              emptyMessage="No users found"
+            />
+
+            {!showDemoData && data && (
+              <Pagination
+                page={page}
+                totalPages={data.totalPages}
+                totalElements={data.totalElements}
+                isFirst={data.first}
+                isLast={data.last}
+                onPageChange={setPage}
+              />
+            )}
+          </Card>
+        )}
       </div>
     </>
   );

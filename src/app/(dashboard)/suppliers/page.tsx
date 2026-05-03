@@ -4,6 +4,8 @@ import { useState, useMemo } from 'react';
 import Topbar from '@/components/layout/Topbar';
 import BreadCrumb from '@/components/layout/BreadCrumb';
 import Card from '@/components/ui/Card';
+import DemoModeBanner from '@/components/ui/DemoModeBanner';
+import ErrorState from '@/components/ui/ErrorState';
 import Input from '@/components/ui/Input';
 import SupplierTable from '@/components/suppliers/SupplierTable';
 import { useSuppliers } from '@/hooks/useSuppliers';
@@ -37,12 +39,13 @@ export default function SuppliersPage() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search.trim(), 300);
 
-  const { data, isLoading, error } = useSuppliers(
+  const { data, isLoading, error, refetch } = useSuppliers(
     { page: 0, size: 100, search: debouncedSearch || undefined },
     { enabled: !isGuest }
   );
 
-  const showDemoData = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || isGuest;
+  const showDemoData = isGuest;
+  const showError = !showDemoData && !!error;
   const backendSuppliers = data?.content ?? [];
   const baseSuppliers = showDemoData ? fallbackSuppliers : backendSuppliers;
 
@@ -63,28 +66,32 @@ export default function SuppliersPage() {
       <div className="p-6">
         <BreadCrumb items={[{ label: 'Suppliers' }]} />
 
-        {showDemoData && (
-          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            Showing demo suppliers because demo mode is enabled.
-          </div>
-        )}
+        {showDemoData && <DemoModeBanner resource="suppliers" />}
 
-        <Card>
-          <div className="mb-4 max-w-md">
-            <Input
-              id="supplier-search"
-              label="Search"
-              placeholder="Search suppliers"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </div>
-
-          <SupplierTable
-            suppliers={filteredSuppliers}
-            isLoading={!showDemoData && isLoading}
+        {showError ? (
+          <ErrorState
+            title="Could not load suppliers"
+            message="Authenticated users are not shown demo suppliers when the API fails."
+            onRetry={() => void refetch()}
           />
-        </Card>
+        ) : (
+          <Card>
+            <div className="mb-4 max-w-md">
+              <Input
+                id="supplier-search"
+                label="Search"
+                placeholder="Search suppliers"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </div>
+
+            <SupplierTable
+              suppliers={filteredSuppliers}
+              isLoading={!showDemoData && isLoading}
+            />
+          </Card>
+        )}
       </div>
     </>
   );

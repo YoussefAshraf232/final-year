@@ -1,11 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Card from '@/components/ui/Card';
 import Badge from '@/components/ui/Badge';
 import { Product } from '@/types/product.types';
 import { formatCurrency } from '@/lib/formatters';
+import { isAllowedImageUrl } from '@/lib/imageSafety';
 import { ROUTES } from '@/constants/routes';
 
 interface ProductCardProps {
@@ -29,19 +31,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       }}
     >
       <div className="aspect-video w-full rounded-lg bg-gray-100 mb-4 overflow-hidden relative">
-        {product.photo ? (
-          <Image
-            src={product.photo}
-            alt={product.name}
-            fill
-            sizes="(max-width: 768px) 100vw, 33vw"
-            className="object-cover"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
-            No Image
-          </div>
-        )}
+        <ProductCardImage product={product} />
       </div>
       <div className="space-y-2">
         <div className="flex items-start justify-between gap-2">
@@ -57,7 +47,32 @@ export default function ProductCard({ product }: ProductCardProps) {
           </span>
           <span className="text-xs text-gray-400">{product.supplier?.name}</span>
         </div>
+        {product.sku && <p className="text-xs text-gray-400">{product.sku}</p>}
       </div>
     </Card>
+  );
+}
+
+function ProductCardImage({ product }: { product: Product }) {
+  const [failed, setFailed] = useState(false);
+  const canRenderImage = !!product.photo && isAllowedImageUrl(product.photo) && !failed;
+
+  if (!canRenderImage) {
+    return (
+      <div className="w-full h-full flex items-center justify-center text-gray-300 text-sm">
+        No Image
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={product.photo}
+      alt={product.name}
+      fill
+      sizes="(max-width: 768px) 100vw, 33vw"
+      className="object-cover"
+      onError={() => setFailed(true)}
+    />
   );
 }

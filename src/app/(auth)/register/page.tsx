@@ -24,14 +24,13 @@ export default function RegisterPage() {
       username: '',
       email: '',
       password: '',
-      role: 'EMPLOYEE',
     },
   });
 
   const onSubmit = async (data: RegisterFormData) => {
     setSubmitError(null);
     try {
-      await registerUser({ ...data, role: 'EMPLOYEE' });
+      await registerUser(data);
       toast.success('Account created');
     } catch {
       setSubmitError('Unable to create the account. Please check the details and try again.');

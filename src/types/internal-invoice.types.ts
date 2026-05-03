@@ -1,6 +1,8 @@
 import { Warehouse } from "./warehouse.types";
 import { Product } from "./product.types";
 
+export type InternalTransferStatus = "DRAFT" | "APPROVED" | "IN_TRANSIT" | "COMPLETED" | "CANCELLED";
+
 // internal_invoice_items (M:M)
 export interface InternalInvoiceItem {
   internalInvoiceId: number;
@@ -13,6 +15,7 @@ export interface InternalInvoice {
   id: number;
   fromWarehouseId: number;
   toWarehouseId: number;
+  status?: InternalTransferStatus;
   createdAt: string;
   fromWarehouse?: Warehouse;
   toWarehouse?: Warehouse;

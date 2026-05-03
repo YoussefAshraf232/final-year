@@ -4,6 +4,8 @@ import { useState, useMemo } from 'react';
 import Topbar from '@/components/layout/Topbar';
 import BreadCrumb from '@/components/layout/BreadCrumb';
 import Card from '@/components/ui/Card';
+import DemoModeBanner from '@/components/ui/DemoModeBanner';
+import ErrorState from '@/components/ui/ErrorState';
 import Input from '@/components/ui/Input';
 import Table from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
@@ -42,12 +44,13 @@ export default function SalesInvoicesPage() {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search.trim(), 300);
 
-  const { data, isLoading, error } = useSalesInvoices(
+  const { data, isLoading, error, refetch } = useSalesInvoices(
     { page: 0, size: 100, search: debouncedSearch || undefined },
     { enabled: !isGuest }
   );
 
-  const showDemoData = process.env.NEXT_PUBLIC_DEMO_MODE === 'true' || isGuest;
+  const showDemoData = isGuest;
+  const showError = !showDemoData && !!error;
   const backendInvoices = data?.content ?? [];
   const baseInvoices = showDemoData ? fallbackInvoices : backendInvoices;
 
@@ -119,31 +122,35 @@ export default function SalesInvoicesPage() {
           ]}
         />
 
-        {showDemoData && (
-          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
-            Showing demo invoices because demo mode is enabled.
-          </div>
-        )}
+        {showDemoData && <DemoModeBanner resource="sales invoices" />}
 
-        <Card>
-          <div className="mb-4 max-w-md">
-            <Input
-              id="invoice-search"
-              label="Search"
-              placeholder="Search by ID or customer"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-            />
-          </div>
-
-          <Table
-            columns={columns}
-            data={filteredInvoices}
-            keyExtractor={(inv) => inv.id}
-            isLoading={!showDemoData && isLoading}
-            emptyMessage="No sales invoices found"
+        {showError ? (
+          <ErrorState
+            title="Could not load sales invoices"
+            message="Authenticated users are not shown demo invoices when the API fails."
+            onRetry={() => void refetch()}
           />
-        </Card>
+        ) : (
+          <Card>
+            <div className="mb-4 max-w-md">
+              <Input
+                id="invoice-search"
+                label="Search"
+                placeholder="Search by ID or customer"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+              />
+            </div>
+
+            <Table
+              columns={columns}
+              data={filteredInvoices}
+              keyExtractor={(inv) => inv.id}
+              isLoading={!showDemoData && isLoading}
+              emptyMessage="No sales invoices found"
+            />
+          </Card>
+        )}
       </div>
     </>
   );
