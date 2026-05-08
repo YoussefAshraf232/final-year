@@ -1,0 +1,168 @@
+'use client';
+
+import { useState } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import Table from '@/components/ui/Table';
+import Badge from '@/components/ui/Badge';
+import Button from '@/components/ui/Button';
+import { Product } from '@/types/product.types';
+import { formatCurrency } from '@/lib/formatters';
+import { isAllowedImageUrl } from '@/lib/imageSafety';
+import { ROUTES } from '@/constants/routes';
+import { Edit, Trash2, Eye } from 'lucide-react';
+
+interface ProductTableProps {
+  products: Product[];
+  isLoading?: boolean;
+  onDelete?: (product: Product) => void;
+}
+
+export default function ProductTable({ products, isLoading, onDelete }: ProductTableProps) {
+  const router = useRouter();
+
+  const columns = [
+    {
+      key: 'name',
+      label: 'Product',
+      render: (product: Product) => (
+        <div className="flex items-center gap-3">
+          {product.photo ? (
+            <ProductThumb product={product} />
+          ) : (
+            <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-400">
+              IMG
+            </div>
+          )}
+          <div>
+            <p className="font-medium text-gray-900">{product.name}</p>
+            <p className="text-xs text-gray-400 line-clamp-1">
+              {product.sku ? `${product.sku} · ${product.description}` : product.description}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      render: (product: Product) => (
+        <Badge variant="info">{product.category?.name || 'N/A'}</Badge>
+      ),
+    },
+    {
+      key: 'supplier',
+      label: 'Supplier',
+      render: (product: Product) => (
+        <span className="text-gray-600">{product.supplier?.name || 'N/A'}</span>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (product: Product) => (
+        <Badge
+          variant={
+            product.status === 'DISCONTINUED'
+              ? 'danger'
+              : product.status === 'INACTIVE'
+                ? 'warning'
+                : 'success'
+          }
+        >
+          {product.status || 'ACTIVE'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'reorderLevel',
+      label: 'Reorder',
+      render: (product: Product) => (
+        <span className="text-gray-600">{product.reorderLevel ?? 0}</span>
+      ),
+    },
+    {
+      key: 'currentPrice',
+      label: 'Selling Price',
+      render: (product: Product) => (
+        <span className="font-semibold text-gray-900">
+          {formatCurrency(product.currentPrice)}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      label: '',
+      className: 'w-24',
+      render: (product: Product) => (
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(ROUTES.PRODUCT_DETAIL(product.id));
+            }}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(ROUTES.PRODUCT_EDIT(product.id));
+            }}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete?.(product);
+            }}
+          >
+            <Trash2 className="h-4 w-4 text-red-500" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <Table
+      columns={columns}
+      data={products}
+      keyExtractor={(p) => p.id}
+      isLoading={isLoading}
+      emptyMessage="No products found"
+      onRowClick={(p) => router.push(ROUTES.PRODUCT_DETAIL(p.id))}
+    />
+  );
+}
+
+function ProductThumb({ product }: { product: Product }) {
+  const [failed, setFailed] = useState(false);
+  const canRenderImage = !!product.photo && isAllowedImageUrl(product.photo) && !failed;
+
+  if (!canRenderImage) {
+    return (
+      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-400">
+        IMG
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src={product.photo}
+      alt={product.name}
+      width={40}
+      height={40}
+      className="rounded-lg object-cover border border-gray-200"
+      onError={() => setFailed(true)}
+    />
+  );
+}
