@@ -4,6 +4,16 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Maven ###
+dependency-reduced-pom.xml
+release.properties
+
+### Java runtime dumps ###
+hs_err_pid*
+replay_pid*
+*.hprof
+*.heapdump
+
 ### STS ###
 .apt_generated
 .classpath
@@ -32,14 +42,37 @@ build/
 ### VS Code ###
 .vscode/
 
-# Database & System secrets
+### Environment & Spring config secrets ###
 .env
+.env.*
+!.env.example
+application-local.properties
+application-local.yml
+application-local.yaml
 application-dev.properties
+application-dev.yml
+application-dev.yaml
 application-prod.properties
+application-prod.yml
+application-prod.yaml
+application-secret.properties
+application-secret.yml
+application-secret.yaml
 
-# OS specific
+### Database files, exports, and local storage ###
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+*.sql.gz
+*.backup
+uploads/
+storage/
+
+### OS specific ###
 .DS_Store
 Thumbs.db
 
-# Log files
+### Log files ###
 *.log
+logs/

@@ -29,6 +29,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+hs_err_pid*
+replay_pid*
+*.hprof
+*.heapdump
 
 # env files
 .env

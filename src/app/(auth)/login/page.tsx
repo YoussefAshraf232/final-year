@@ -12,7 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { LoginFormData, loginSchema } from '@/lib/validators';
 
 export default function LoginPage() {
-  const { login, loginAsGuest } = useAuth();
+  const { login, loginAsGuest, loginAsRole } = useAuth();
   const guestModeEnabled = process.env.NEXT_PUBLIC_ENABLE_GUEST_MODE === 'true';
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
@@ -88,6 +88,47 @@ export default function LoginPage() {
           </Button>
         )}
       </form>
+
+      <div className="mt-6 border-t border-gray-100 pt-6">
+        <div className="mb-4 text-sm font-semibold text-gray-700">
+          Temporary role login
+        </div>
+        <div className="grid gap-2 sm:grid-cols-3">
+          <Button
+            type="button"
+            variant="outline"
+            fullWidth
+            onClick={() => {
+              loginAsRole('ADMIN');
+              toast.success('Logged in as System Admin');
+            }}
+          >
+            System Admin
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            fullWidth
+            onClick={() => {
+              loginAsRole('MANAGER');
+              toast.success('Logged in as Operational Manager');
+            }}
+          >
+            Operational Manager
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            fullWidth
+            onClick={() => {
+              loginAsRole('EMPLOYEE');
+              toast.success('Logged in as Warehouse Manager');
+            }}
+          >
+            Warehouse Manager
+          </Button>
+        </div>
+      </div>
 
       <p className="mt-5 text-center text-sm text-gray-500">
         Need an account?{' '}

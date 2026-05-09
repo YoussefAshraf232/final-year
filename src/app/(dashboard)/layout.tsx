@@ -8,7 +8,7 @@ import Sidebar from '@/components/layout/Sidebar';
 import { Toaster } from 'react-hot-toast';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading, isGuest, canAccess } = useAuth();
+  const { isAuthenticated, isLoading, canAccess } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -28,7 +28,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   if (!isAuthenticated) return null;
 
-  const isForbidden = !isGuest && !canAccess(pathname);
+  const isForbidden = !canAccess(pathname);
 
   return (
     <div className="flex h-screen bg-gray-50">

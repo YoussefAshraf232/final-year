@@ -13,6 +13,7 @@ import { User, LoginRequest, RegisterRequest } from "@/types/user.types";
 import { authService } from "@/services/auth.service";
 import { GUEST_TOKEN } from "@/constants/auth";
 import { tokenStorage } from "@/lib/tokenStorage";
+import { getLandingRoute } from "@/constants/roles";
 
 // Define what the context provides
 interface AuthContextType {
@@ -23,6 +24,7 @@ interface AuthContextType {
     login: (data: LoginRequest) => Promise<void>;
     register: (data: RegisterRequest) => Promise<void>;
     loginAsGuest: () => void;
+    loginAsRole: (role: User['role']) => void;
     logout: () => void;
 }
 
@@ -67,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             tokenStorage.setUser(newUser);
             setToken(newToken);
             setUser(newUser);
-            router.push("/dashboard");
+            router.push(getLandingRoute(newUser.role));
         },
         [router]
     );
@@ -99,8 +101,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         tokenStorage.setUser(guestUser);
         setToken(GUEST_TOKEN);
         setUser(guestUser);
-        router.push("/dashboard");
+        router.push(getLandingRoute(guestUser.role));
     }, [router]);
+
+    const loginAsRole = useCallback(
+        (role: User['role']) => {
+            const demoUser: User = {
+                id: role === "ADMIN" ? 1 : role === "MANAGER" ? 2 : 3,
+                username:
+                    role === "ADMIN"
+                        ? "system-admin"
+                        : role === "MANAGER"
+                        ? "operational-manager"
+                        : "warehouse-manager",
+                email:
+                    role === "ADMIN"
+                        ? "admin@example.com"
+                        : role === "MANAGER"
+                        ? "manager@example.com"
+                        : "warehouse@example.com",
+                role,
+                joinedAt: new Date().toISOString(),
+                leftAt: null,
+            };
+
+            tokenStorage.setToken(GUEST_TOKEN);
+            tokenStorage.setUser(demoUser);
+            setToken(GUEST_TOKEN);
+            setUser(demoUser);
+            router.push(getLandingRoute(role));
+        },
+        [router]
+    );
 
     // Logout
     const logout = useCallback(() => {
@@ -120,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 login,
                 register,
                 loginAsGuest,
+                loginAsRole,
                 logout,
             }}
         >

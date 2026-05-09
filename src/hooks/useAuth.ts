@@ -3,6 +3,7 @@
 import { useAuth as useAuthContext } from "@/context/AuthContext";
 import { GUEST_TOKEN } from "@/constants/auth";
 import {
+  BACKEND_TO_FRONTEND_ROLE,
   canAccessRoute,
   hasAnyRole,
   hasPermission,
@@ -16,45 +17,30 @@ export function useAuth() {
   const auth = useAuthContext();
 
   // Permission checks
-  const canManageUsers = hasPermission(
-    auth.user?.role,
-    PERMISSIONS.userView
-  );
-
+  const canManageUsers = hasPermission(auth.user?.role, PERMISSIONS.userView);
   const canManageWarehouses = hasPermission(
     auth.user?.role,
-    PERMISSIONS.warehouseUpdate
+    PERMISSIONS.warehouseManage
   );
-
-  const canCreateInvoice = hasPermission(
-    auth.user?.role,
-    PERMISSIONS.salesCreate
-  );
-
-  const canViewReports = hasPermission(
-    auth.user?.role,
-    PERMISSIONS.reportView
-  );
-
-  const canDeleteInvoice = hasPermission(
-    auth.user?.role,
-    PERMISSIONS.salesCancel
-  );
+  const canCreateInvoice = hasPermission(auth.user?.role, PERMISSIONS.salesCreate);
+  const canViewReports = hasPermission(auth.user?.role, PERMISSIONS.reportView);
+  const canDeleteInvoice = hasPermission(auth.user?.role, PERMISSIONS.salesCancel);
 
   // Generic role check
-  const hasRole = (roles: UserRole[]) =>
-    hasAnyRole(auth.user?.role, roles);
+  const hasRole = (roles: UserRole[]) => hasAnyRole(auth.user?.role, roles);
 
   const can = (permission: Permission) =>
     hasPermission(auth.user?.role, permission);
 
-  const canAccess = (route: string) =>
-    canAccessRoute(auth.user?.role, route);
+  const canAccess = (route: string) => canAccessRoute(auth.user?.role, route);
 
-  const isAdmin = auth.user?.role === "ADMIN";
-  const isManager = auth.user?.role === "MANAGER";
-  const isEmployee = auth.user?.role === "EMPLOYEE";
   const isGuest = auth.token === GUEST_TOKEN;
+  const frontendRole = auth.user?.role
+    ? BACKEND_TO_FRONTEND_ROLE[auth.user.role]
+    : undefined;
+  const isSystemAdmin = frontendRole === "SYSTEM_ADMIN";
+  const isOperationalManager = frontendRole === "OPERATIONAL_MANAGER";
+  const isWarehouseManager = frontendRole === "WAREHOUSE_MANAGER";
 
   return {
     ...auth,
@@ -68,9 +54,13 @@ export function useAuth() {
     canAccess,
     // Role checks
     hasRole,
-    isAdmin,
-    isManager,
-    isEmployee,
+    isAdmin: isSystemAdmin,
+    isManager: isOperationalManager,
+    isEmployee: isWarehouseManager,
+    isSystemAdmin,
+    isOperationalManager,
+    isWarehouseManager,
     isGuest,
+    frontendRole,
   };
 }

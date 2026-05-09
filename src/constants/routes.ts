@@ -26,6 +26,7 @@ export const ROUTES = {
   // Stock
   STOCK: "/stock",
   STOCK_MOVEMENTS: "/stock/movements",
+  STOCK_REQUEST_EDIT: "/stock/request-edit",
 
   // Customers
   CUSTOMERS: "/customers",

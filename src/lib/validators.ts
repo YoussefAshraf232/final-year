@@ -1,7 +1,14 @@
 import { z } from "zod";
 import { isAllowedImageUrl } from "./imageSafety";
 
-const userRoles = ["ADMIN", "MANAGER", "EMPLOYEE"] as const;
+const userRoles = [
+  "ADMIN",
+  "MANAGER",
+  "EMPLOYEE",
+  "SYSTEM_ADMIN",
+  "OPERATIONAL_MANAGER",
+  "WAREHOUSE_MANAGER",
+] as const;
 const requiredNumber = (message: string, schema = z.number({ error: message })) =>
   z.preprocess(
     (value) => (value === "" || Number.isNaN(value) ? undefined : value),

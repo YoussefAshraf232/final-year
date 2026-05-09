@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { ChevronDown, LogOut, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { sidebarLinks } from '@/constants/sidebar-links';
+import { getLandingRoute } from '@/constants/roles';
 import { useAuth } from '@/hooks/useAuth';
 import { useSidebarStore } from '@/stores/sidebar.store';
 import SidebarItem from './SidebarItem';
@@ -13,7 +14,8 @@ import { getInitials } from '@/lib/utils';
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { user, logout, isAdmin, isGuest, can } = useAuth();
+  const { user, logout, can } = useAuth();
+  const homeHref = getLandingRoute(user?.role);
   const isOpen = useSidebarStore((s) => s.isOpen);
   const close = useSidebarStore((s) => s.close);
 
@@ -37,7 +39,7 @@ export default function Sidebar() {
       >
         {/* Logo */}
         <div className="px-6 py-5 border-b border-gray-100">
-          <Link href="/dashboard" className="flex items-center gap-3">
+          <Link href={homeHref} className="flex items-center gap-3">
             <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">IMS</span>
             </div>
@@ -51,14 +53,13 @@ export default function Sidebar() {
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
           {sidebarLinks.map((link) => {
-            // Hide admin-only links
-            if (link.adminOnly && !isGuest && !isAdmin) return null;
-            if (link.permission && !isGuest && !can(link.permission)) return null;
+            // Only show links that the current role can access.
+            if (link.permission && !can(link.permission)) return null;
 
             // Has children (dropdown)
             if ('children' in link && link.children) {
               const visibleItems = link.children.filter(
-                (item) => isGuest || !item.permission || can(item.permission)
+                (item) => !item.permission || can(item.permission)
               );
 
               if (visibleItems.length === 0) return null;

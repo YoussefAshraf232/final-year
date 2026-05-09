@@ -1,4 +1,10 @@
-export type UserRole = "ADMIN" | "MANAGER" | "EMPLOYEE";
+export type UserRole =
+  | "ADMIN"
+  | "MANAGER"
+  | "EMPLOYEE"
+  | "SYSTEM_ADMIN"
+  | "OPERATIONAL_MANAGER"
+  | "WAREHOUSE_MANAGER";
 
 export interface User {
   id: number;
