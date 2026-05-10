@@ -9,19 +9,19 @@ import {
 describe('loginSchema', () => {
   it('accepts valid input', () => {
     expect(
-      loginSchema.safeParse({ email: 'a@b.com', password: '123456' }).success
+      loginSchema.safeParse({ identifier: 'a@b.com', password: '123456' }).success
     ).toBe(true);
   });
 
   it('rejects short password', () => {
-    expect(loginSchema.safeParse({ email: 'a@b.com', password: '12' }).success).toBe(
+    expect(loginSchema.safeParse({ identifier: 'a@b.com', password: '12' }).success).toBe(
       false
     );
   });
 
-  it('rejects invalid email', () => {
-    expect(loginSchema.safeParse({ email: 'bad', password: '123456' }).success).toBe(
-      false
+  it('accepts username login', () => {
+    expect(loginSchema.safeParse({ identifier: 'employee', password: '123456' }).success).toBe(
+      true
     );
   });
 });
@@ -29,14 +29,9 @@ describe('loginSchema', () => {
 describe('productSchema', () => {
   const validProduct = {
     name: 'X',
-    sku: 'SKU-X',
     description: 'Y',
     currentPrice: 1,
-    costPrice: 0,
-    openingStock: 0,
-    reorderLevel: 0,
-    unitOfMeasure: 'pcs',
-    categoryId: 1,
+    categoryIds: [1],
     supplierId: 1,
   };
 
@@ -52,7 +47,7 @@ describe('productSchema', () => {
   it('accepts an allowed HTTPS image URL', () => {
     const result = productSchema.safeParse({
       ...validProduct,
-      photo: 'https://images.unsplash.com/photo.jpg',
+      pictureUrl: 'https://images.unsplash.com/photo.jpg',
     });
 
     expect(result.success).toBe(true);
@@ -61,7 +56,7 @@ describe('productSchema', () => {
   it('rejects malicious image url', () => {
     const result = productSchema.safeParse({
       ...validProduct,
-      photo: 'http://attacker.com/x.png',
+      pictureUrl: 'http://attacker.com/x.png',
     });
 
     expect(result.success).toBe(false);

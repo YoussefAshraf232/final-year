@@ -17,79 +17,43 @@ const fallbackProducts: Product[] = [
   {
     id: 1,
     name: 'Wireless Mouse',
-    sku: 'SKU-WM-001',
-    barcode: '100000000001',
     description: 'Ergonomic wireless mouse with adjustable DPI.',
-    photo: '',
+    pictureUrl: '',
     currentPrice: 29.99,
-    costPrice: 18,
-    openingStock: 40,
-    reorderLevel: 10,
-    unitOfMeasure: 'pcs',
-    status: 'ACTIVE',
-    isSerialTracked: false,
-    isBatchTracked: false,
-    categoryId: 1,
-    supplierId: 1,
-    userId: 1,
-    category: { id: 1, name: 'Accessories' },
+    categories: [{ id: 1, name: 'Accessories' }],
     supplier: {
       id: 1,
       name: 'Tech Supplies Inc',
       address: '123 Industrial Way',
-      phoneNumber: '000-000-0000',
+      phone: '000-000-0000',
     },
   },
   {
     id: 2,
     name: 'USB-C Cable',
-    sku: 'SKU-USB-C-1M',
-    barcode: '100000000002',
     description: 'Durable 1m USB-C to USB-C cable.',
-    photo: '',
+    pictureUrl: '',
     currentPrice: 9.5,
-    costPrice: 3.2,
-    openingStock: 25,
-    reorderLevel: 15,
-    unitOfMeasure: 'pcs',
-    status: 'ACTIVE',
-    isSerialTracked: false,
-    isBatchTracked: true,
-    categoryId: 1,
-    supplierId: 2,
-    userId: 1,
-    category: { id: 1, name: 'Accessories' },
+    categories: [{ id: 1, name: 'Accessories' }],
     supplier: {
       id: 2,
       name: 'Cable World',
       address: '456 Market Street',
-      phoneNumber: '000-000-0000',
+      phone: '000-000-0000',
     },
   },
   {
     id: 3,
     name: 'Barcode Scanner',
-    sku: 'SKU-SCAN-USB',
-    barcode: '100000000003',
     description: 'Handheld barcode scanner with USB connection.',
-    photo: '',
+    pictureUrl: '',
     currentPrice: 119.0,
-    costPrice: 78,
-    openingStock: 8,
-    reorderLevel: 4,
-    unitOfMeasure: 'pcs',
-    status: 'ACTIVE',
-    isSerialTracked: true,
-    isBatchTracked: false,
-    categoryId: 2,
-    supplierId: 3,
-    userId: 1,
-    category: { id: 2, name: 'Devices' },
+    categories: [{ id: 2, name: 'Devices' }],
     supplier: {
       id: 3,
       name: 'Retail Gear',
       address: '789 Supply Ave',
-      phoneNumber: '000-000-0000',
+      phone: '000-000-0000',
     },
   },
 ];
@@ -113,12 +77,10 @@ export default function ProductsPage() {
     if (!debouncedSearch) return baseProducts;
     const query = debouncedSearch.toLowerCase();
     return baseProducts.filter((product) => {
-      const categoryName = product.category?.name?.toLowerCase() ?? '';
+      const categoryName = product.categories?.map((category) => category.name.toLowerCase()).join(' ') ?? '';
       return (
         product.name.toLowerCase().includes(query) ||
-        product.sku.toLowerCase().includes(query) ||
-        (product.barcode?.toLowerCase().includes(query) ?? false) ||
-        product.description.toLowerCase().includes(query) ||
+        (product.description?.toLowerCase().includes(query) ?? false) ||
         categoryName.includes(query)
       );
     });

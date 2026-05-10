@@ -18,19 +18,19 @@ const fallbackSuppliers: Supplier[] = [
     id: 1,
     name: 'Tech Supplies Inc',
     address: '123 Industrial Way',
-    phoneNumber: '(555) 123-4567',
+    phone: '(555) 123-4567',
   },
   {
     id: 2,
     name: 'Cable World',
     address: '456 Market Street',
-    phoneNumber: '(555) 234-5678',
+    phone: '(555) 234-5678',
   },
   {
     id: 3,
     name: 'Retail Gear',
     address: '789 Supply Ave',
-    phoneNumber: '(555) 345-6789',
+    phone: '(555) 345-6789',
   },
 ];
 

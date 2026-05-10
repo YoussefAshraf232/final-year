@@ -244,6 +244,7 @@ export function hasAnyRole(
 
 export function canAccessRoute(userRole: UserRole | undefined, route: string): boolean {
   if (route.startsWith(ROUTES.LOGIN)) return true;
+  if (route.startsWith(ROUTES.PROFILE)) return true;
   if (route.startsWith(ROUTES.USERS)) return hasPermission(userRole, PERMISSIONS.userView);
   if (route.startsWith(ROUTES.AUDIT_LOGS)) return hasPermission(userRole, PERMISSIONS.auditView);
   if (route.startsWith(ROUTES.REPORTS)) return hasPermission(userRole, PERMISSIONS.reportView);

@@ -38,7 +38,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <h3 className="text-sm font-semibold text-gray-900 line-clamp-1">
             {product.name}
           </h3>
-          <Badge variant="info">{product.category?.name || 'N/A'}</Badge>
+          <Badge variant="info">{product.categories?.[0]?.name || 'N/A'}</Badge>
         </div>
         <p className="text-xs text-gray-500 line-clamp-2">{product.description}</p>
         <div className="flex items-center justify-between pt-2 border-t border-gray-100">
@@ -47,7 +47,6 @@ export default function ProductCard({ product }: ProductCardProps) {
           </span>
           <span className="text-xs text-gray-400">{product.supplier?.name}</span>
         </div>
-        {product.sku && <p className="text-xs text-gray-400">{product.sku}</p>}
       </div>
     </Card>
   );
@@ -55,7 +54,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
 function ProductCardImage({ product }: { product: Product }) {
   const [failed, setFailed] = useState(false);
-  const canRenderImage = !!product.photo && isAllowedImageUrl(product.photo) && !failed;
+  const canRenderImage = !!product.pictureUrl && isAllowedImageUrl(product.pictureUrl) && !failed;
 
   if (!canRenderImage) {
     return (
@@ -67,7 +66,7 @@ function ProductCardImage({ product }: { product: Product }) {
 
   return (
     <Image
-      src={product.photo}
+      src={product.pictureUrl}
       alt={product.name}
       fill
       sizes="(max-width: 768px) 100vw, 33vw"

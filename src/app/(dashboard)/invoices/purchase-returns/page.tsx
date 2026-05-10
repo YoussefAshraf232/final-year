@@ -28,7 +28,7 @@ const fallbackInvoices: ReturnPurchaseInvoice[] = [
       id: 1,
       name: 'Tech Supplies Inc',
       address: '123 Industrial Way',
-      phoneNumber: '(555) 123-4567',
+      phone: '(555) 123-4567',
     },
   },
 ];

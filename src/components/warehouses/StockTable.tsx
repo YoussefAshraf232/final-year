@@ -26,7 +26,7 @@ export default function StockTable({ stock, isLoading }: StockTableProps) {
       label: 'Category',
       render: (item: WarehouseProduct) => (
         <Badge variant="info">
-          {item.product?.category?.name || 'N/A'}
+          {item.product?.categories?.[0]?.name || 'N/A'}
         </Badge>
       ),
     },

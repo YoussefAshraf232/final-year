@@ -27,7 +27,7 @@ export default function ProductTable({ products, isLoading, onDelete }: ProductT
       label: 'Product',
       render: (product: Product) => (
         <div className="flex items-center gap-3">
-          {product.photo ? (
+          {product.pictureUrl ? (
             <ProductThumb product={product} />
           ) : (
             <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-400">
@@ -37,7 +37,7 @@ export default function ProductTable({ products, isLoading, onDelete }: ProductT
           <div>
             <p className="font-medium text-gray-900">{product.name}</p>
             <p className="text-xs text-gray-400 line-clamp-1">
-              {product.sku ? `${product.sku} · ${product.description}` : product.description}
+              {product.description || 'No description'}
             </p>
           </div>
         </div>
@@ -47,7 +47,7 @@ export default function ProductTable({ products, isLoading, onDelete }: ProductT
       key: 'category',
       label: 'Category',
       render: (product: Product) => (
-        <Badge variant="info">{product.category?.name || 'N/A'}</Badge>
+        <Badge variant="info">{product.categories?.[0]?.name || 'N/A'}</Badge>
       ),
     },
     {
@@ -55,30 +55,6 @@ export default function ProductTable({ products, isLoading, onDelete }: ProductT
       label: 'Supplier',
       render: (product: Product) => (
         <span className="text-gray-600">{product.supplier?.name || 'N/A'}</span>
-      ),
-    },
-    {
-      key: 'status',
-      label: 'Status',
-      render: (product: Product) => (
-        <Badge
-          variant={
-            product.status === 'DISCONTINUED'
-              ? 'danger'
-              : product.status === 'INACTIVE'
-                ? 'warning'
-                : 'success'
-          }
-        >
-          {product.status || 'ACTIVE'}
-        </Badge>
-      ),
-    },
-    {
-      key: 'reorderLevel',
-      label: 'Reorder',
-      render: (product: Product) => (
-        <span className="text-gray-600">{product.reorderLevel ?? 0}</span>
       ),
     },
     {
@@ -145,7 +121,7 @@ export default function ProductTable({ products, isLoading, onDelete }: ProductT
 
 function ProductThumb({ product }: { product: Product }) {
   const [failed, setFailed] = useState(false);
-  const canRenderImage = !!product.photo && isAllowedImageUrl(product.photo) && !failed;
+  const canRenderImage = !!product.pictureUrl && isAllowedImageUrl(product.pictureUrl) && !failed;
 
   if (!canRenderImage) {
     return (
@@ -157,7 +133,7 @@ function ProductThumb({ product }: { product: Product }) {
 
   return (
     <Image
-      src={product.photo}
+      src={product.pictureUrl}
       alt={product.name}
       width={40}
       height={40}

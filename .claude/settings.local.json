@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(\\(Get-Item \"c:\\\\final-year\\\\all-code.txt\"\\).Length; \\(Get-Content \"c:\\\\final-year\\\\all-code.txt\" | Measure-Object -Line\\).Lines)",
+      "PowerShell(Get-ChildItem \"c:\\\\final-year\" -Recurse -Name | Where-Object { $_ -notmatch \"node_modules|\\\\.next|\\\\.git|target|\\\\.class\" } | Sort-Object | head -200)",
+      "PowerShell(Get-ChildItem \"c:\\\\final-year\" -Recurse -Name | Where-Object { $_ -notmatch \"node_modules|\\\\.next|\\\\.git|target|\\\\.class\" } | Sort-Object | Select-Object -First 300)",
+      "PowerShell(Get-ChildItem \"c:\\\\final-year\\\\src\" -Recurse -Name | Where-Object { $_ -notmatch \"node_modules|\\\\.next\" } | Sort-Object)"
+    ]
+  }
+}

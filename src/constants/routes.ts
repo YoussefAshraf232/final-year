@@ -79,4 +79,5 @@ export const ROUTES = {
 
   // Audit
   AUDIT_LOGS: "/audit-logs",
+  PROFILE: "/profile",
 } as const;

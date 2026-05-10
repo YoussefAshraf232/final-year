@@ -34,10 +34,10 @@ export default function SupplierTable({ suppliers, isLoading, onDelete }: Suppli
       ),
     },
     {
-      key: 'phoneNumber',
+      key: 'phone',
       label: 'Phone',
       render: (s: Supplier) => (
-        <span className="text-gray-600">{formatPhone(s.phoneNumber)}</span>
+        <span className="text-gray-600">{formatPhone(s.phone ?? '')}</span>
       ),
     },
     {

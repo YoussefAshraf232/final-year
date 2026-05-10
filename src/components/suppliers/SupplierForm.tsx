@@ -24,7 +24,7 @@ export default function SupplierForm({ initialData, onSubmit, isLoading }: Suppl
       ? {
           name: initialData.name,
           address: initialData.address,
-          phoneNumber: initialData.phoneNumber,
+          phone: initialData.phone,
         }
       : undefined,
   });
@@ -39,11 +39,11 @@ export default function SupplierForm({ initialData, onSubmit, isLoading }: Suppl
         {...register('name')}
       />
       <Input
-        id="phoneNumber"
+        id="phone"
         label="Phone Number"
         placeholder="Enter phone number"
-        error={errors.phoneNumber?.message}
-        {...register('phoneNumber')}
+        error={errors.phone?.message}
+        {...register('phone')}
       />
       <Input
         id="address"

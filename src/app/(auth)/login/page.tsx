@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import toast from 'react-hot-toast';
@@ -12,7 +11,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { LoginFormData, loginSchema } from '@/lib/validators';
 
 export default function LoginPage() {
-  const { login, loginAsGuest, loginAsRole } = useAuth();
+  const { login, loginAsGuest } = useAuth();
   const guestModeEnabled = process.env.NEXT_PUBLIC_ENABLE_GUEST_MODE === 'true';
   const [submitError, setSubmitError] = useState<string | null>(null);
   const {
@@ -22,7 +21,7 @@ export default function LoginPage() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      identifier: '',
       password: '',
     },
   });
@@ -58,12 +57,12 @@ export default function LoginPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <Input
-          id="email"
-          label="Email"
-          type="email"
-          autoComplete="email"
-          error={errors.email?.message}
-          {...register('email')}
+          id="identifier"
+          label="Email or username"
+          type="text"
+          autoComplete="username"
+          error={errors.identifier?.message}
+          {...register('identifier')}
         />
         <Input
           id="password"
@@ -89,53 +88,6 @@ export default function LoginPage() {
         )}
       </form>
 
-      <div className="mt-6 border-t border-gray-100 pt-6">
-        <div className="mb-4 text-sm font-semibold text-gray-700">
-          Temporary role login
-        </div>
-        <div className="grid gap-2 sm:grid-cols-3">
-          <Button
-            type="button"
-            variant="outline"
-            fullWidth
-            onClick={() => {
-              loginAsRole('ADMIN');
-              toast.success('Logged in as System Admin');
-            }}
-          >
-            System Admin
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            fullWidth
-            onClick={() => {
-              loginAsRole('MANAGER');
-              toast.success('Logged in as Operational Manager');
-            }}
-          >
-            Operational Manager
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            fullWidth
-            onClick={() => {
-              loginAsRole('EMPLOYEE');
-              toast.success('Logged in as Warehouse Manager');
-            }}
-          >
-            Warehouse Manager
-          </Button>
-        </div>
-      </div>
-
-      <p className="mt-5 text-center text-sm text-gray-500">
-        Need an account?{' '}
-        <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-700">
-          Register
-        </Link>
-      </p>
     </Card>
   );
 }

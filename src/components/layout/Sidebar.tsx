@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { ChevronDown, LogOut, LucideIcon } from 'lucide-react';
+import { ChevronDown, LogOut, LucideIcon, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { sidebarLinks } from '@/constants/sidebar-links';
 import { getLandingRoute } from '@/constants/roles';
@@ -103,6 +103,15 @@ export default function Sidebar() {
                 {user?.email || ''}
               </p>
             </div>
+            <Link
+              href="/profile"
+              className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Profile"
+              title="Profile"
+              onClick={close}
+            >
+              <UserCircle className="h-4 w-4" />
+            </Link>
             <button
               type="button"
               onClick={logout}

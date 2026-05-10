@@ -23,8 +23,8 @@ interface InvoiceFormValues {
   reason?: string;
   salesInvoiceId?: number | '';
   purchaseInvoiceId?: number | '';
-  fromWarehouseId?: number | '';
-  toWarehouseId?: number | '';
+  sourceWarehouseId?: number | '';
+  destinationWarehouseId?: number | '';
   items: InvoiceFormItem[];
 }
 

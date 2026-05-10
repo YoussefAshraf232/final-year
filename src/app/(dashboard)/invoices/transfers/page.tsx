@@ -19,16 +19,16 @@ import { Eye } from 'lucide-react';
 const fallbackInvoices: InternalInvoice[] = [
   {
     id: 501,
-    fromWarehouseId: 1,
-    toWarehouseId: 2,
+    sourceWarehouseId: 1,
+    destinationWarehouseId: 2,
     createdAt: '2024-01-15T12:30:00Z',
-    fromWarehouse: {
+    sourceWarehouse: {
       id: 1,
       address: 'Main Warehouse',
       isCentral: true,
       createdAt: '2024-01-01T00:00:00Z',
     },
-    toWarehouse: {
+    destinationWarehouse: {
       id: 2,
       address: 'Tech Store',
       isCentral: false,
@@ -76,20 +76,20 @@ export default function InternalInvoicesPage() {
       ),
     },
     {
-      key: 'fromWarehouse',
+      key: 'sourceWarehouse',
       label: 'From',
       render: (inv: InternalInvoice) => (
         <span className="text-gray-600 text-sm">
-          {inv.fromWarehouse?.address || 'N/A'}
+          {inv.sourceWarehouse?.address || 'N/A'}
         </span>
       ),
     },
     {
-      key: 'toWarehouse',
+      key: 'destinationWarehouse',
       label: 'To',
       render: (inv: InternalInvoice) => (
         <span className="text-gray-600 text-sm">
-          {inv.toWarehouse?.address || 'N/A'}
+          {inv.destinationWarehouse?.address || 'N/A'}
         </span>
       ),
     },

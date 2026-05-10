@@ -27,7 +27,7 @@ const fallbackInvoices: PurchaseInvoice[] = [
       id: 1,
       name: 'Tech Supplies Inc',
       address: '123 Industrial Way',
-      phoneNumber: '(555) 123-4567',
+      phone: '(555)123-4567',
     },
   },
   {
@@ -41,7 +41,7 @@ const fallbackInvoices: PurchaseInvoice[] = [
       id: 2,
       name: 'Cable World',
       address: '456 Market Street',
-      phoneNumber: '(555) 234-5678',
+      phone: '(555)234-5678',
     },
   },
 ];

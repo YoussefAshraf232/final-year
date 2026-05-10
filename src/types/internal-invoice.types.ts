@@ -1,5 +1,6 @@
 import { Warehouse } from "./warehouse.types";
 import { Product } from "./product.types";
+import { User } from "./user.types";
 
 export type InternalTransferStatus = "DRAFT" | "APPROVED" | "IN_TRANSIT" | "COMPLETED" | "CANCELLED";
 
@@ -13,12 +14,13 @@ export interface InternalInvoiceItem {
 
 export interface InternalInvoice {
   id: number;
-  fromWarehouseId: number;
-  toWarehouseId: number;
+  sourceWarehouseId?: number;
+  destinationWarehouseId?: number;
   status?: InternalTransferStatus;
   createdAt: string;
-  fromWarehouse?: Warehouse;
-  toWarehouse?: Warehouse;
+  user?: User;
+  sourceWarehouse?: Warehouse;
+  destinationWarehouse?: Warehouse;
   items?: InternalInvoiceItem[];
 }
 
@@ -28,7 +30,7 @@ export interface CreateInternalInvoiceItemRequest {
 }
 
 export interface CreateInternalInvoiceRequest {
-  fromWarehouseId: number;
-  toWarehouseId: number;
+  sourceWarehouseId: number;
+  destinationWarehouseId: number;
   items: CreateInternalInvoiceItemRequest[];
 }

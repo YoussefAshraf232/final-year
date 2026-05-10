@@ -24,7 +24,6 @@ interface AuthContextType {
     login: (data: LoginRequest) => Promise<void>;
     register: (data: RegisterRequest) => Promise<void>;
     loginAsGuest: () => void;
-    loginAsRole: (role: User['role']) => void;
     logout: () => void;
 }
 
@@ -38,16 +37,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
 
-    // Load user from localStorage on mount
+    // Load current user from the backend when a real token is present.
     useEffect(() => {
-        const loadUser = () => {
+        const loadUser = async () => {
             try {
                 const storedToken = tokenStorage.getToken();
                 const storedUser = tokenStorage.getUser<User>();
 
-                if (storedToken && storedUser) {
+                if (storedToken && tokenStorage.isGuestToken(storedToken) && storedUser) {
                     setToken(storedToken);
                     setUser(storedUser);
+                    return;
+                }
+
+                if (storedToken) {
+                    const response = await authService.me();
+                    const currentUser = response.data.data;
+                    tokenStorage.setUser(currentUser);
+                    setToken(storedToken);
+                    setUser(currentUser);
                 }
             } catch {
                 tokenStorage.clear();
@@ -56,7 +64,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
         };
 
-        loadUser();
+        void loadUser();
     }, []);
 
     // Login
@@ -104,36 +112,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         router.push(getLandingRoute(guestUser.role));
     }, [router]);
 
-    const loginAsRole = useCallback(
-        (role: User['role']) => {
-            const demoUser: User = {
-                id: role === "ADMIN" ? 1 : role === "MANAGER" ? 2 : 3,
-                username:
-                    role === "ADMIN"
-                        ? "system-admin"
-                        : role === "MANAGER"
-                        ? "operational-manager"
-                        : "warehouse-manager",
-                email:
-                    role === "ADMIN"
-                        ? "admin@example.com"
-                        : role === "MANAGER"
-                        ? "manager@example.com"
-                        : "warehouse@example.com",
-                role,
-                joinedAt: new Date().toISOString(),
-                leftAt: null,
-            };
-
-            tokenStorage.setToken(GUEST_TOKEN);
-            tokenStorage.setUser(demoUser);
-            setToken(GUEST_TOKEN);
-            setUser(demoUser);
-            router.push(getLandingRoute(role));
-        },
-        [router]
-    );
-
     // Logout
     const logout = useCallback(() => {
         authService.logout();
@@ -152,7 +130,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 login,
                 register,
                 loginAsGuest,
-                loginAsRole,
                 logout,
             }}
         >
