@@ -51,3 +51,8 @@ dev-server.*.log
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# generated local files
+all-code.txt
+dev-server.*.log
+inflow-backend/target/
