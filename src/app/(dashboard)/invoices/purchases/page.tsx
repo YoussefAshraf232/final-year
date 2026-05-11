@@ -263,7 +263,7 @@ export default function ReceiveOrdersPage() {
             isLoading={summaryQuery.isLoading}
           />
           <KpiCard
-            label="Received Today"
+            label="Total Received"
             value={summary?.receivedTodayCount ?? 0}
             icon={PackageCheck}
             color="emerald"

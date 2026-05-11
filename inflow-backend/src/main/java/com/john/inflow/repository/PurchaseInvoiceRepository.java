@@ -28,17 +28,34 @@ public interface PurchaseInvoiceRepository extends JpaRepository<PurchaseInvoice
             """, nativeQuery = true)
     List<Object[]> monthlyTotalsLast12Months();
 
-    @Query("""
-            SELECT p FROM PurchaseInvoice p
-            WHERE (:search IS NULL
-                   OR STR(p.id) LIKE CONCAT('%', :search, '%')
-                   OR LOWER(p.supplier.name) LIKE LOWER(CONCAT('%', :search, '%')))
-              AND (:receiptStatus IS NULL OR p.receiptStatus = :receiptStatus)
-              AND (:supplierId IS NULL OR p.supplier.id = :supplierId)
-              AND (:warehouseId IS NULL OR p.warehouse.id = :warehouseId)
-              AND (:dateFrom IS NULL OR p.createdAt >= :dateFrom)
-              AND (:dateTo IS NULL OR p.createdAt <= :dateTo)
-            """)
+    @Query(
+        value = """
+            SELECT pi.* FROM purchase_invoices pi
+            JOIN suppliers s ON s.id = pi.supplier_id
+            WHERE (CAST(:search AS text) IS NULL
+                   OR pi.id::text LIKE '%' || CAST(:search AS text) || '%'
+                   OR LOWER(s.name) LIKE LOWER('%' || CAST(:search AS text) || '%'))
+              AND (CAST(:receiptStatus AS text) IS NULL OR pi.receipt_status = CAST(:receiptStatus AS text))
+              AND (:supplierId IS NULL OR pi.supplier_id = :supplierId)
+              AND (:warehouseId IS NULL OR pi.warehouse_id = :warehouseId)
+              AND (CAST(:dateFrom AS timestamptz) IS NULL OR pi.created_at >= CAST(:dateFrom AS timestamptz))
+              AND (CAST(:dateTo AS timestamptz) IS NULL OR pi.created_at <= CAST(:dateTo AS timestamptz))
+            ORDER BY pi.created_at DESC
+            """,
+        countQuery = """
+            SELECT COUNT(pi.id) FROM purchase_invoices pi
+            JOIN suppliers s ON s.id = pi.supplier_id
+            WHERE (CAST(:search AS text) IS NULL
+                   OR pi.id::text LIKE '%' || CAST(:search AS text) || '%'
+                   OR LOWER(s.name) LIKE LOWER('%' || CAST(:search AS text) || '%'))
+              AND (CAST(:receiptStatus AS text) IS NULL OR pi.receipt_status = CAST(:receiptStatus AS text))
+              AND (:supplierId IS NULL OR pi.supplier_id = :supplierId)
+              AND (:warehouseId IS NULL OR pi.warehouse_id = :warehouseId)
+              AND (CAST(:dateFrom AS timestamptz) IS NULL OR pi.created_at >= CAST(:dateFrom AS timestamptz))
+              AND (CAST(:dateTo AS timestamptz) IS NULL OR pi.created_at <= CAST(:dateTo AS timestamptz))
+            """,
+        nativeQuery = true
+    )
     Page<PurchaseInvoice> search(
             @Param("search") String search,
             @Param("receiptStatus") String receiptStatus,

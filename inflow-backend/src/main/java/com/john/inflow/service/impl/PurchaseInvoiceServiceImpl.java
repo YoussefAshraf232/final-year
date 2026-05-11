@@ -270,13 +270,11 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 
     @Override
     public ReceiveSummaryResponse getReceiveSummary() {
-        OffsetDateTime startOfDay = LocalDate.now().atStartOfDay().atOffset(ZoneOffset.UTC);
-        OffsetDateTime endOfDay = startOfDay.plusDays(1);
         long pending = purchaseInvoiceRepository.countByReceiptStatus("PENDING_RECEIPT");
-        long receivedToday = purchaseInvoiceRepository.countReceivedBetween(startOfDay, endOfDay);
+        long totalReceived = purchaseInvoiceRepository.countByReceiptStatus("RECEIVED");
         long partial = purchaseInvoiceRepository.countByReceiptStatus("PARTIALLY_RECEIVED");
         long damaged = purchaseInvoiceRepository.countOrdersWithDamagedItems();
-        return new ReceiveSummaryResponse(pending, receivedToday, partial, damaged);
+        return new ReceiveSummaryResponse(pending, totalReceived, partial, damaged);
     }
 
     private String computeStatus(PurchaseInvoice invoice) {
