@@ -12,5 +12,13 @@ public record PurchaseInvoiceResponse(
     WarehouseSummaryResponse warehouse,
     OffsetDateTime createdAt,
     BigDecimal totalPrice,
+    String receiptStatus,
+    OffsetDateTime receivedAt,
+    UserSummaryResponse receivedByUser,
+    String receivingNotes,
+    Integer totalOrderedQuantity,
+    Integer totalReceivedQuantity,
+    Integer totalDamagedQuantity,
+    Integer totalMissingQuantity,
     List<PurchaseInvoiceItemResponse> items
 ) {}

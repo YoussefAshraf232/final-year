@@ -1,10 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { purchaseInvoiceService } from "@/services/purchase-invoice.service";
-import { CreatePurchaseInvoiceRequest } from "@/types/purchase-invoice.types";
-import { PaginationParams } from "@/types/api.types";
+import {
+  CreatePurchaseInvoiceRequest,
+  ReceiveOrderFilters,
+  ReceiveOrderRequest,
+  RejectOrderRequest,
+} from "@/types/purchase-invoice.types";
 
 export function usePurchaseInvoices(
-  params?: PaginationParams,
+  params?: ReceiveOrderFilters,
   options?: { enabled?: boolean }
 ) {
   return useQuery({
@@ -15,12 +19,24 @@ export function usePurchaseInvoices(
   });
 }
 
-export function usePurchaseInvoice(id: number) {
+export function usePurchaseInvoice(
+  id: number | null | undefined,
+  options?: { enabled?: boolean }
+) {
   return useQuery({
     queryKey: ["purchase-invoices", id],
     queryFn: () =>
-      purchaseInvoiceService.getById(id).then((res) => res.data.data),
-    enabled: !!id,
+      purchaseInvoiceService.getById(id as number).then((res) => res.data.data),
+    enabled: !!id && (options?.enabled ?? true),
+  });
+}
+
+export function useReceiveOrderSummary(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ["purchase-invoices", "receive-summary"],
+    queryFn: () =>
+      purchaseInvoiceService.getReceiveSummary().then((res) => res.data.data),
+    enabled: options?.enabled ?? true,
   });
 }
 
@@ -41,6 +57,30 @@ export function useDeletePurchaseInvoice() {
   return useMutation({
     mutationFn: (id: number) =>
       purchaseInvoiceService.delete(id).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["purchase-invoices"] });
+    },
+  });
+}
+
+export function useReceiveOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: ReceiveOrderRequest }) =>
+      purchaseInvoiceService.receive(id, data).then((res) => res.data.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["purchase-invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
+export function useRejectOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: RejectOrderRequest }) =>
+      purchaseInvoiceService.reject(id, data).then((res) => res.data.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["purchase-invoices"] });
     },

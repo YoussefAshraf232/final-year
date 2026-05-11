@@ -6,5 +6,9 @@ import java.math.BigDecimal;
 public record PurchaseInvoiceItemResponse(
     ProductSummaryResponse product,
     Integer amount,
-    BigDecimal price
+    BigDecimal price,
+    Integer receivedQuantity,
+    Integer damagedQuantity,
+    Integer missingQuantity,
+    String receivingNotes
 ) {}

@@ -14,6 +14,7 @@ import com.john.inflow.entity.Warehouse;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.List;
 
 @Component
 public class PurchaseInvoiceMapper {
@@ -35,10 +36,20 @@ public class PurchaseInvoiceMapper {
         invoice.setUser(user);
         invoice.setSupplier(supplier);
         invoice.setWarehouse(warehouse);
+        invoice.setReceiptStatus("PENDING_RECEIPT");
         return invoice;
     }
 
     public PurchaseInvoiceResponse toResponse(PurchaseInvoice invoice) {
+        List<PurchaseInvoiceItemResponse> itemResponses = invoice.getPurchaseInvoiceProducts() != null
+                ? invoice.getPurchaseInvoiceProducts().stream().map(this::itemToResponse).toList()
+                : Collections.emptyList();
+
+        int totalOrdered = itemResponses.stream().mapToInt(i -> i.amount() != null ? i.amount() : 0).sum();
+        int totalReceived = itemResponses.stream().mapToInt(i -> i.receivedQuantity() != null ? i.receivedQuantity() : 0).sum();
+        int totalDamaged = itemResponses.stream().mapToInt(i -> i.damagedQuantity() != null ? i.damagedQuantity() : 0).sum();
+        int totalMissing = itemResponses.stream().mapToInt(i -> i.missingQuantity() != null ? i.missingQuantity() : 0).sum();
+
         return new PurchaseInvoiceResponse(
                 invoice.getId(),
                 invoice.getUser() != null ? userMapper.toSummary(invoice.getUser()) : null,
@@ -46,7 +57,15 @@ public class PurchaseInvoiceMapper {
                 invoice.getWarehouse() != null ? warehouseMapper.toSummary(invoice.getWarehouse()) : null,
                 invoice.getCreatedAt(),
                 invoice.getTotalPrice(),
-                invoice.getPurchaseInvoiceProducts() != null ? invoice.getPurchaseInvoiceProducts().stream().map(this::itemToResponse).toList() : Collections.emptyList()
+                invoice.getReceiptStatus(),
+                invoice.getReceivedAt(),
+                invoice.getReceivedByUser() != null ? userMapper.toSummary(invoice.getReceivedByUser()) : null,
+                invoice.getReceivingNotes(),
+                totalOrdered,
+                totalReceived,
+                totalDamaged,
+                totalMissing,
+                itemResponses
         );
     }
 
@@ -57,14 +76,24 @@ public class PurchaseInvoiceMapper {
         item.setProduct(product);
         item.setAmount(request.amount());
         item.setPrice(request.price());
+        item.setReceivedQuantity(0);
+        item.setDamagedQuantity(0);
         return item;
     }
 
     public PurchaseInvoiceItemResponse itemToResponse(PurchaseInvoiceProduct item) {
+        int ordered = item.getAmount() != null ? item.getAmount() : 0;
+        int received = item.getReceivedQuantity() != null ? item.getReceivedQuantity() : 0;
+        int damaged = item.getDamagedQuantity() != null ? item.getDamagedQuantity() : 0;
+        int missing = Math.max(0, ordered - received - damaged);
         return new PurchaseInvoiceItemResponse(
                 item.getProduct() != null ? productMapper.toSummary(item.getProduct()) : null,
                 item.getAmount(),
-                item.getPrice()
+                item.getPrice(),
+                received,
+                damaged,
+                missing,
+                item.getReceivingNotes()
         );
     }
 }

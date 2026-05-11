@@ -45,6 +45,20 @@ public class PurchaseInvoice {
     @Column(name = "total_price", nullable = false, precision = 12, scale = 2)
     private BigDecimal totalPrice;
 
+    @Builder.Default
+    @Column(name = "receipt_status", nullable = false, length = 40)
+    private String receiptStatus = "PENDING_RECEIPT";
+
+    @Column(name = "received_at")
+    private OffsetDateTime receivedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "received_by_user_id")
+    private User receivedByUser;
+
+    @Column(name = "receiving_notes", columnDefinition = "TEXT")
+    private String receivingNotes;
+
     @OneToMany(mappedBy = "purchaseInvoice")
     private Set<PurchaseInvoiceProduct> purchaseInvoiceProducts;
 

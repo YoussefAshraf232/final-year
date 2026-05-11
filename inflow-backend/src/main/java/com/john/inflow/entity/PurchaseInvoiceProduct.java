@@ -38,4 +38,17 @@ public class PurchaseInvoiceProduct {
     @DecimalMin("0.0")
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal price;
+
+    @Builder.Default
+    @Min(0)
+    @Column(name = "received_quantity", nullable = false)
+    private Integer receivedQuantity = 0;
+
+    @Builder.Default
+    @Min(0)
+    @Column(name = "damaged_quantity", nullable = false)
+    private Integer damagedQuantity = 0;
+
+    @Column(name = "item_receiving_notes", columnDefinition = "TEXT")
+    private String receivingNotes;
 }
