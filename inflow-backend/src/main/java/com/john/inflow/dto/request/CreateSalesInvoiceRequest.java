@@ -11,5 +11,13 @@ public record CreateSalesInvoiceRequest(
     @NotNull Integer customerId,
     @NotNull Integer warehouseId,
     @DecimalMin("0.0") BigDecimal discount,
+    String paymentMethod,
+    @DecimalMin("0.0") BigDecimal paidAmount,
+    String status,
+    String notes,
     @NotEmpty List<SalesInvoiceItemRequest> items
-) {}
+) {
+    public CreateSalesInvoiceRequest(Integer customerId, Integer warehouseId, BigDecimal discount, List<SalesInvoiceItemRequest> items) {
+        this(customerId, warehouseId, discount, null, null, null, null, items);
+    }
+}

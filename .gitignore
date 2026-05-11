@@ -56,3 +56,5 @@ next-env.d.ts
 all-code.txt
 dev-server.*.log
 inflow-backend/target/
+.claude/worktrees/
+.claude/worktrees/

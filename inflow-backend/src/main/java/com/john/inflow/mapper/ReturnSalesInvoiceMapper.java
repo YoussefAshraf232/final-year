@@ -38,6 +38,8 @@ public class ReturnSalesInvoiceMapper {
         invoice.setCustomer(customer);
         invoice.setWarehouse(warehouse);
         invoice.setReason(request.reason());
+        invoice.setRefundMethod(request.refundMethod());
+        invoice.setNotes(request.notes());
         return invoice;
     }
 
@@ -51,6 +53,11 @@ public class ReturnSalesInvoiceMapper {
                 invoice.getReturnedAt(),
                 invoice.getTotalPrice(),
                 invoice.getReason(),
+                invoice.getReturnStatus(),
+                invoice.getRestockStatus(),
+                invoice.getRefundStatus(),
+                invoice.getRefundMethod(),
+                invoice.getNotes(),
                 invoice.getReturnSalesInvoiceProducts() != null ? invoice.getReturnSalesInvoiceProducts().stream().map(this::itemToResponse).toList() : Collections.emptyList()
         );
     }
@@ -62,6 +69,8 @@ public class ReturnSalesInvoiceMapper {
         item.setProduct(product);
         item.setAmount(request.amount());
         item.setPriceAtReturn(request.priceAtReturn());
+        item.setCondition(request.condition() != null ? request.condition() : "NEEDS_INSPECTION");
+        item.setRestockDecision(request.restockDecision() != null ? request.restockDecision() : "PENDING_REVIEW");
         return item;
     }
 
@@ -69,7 +78,10 @@ public class ReturnSalesInvoiceMapper {
         return new ReturnSalesInvoiceItemResponse(
                 item.getProduct() != null ? productMapper.toSummary(item.getProduct()) : null,
                 item.getAmount(),
-                item.getPriceAtReturn()
+                item.getPriceAtReturn(),
+                item.getCondition(),
+                item.getRestockDecision(),
+                item.getRestockedQuantity()
         );
     }
 }

@@ -52,6 +52,37 @@ public class ReturnSalesInvoice {
     @Column(columnDefinition = "TEXT")
     private String reason;
 
+    @Builder.Default
+    @Column(name = "return_status", nullable = false, length = 40)
+    private String returnStatus = "PENDING_REVIEW";
+
+    @Builder.Default
+    @Column(name = "restock_status", nullable = false, length = 40)
+    private String restockStatus = "PENDING_RESTOCK";
+
+    @Builder.Default
+    @Column(name = "refund_status", nullable = false, length = 40)
+    private String refundStatus = "PENDING_REFUND";
+
+    @Column(name = "refund_method", length = 60)
+    private String refundMethod;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
+    @Column(name = "approved_at")
+    private OffsetDateTime approvedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "approved_by_user_id")
+    private User approvedBy;
+
+    @Column(name = "refunded_at")
+    private OffsetDateTime refundedAt;
+
+    @Column(name = "restocked_at")
+    private OffsetDateTime restockedAt;
+
     @OneToMany(mappedBy = "returnSalesInvoice")
     private Set<ReturnSalesInvoiceProduct> returnSalesInvoiceProducts;
 }

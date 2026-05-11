@@ -14,6 +14,7 @@ export interface User {
   phoneNumber?: string | null;
   email: string;
   role: UserRole;
+  roleId?: number;
   roleName?: string;
   createdAt?: string;
   joinedAt: string;
@@ -68,4 +69,9 @@ export interface UpdateUserRequest {
   phoneNumber?: string;
   email?: string;
   roleId?: number;
+}
+
+export interface Role {
+  id: number;
+  name: string;
 }

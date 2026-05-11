@@ -10,5 +10,11 @@ public record CreateReturnSalesInvoiceRequest(
     @NotNull Integer customerId,
     @NotNull Integer warehouseId,
     String reason,
+    String refundMethod,
+    String notes,
     @NotEmpty List<ReturnSalesInvoiceItemRequest> items
-) {}
+) {
+    public CreateReturnSalesInvoiceRequest(Integer salesInvoiceId, Integer customerId, Integer warehouseId, String reason, List<ReturnSalesInvoiceItemRequest> items) {
+        this(salesInvoiceId, customerId, warehouseId, reason, null, null, items);
+    }
+}

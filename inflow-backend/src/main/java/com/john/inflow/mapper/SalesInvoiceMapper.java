@@ -36,6 +36,8 @@ public class SalesInvoiceMapper {
         invoice.setCustomer(customer);
         invoice.setWarehouse(warehouse);
         invoice.setDiscount(request.discount());
+        invoice.setPaymentMethod(request.paymentMethod());
+        invoice.setNotes(request.notes());
         return invoice;
     }
 
@@ -48,6 +50,11 @@ public class SalesInvoiceMapper {
                 invoice.getCreatedAt(),
                 invoice.getTotalPrice(),
                 invoice.getDiscount(),
+                invoice.getStatus(),
+                invoice.getPaymentMethod(),
+                invoice.getPaidAmount(),
+                invoice.getBalanceDue(),
+                invoice.getNotes(),
                 invoice.getSalesInvoiceProducts() != null ? invoice.getSalesInvoiceProducts().stream().map(this::itemToResponse).toList() : Collections.emptyList()
         );
     }

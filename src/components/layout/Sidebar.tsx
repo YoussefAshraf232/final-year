@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { ChevronDown, LogOut, LucideIcon, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { sidebarLinks } from '@/constants/sidebar-links';
+import { SidebarLink, sidebarLinks } from '@/constants/sidebar-links';
 import { getLandingRoute } from '@/constants/roles';
 import { useAuth } from '@/hooks/useAuth';
 import { useSidebarStore } from '@/stores/sidebar.store';
@@ -137,10 +137,13 @@ function SidebarDropdown({
 }: {
   label: string;
   icon: LucideIcon;
-  items: { label: string; href: string }[];
+  items: SidebarLink[];
   pathname: string;
 }) {
-  const isChildActive = items.some((item) => pathname.startsWith(item.href));
+  const itemActive = (item: SidebarLink): boolean =>
+    (!!item.href && pathname.startsWith(item.href)) ||
+    !!item.children?.some((child) => itemActive(child));
+  const isChildActive = items.some(itemActive);
   const [isExpanded, setIsExpanded] = useState(isChildActive);
 
   return (
@@ -167,20 +170,57 @@ function SidebarDropdown({
       </button>
       {isExpanded && (
         <div className="ml-5 mt-1 space-y-1 border-l-2 border-gray-100 pl-4">
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'block px-3 py-2 rounded-lg text-sm transition-colors',
-                pathname.startsWith(item.href)
-                  ? 'text-indigo-700 bg-indigo-50 font-medium'
-                  : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {items.map((item) => {
+            const active = itemActive(item);
+            if (item.children?.length) {
+              return (
+                <div key={item.label}>
+                  <Link
+                    href={item.href ?? item.children[0].href!}
+                    className={cn(
+                      'block px-3 py-2 rounded-lg text-sm transition-colors',
+                      active
+                        ? 'text-indigo-700 bg-indigo-50 font-semibold'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                  <div className="ml-3 mt-1 space-y-1 border-l-2 border-gray-100 pl-3">
+                    {item.children.map((child) => (
+                      <Link
+                        key={child.href}
+                        href={child.href!}
+                        className={cn(
+                          'block px-3 py-2 rounded-lg text-sm transition-colors',
+                          pathname.startsWith(child.href!)
+                            ? 'text-indigo-700 bg-indigo-50 font-medium'
+                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                        )}
+                      >
+                        {child.label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href!}
+                className={cn(
+                  'block px-3 py-2 rounded-lg text-sm transition-colors',
+                  active
+                    ? 'text-indigo-700 bg-indigo-50 font-medium'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
+                )}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

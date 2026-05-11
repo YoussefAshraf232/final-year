@@ -13,5 +13,10 @@ public record SalesInvoiceResponse(
     OffsetDateTime createdAt,
     BigDecimal totalPrice,
     BigDecimal discount,
+    String status,
+    String paymentMethod,
+    BigDecimal paidAmount,
+    BigDecimal balanceDue,
+    String notes,
     List<SalesInvoiceItemResponse> items
 ) {}

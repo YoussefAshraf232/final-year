@@ -14,5 +14,10 @@ public record ReturnSalesInvoiceResponse(
     OffsetDateTime returnedAt,
     BigDecimal totalPrice,
     String reason,
+    String returnStatus,
+    String restockStatus,
+    String refundStatus,
+    String refundMethod,
+    String notes,
     List<ReturnSalesInvoiceItemResponse> items
 ) {}

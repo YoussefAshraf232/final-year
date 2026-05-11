@@ -19,7 +19,7 @@ export interface SidebarLink {
   href?: string;
   icon?: LucideIcon;
   permission?: Permission;
-  children?: { label: string; href: string; permission?: Permission }[];
+  children?: SidebarLink[];
 }
 
 export const sidebarLinks: SidebarLink[] = [
@@ -48,8 +48,15 @@ export const sidebarLinks: SidebarLink[] = [
     label: 'Sales',
     icon: FileText,
     children: [
-      { label: 'Sales Invoices', href: ROUTES.SALES_INVOICES, permission: PERMISSIONS.salesInvoiceView },
-      { label: 'Sales Returns', href: ROUTES.RETURN_INVOICES, permission: PERMISSIONS.salesReturnView },
+      {
+        label: 'Manage Sales',
+        href: ROUTES.SALES_INVOICES,
+        permission: PERMISSIONS.salesInvoiceView,
+        children: [
+          { label: 'Sales Invoices', href: ROUTES.SALES_INVOICES, permission: PERMISSIONS.salesInvoiceView },
+          { label: 'Sales Returns', href: ROUTES.RETURN_INVOICES, permission: PERMISSIONS.salesReturnView },
+        ],
+      },
     ],
   },
   { label: 'Receive Orders', href: ROUTES.PURCHASE_INVOICES, icon: Truck, permission: PERMISSIONS.receiveOrderView },

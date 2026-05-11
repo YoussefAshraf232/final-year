@@ -38,4 +38,17 @@ public class ReturnSalesInvoiceProduct {
     @Min(1)
     @Column(nullable = false)
     private Integer amount;
+
+    @Builder.Default
+    @Column(nullable = false, length = 40)
+    private String condition = "NEEDS_INSPECTION";
+
+    @Builder.Default
+    @Column(name = "restock_decision", nullable = false, length = 40)
+    private String restockDecision = "PENDING_REVIEW";
+
+    @Builder.Default
+    @Min(0)
+    @Column(name = "restocked_quantity", nullable = false)
+    private Integer restockedQuantity = 0;
 }

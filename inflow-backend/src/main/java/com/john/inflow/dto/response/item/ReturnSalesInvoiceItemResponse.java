@@ -6,5 +6,8 @@ import java.math.BigDecimal;
 public record ReturnSalesInvoiceItemResponse(
     ProductSummaryResponse product,
     Integer amount,
-    BigDecimal priceAtReturn
+    BigDecimal priceAtReturn,
+    String condition,
+    String restockDecision,
+    Integer restockedQuantity
 ) {}
