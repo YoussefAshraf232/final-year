@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import {
   Eye,
   Truck,
+  Plus,
+  CheckCircle2,
   AlertTriangle,
   Ban,
   Printer,
@@ -23,17 +25,21 @@ import Select from '@/components/ui/Select';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import Table from '@/components/ui/Table';
+import Modal from '@/components/ui/Modal';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useAuth } from '@/hooks/useAuth';
 import {
   usePurchaseInvoices,
   useReceiveOrderSummary,
   usePurchaseInvoice,
+  useCreatePurchaseInvoice,
+  useApprovePurchaseOrder,
   useReceiveOrder,
   useRejectOrder,
 } from '@/hooks/usePurchaseInvoices';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useWarehouses } from '@/hooks/useWarehouses';
+import { useProducts } from '@/hooks/useProducts';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import {
   PurchaseInvoice,
@@ -53,7 +59,7 @@ import RejectOrderModal from '@/components/invoices/RejectOrderModal';
 type DrawerMode = 'view' | 'receive' | 'partial' | 'damaged';
 
 export default function ReceiveOrdersPage() {
-  const { isGuest, user } = useAuth();
+  const { isGuest, user, isWarehouseManager, isOperationalManager, assignedWarehouse, assignedWarehouseId } = useAuth();
 
   const [search, setSearch] = useState('');
   const [receiptStatus, setReceiptStatus] = useState<ReceiptStatus | ''>('');
@@ -66,6 +72,8 @@ export default function ReceiveOrdersPage() {
   const [drawerMode, setDrawerMode] = useState<DrawerMode>('view');
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
+  const [newOrderOpen, setNewOrderOpen] = useState(false);
+  const [newOrderForm, setNewOrderForm] = useState({ supplierId: '', productId: '', quantity: 1, price: 0 });
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
   const debouncedSearch = useDebounce(search.trim(), 300);
@@ -76,17 +84,20 @@ export default function ReceiveOrdersPage() {
     search: debouncedSearch || undefined,
     receiptStatus: receiptStatus || undefined,
     supplierId: supplierId === '' ? undefined : supplierId,
-    warehouseId: warehouseId === '' ? undefined : warehouseId,
+    warehouseId: isWarehouseManager ? assignedWarehouseId ?? undefined : warehouseId === '' ? undefined : warehouseId,
     dateFrom: dateFrom ? new Date(dateFrom).toISOString() : undefined,
     dateTo: dateTo ? new Date(`${dateTo}T23:59:59`).toISOString() : undefined,
-  }), [debouncedSearch, receiptStatus, supplierId, warehouseId, dateFrom, dateTo]);
+  }), [assignedWarehouseId, debouncedSearch, isWarehouseManager, receiptStatus, supplierId, warehouseId, dateFrom, dateTo]);
 
   const ordersQuery = usePurchaseInvoices(filters, { enabled: !isGuest });
   const summaryQuery = useReceiveOrderSummary({ enabled: !isGuest });
   const detailQuery = usePurchaseInvoice(selectedId, { enabled: !!selectedId && drawerOpen });
   const suppliersQuery = useSuppliers({ size: 200 }, { enabled: !isGuest });
-  const warehousesQuery = useWarehouses({ size: 200 }, { enabled: !isGuest });
+  const warehousesQuery = useWarehouses({ size: 200 }, { enabled: !isGuest && !isWarehouseManager });
+  const productsQuery = useProducts({ size: 200 }, { enabled: !isGuest });
 
+  const createOrderMutation = useCreatePurchaseInvoice();
+  const approveOrderMutation = useApprovePurchaseOrder();
   const receiveMutation = useReceiveOrder();
   const rejectMutation = useRejectOrder();
 
@@ -100,10 +111,32 @@ export default function ReceiveOrdersPage() {
     ...((suppliersQuery.data?.content ?? []).map((s) => ({ value: String(s.id), label: s.name }))),
   ]), [suppliersQuery.data]);
 
-  const warehouseOptions = useMemo(() => ([
-    { value: '', label: 'All Warehouses' },
-    ...((warehousesQuery.data?.content ?? []).map((w) => ({ value: String(w.id), label: w.address }))),
-  ]), [warehousesQuery.data]);
+  const warehouseOptions = useMemo(() => (
+    isWarehouseManager && assignedWarehouse
+      ? [{ value: String(assignedWarehouse.id), label: assignedWarehouse.address }]
+      : [
+          { value: '', label: 'All Warehouses' },
+          ...((warehousesQuery.data?.content ?? []).map((w) => ({ value: String(w.id), label: w.address }))),
+        ]
+  ), [assignedWarehouse, isWarehouseManager, warehousesQuery.data]);
+  const productOptions = useMemo(() => [
+    { value: '', label: 'Select Product' },
+    ...((productsQuery.data?.content ?? []).map((p) => ({ value: String(p.id), label: p.name }))),
+  ], [productsQuery.data]);
+  const selectedNewOrderProduct = useMemo(
+    () => (productsQuery.data?.content ?? []).find((p) => String(p.id) === newOrderForm.productId) ?? null,
+    [newOrderForm.productId, productsQuery.data]
+  );
+  const expectedUnitPrice = selectedNewOrderProduct?.currentPrice ?? null;
+  const priceAboveExpected = expectedUnitPrice !== null && newOrderForm.price > expectedUnitPrice;
+  const canSubmitNewOrder = Boolean(
+    assignedWarehouseId &&
+      newOrderForm.supplierId &&
+      newOrderForm.productId &&
+      newOrderForm.quantity > 0 &&
+      newOrderForm.price >= 0 &&
+      !priceAboveExpected
+  );
 
   const clearFilters = () => {
     setSearch('');
@@ -147,6 +180,27 @@ export default function ReceiveOrdersPage() {
         onSuccess: () => {
           setRejectOpen(false);
           setDrawerOpen(false);
+        },
+      }
+    );
+  };
+
+  const handleCreateOrder = () => {
+    if (!canSubmitNewOrder || !assignedWarehouseId) return;
+    createOrderMutation.mutate(
+      {
+        supplierId: Number(newOrderForm.supplierId),
+        warehouseId: assignedWarehouseId,
+        items: [{
+          productId: Number(newOrderForm.productId),
+          amount: newOrderForm.quantity,
+          price: newOrderForm.price,
+        }],
+      },
+      {
+        onSuccess: () => {
+          setNewOrderOpen(false);
+          setNewOrderForm({ supplierId: '', productId: '', quantity: 1, price: 0 });
         },
       }
     );
@@ -214,10 +268,21 @@ export default function ReceiveOrdersPage() {
             className="p-1.5 rounded-md hover:bg-emerald-50 text-gray-500 hover:text-emerald-600"
             title="Receive"
             aria-label="Receive"
-            disabled={o.receiptStatus === 'REJECTED' || o.receiptStatus === 'RECEIVED'}
+            disabled={o.receiptStatus === 'PENDING_APPROVAL' || o.receiptStatus === 'REJECTED' || o.receiptStatus === 'RECEIVED'}
           >
             <PackageCheck className="h-4 w-4" />
           </button>
+          {isOperationalManager && o.receiptStatus === 'PENDING_APPROVAL' && (
+            <button
+              type="button"
+              onClick={() => approveOrderMutation.mutate(o.id)}
+              className="p-1.5 rounded-md hover:bg-emerald-50 text-gray-500 hover:text-emerald-600"
+              title="Accept order"
+              aria-label="Accept order"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+            </button>
+          )}
           <div className="relative">
             <button
               type="button"
@@ -230,8 +295,9 @@ export default function ReceiveOrdersPage() {
             </button>
             {openMenuId === o.id && (
               <div className="absolute right-0 mt-1 z-20 w-44 rounded-lg border border-gray-200 bg-white shadow-lg py-1 text-sm">
-                <MenuItem onClick={() => openDrawer(o, 'partial')} disabled={o.receiptStatus === 'REJECTED' || o.receiptStatus === 'RECEIVED'}>Partial Receive</MenuItem>
-                <MenuItem onClick={() => openDrawer(o, 'damaged')} disabled={o.receiptStatus === 'REJECTED'}>Mark Damaged</MenuItem>
+                <MenuItem onClick={() => approveOrderMutation.mutate(o.id)} disabled={!isOperationalManager || o.receiptStatus !== 'PENDING_APPROVAL'}>Accept Order</MenuItem>
+                <MenuItem onClick={() => openDrawer(o, 'partial')} disabled={o.receiptStatus === 'PENDING_APPROVAL' || o.receiptStatus === 'REJECTED' || o.receiptStatus === 'RECEIVED'}>Partial Receive</MenuItem>
+                <MenuItem onClick={() => openDrawer(o, 'damaged')} disabled={o.receiptStatus === 'PENDING_APPROVAL' || o.receiptStatus === 'REJECTED'}>Mark Damaged</MenuItem>
                 <MenuItem onClick={() => { setSelectedId(o.id); setRejectOpen(true); setOpenMenuId(null); }} disabled={o.receiptStatus === 'REJECTED'}>Reject Items</MenuItem>
                 <MenuItem onClick={() => { setOpenMenuId(null); handlePrint(o); }}>Print GRN</MenuItem>
               </div>
@@ -313,9 +379,10 @@ export default function ReceiveOrdersPage() {
             <Select
               id="receive-warehouse"
               label="Warehouse"
-              value={warehouseId === '' ? '' : String(warehouseId)}
+              value={isWarehouseManager ? String(assignedWarehouseId ?? '') : warehouseId === '' ? '' : String(warehouseId)}
               onChange={(e) => setWarehouseId(e.target.value === '' ? '' : Number(e.target.value))}
               options={warehouseOptions}
+              disabled={isWarehouseManager}
             />
             <div className="grid grid-cols-2 gap-2 lg:col-span-1">
               <Input id="date-from" label="From" type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
@@ -332,10 +399,20 @@ export default function ReceiveOrdersPage() {
         <Card>
           <div className="flex flex-wrap items-center gap-2 pb-4 mb-4 border-b border-gray-100">
             <span className="text-xs uppercase text-gray-500 mr-2">Quick actions</span>
+            {isWarehouseManager && (
+              <Button size="sm" variant="primary" onClick={() => setNewOrderOpen(true)} disabled={!assignedWarehouseId}>
+                <Plus className="h-4 w-4" /> New Order
+              </Button>
+            )}
+            {isOperationalManager && (
+              <Button size="sm" variant="outline" onClick={() => requireSelection(() => approveOrderMutation.mutate(selectedSummary!.id))} disabled={!selectedSummary || selectedSummary.receiptStatus !== 'PENDING_APPROVAL'}>
+                <CheckCircle2 className="h-4 w-4" /> Accept Order
+              </Button>
+            )}
             <Button size="sm" variant="outline" onClick={() => requireSelection(() => openDrawer(selectedSummary!, 'view'))} disabled={!selectedSummary}>
               <Eye className="h-4 w-4" /> View Order
             </Button>
-            <Button size="sm" variant="primary" onClick={() => requireSelection(() => openDrawer(selectedSummary!, 'receive'))} disabled={!selectedSummary}>
+            <Button size="sm" variant="primary" onClick={() => requireSelection(() => openDrawer(selectedSummary!, 'receive'))} disabled={!selectedSummary || selectedSummary.receiptStatus === 'PENDING_APPROVAL'}>
               <Truck className="h-4 w-4" /> Receive Order
             </Button>
             <Button size="sm" variant="outline" onClick={() => requireSelection(() => openDrawer(selectedSummary!, 'partial'))} disabled={!selectedSummary}>
@@ -404,6 +481,39 @@ export default function ReceiveOrdersPage() {
         onClose={() => setRejectOpen(false)}
         onConfirm={handleReject}
       />
+      <Modal isOpen={newOrderOpen} onClose={() => setNewOrderOpen(false)} title="New Order" size="lg">
+        <div className="space-y-4">
+          <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2 text-sm text-indigo-800">
+            Warehouse: <span className="font-semibold">{assignedWarehouse?.address ?? 'Assigned warehouse'}</span>
+          </div>
+          <Select id="new-order-supplier" label="Supplier" value={newOrderForm.supplierId} onChange={(e) => setNewOrderForm((f) => ({ ...f, supplierId: e.target.value }))} options={supplierOptions.filter((option) => option.value !== '')} />
+          <Select id="new-order-product" label="Product" value={newOrderForm.productId} onChange={(e) => setNewOrderForm((f) => ({ ...f, productId: e.target.value }))} options={productOptions} />
+          <div className="grid grid-cols-2 gap-3">
+            <Input label="Quantity" type="number" min={1} value={newOrderForm.quantity} onChange={(e) => setNewOrderForm((f) => ({ ...f, quantity: Number(e.target.value) }))} />
+            <div>
+              <Input
+                label="Unit price"
+                type="number"
+                min={0}
+                step="0.01"
+                value={newOrderForm.price}
+                onChange={(e) => setNewOrderForm((f) => ({ ...f, price: Number(e.target.value) }))}
+                error={priceAboveExpected ? `Higher than expected ${formatCurrency(expectedUnitPrice)}` : undefined}
+              />
+              {expectedUnitPrice !== null && (
+                <p className="mt-1.5 text-xs text-gray-500">
+                  Expected price: <span className="font-semibold text-gray-700">{formatCurrency(expectedUnitPrice)}</span>
+                </p>
+              )}
+            </div>
+          </div>
+          <p className="text-sm text-gray-500">Orders created by warehouse managers are saved for operational manager approval before stock can be received.</p>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setNewOrderOpen(false)}>Cancel</Button>
+            <Button onClick={handleCreateOrder} isLoading={createOrderMutation.isPending} disabled={!canSubmitNewOrder}>Submit Order</Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }

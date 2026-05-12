@@ -31,7 +31,7 @@ export interface WarehouseStockRequest {
 
 export interface CreateWarehouseStockRequestPayload {
   productId: number;
-  sourceWarehouseId: number;
+  sourceWarehouseId?: number;
   destinationWarehouseId?: number;
   requestedQuantity: number;
   reason: string;
@@ -39,6 +39,7 @@ export interface CreateWarehouseStockRequestPayload {
 }
 
 export interface ReviewWarehouseStockRequestPayload {
+  sourceWarehouseId?: number;
   approvedQuantity?: number;
   comment?: string;
 }

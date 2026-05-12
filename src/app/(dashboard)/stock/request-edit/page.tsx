@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, FilePenLine, Inbox, Plus, Send } from 'lucide-react';
 import Topbar from '@/components/layout/Topbar';
@@ -46,15 +46,14 @@ const requestStatusVariant: Record<string, 'warning' | 'success' | 'danger' | 'd
 };
 
 export default function RequestStockEditPage() {
-  const { assignedWarehouse, assignedWarehouseId, isGuest, isWarehouseManager } = useAuth();
-  const [activeTab, setActiveTab] = useState<Tab>('edits');
+  const { assignedWarehouse, assignedWarehouseId, isGuest, isWarehouseManager, isOperationalManager } = useAuth();
+  const [activeTab, setActiveTab] = useState<Tab>(isOperationalManager ? 'incoming' : 'edits');
   const [createEditOpen, setCreateEditOpen] = useState(false);
   const [productId, setProductId] = useState<number | ''>('');
-  const [sourceWarehouseId, setSourceWarehouseId] = useState<number | ''>('');
   const [requestedQuantity, setRequestedQuantity] = useState('');
   const [reason, setReason] = useState('');
   const [notes, setNotes] = useState('');
-  const [reviewDraft, setReviewDraft] = useState<Record<number, { quantity: string; comment: string }>>({});
+  const [reviewDraft, setReviewDraft] = useState<Record<number, { sourceWarehouseId: string; quantity: string; comment: string }>>({});
 
   const hasAssignedWarehouse = !isWarehouseManager || !!assignedWarehouseId;
   const editFilters = {
@@ -69,10 +68,10 @@ export default function RequestStockEditPage() {
   const stockRequestSummaryQuery = useWarehouseStockRequestSummary({ enabled: !isGuest && hasAssignedWarehouse });
   const productsQuery = useProducts({ size: 200 }, { enabled: !isGuest && hasAssignedWarehouse });
   const warehousesQuery = useWarehouses({ size: 200 }, { enabled: !isGuest && hasAssignedWarehouse });
-  const sourceStockQuery = useQuery({
-    queryKey: ['stock', 'warehouse', sourceWarehouseId],
-    queryFn: () => stockService.getWarehouseStock(sourceWarehouseId as number).then((res) => res.data),
-    enabled: !isGuest && sourceWarehouseId !== '',
+  const allStockQuery = useQuery({
+    queryKey: ['stock', 'on-hand', 'warehouse-stock-requests'],
+    queryFn: () => stockService.getStock({ size: 1000 }).then((res) => res.data),
+    enabled: !isGuest && isOperationalManager,
   });
 
   const createEditMutation = useCreateStockEditRequest();
@@ -81,23 +80,28 @@ export default function RequestStockEditPage() {
   const acceptMutation = useAcceptWarehouseStockRequest();
   const rejectMutation = useRejectWarehouseStockRequest();
 
+  useEffect(() => {
+    if (isOperationalManager) {
+      setActiveTab('incoming');
+    }
+  }, [isOperationalManager]);
+
   const productOptions = useMemo(() => [
     { value: '', label: 'Select product...' },
     ...((productsQuery.data?.content ?? []).map((p) => ({ value: String(p.id), label: p.name }))),
   ], [productsQuery.data]);
 
-  const sourceWarehouseOptions = useMemo(() => [
-    { value: '', label: 'Select source warehouse...' },
-    ...((warehousesQuery.data?.content ?? [])
-      .filter((w) => !assignedWarehouseId || w.id !== assignedWarehouseId)
-      .map((w) => ({ value: String(w.id), label: w.address }))),
-  ], [assignedWarehouseId, warehousesQuery.data]);
+  const warehouseOptionsForRequest = useMemo(() => (
+    (warehousesQuery.data?.content ?? []).map((w) => ({ value: String(w.id), label: w.address }))
+  ), [warehousesQuery.data]);
 
-  const availableAtSource = useMemo(() => {
-    if (productId === '' || sourceWarehouseId === '') return null;
-    const row = (sourceStockQuery.data?.content ?? []).find((item) => item.productId === productId);
+  const availableFor = (request: WarehouseStockRequest, sourceWarehouseId: string) => {
+    if (!sourceWarehouseId) return null;
+    const row = (allStockQuery.data?.content ?? []).find((item) =>
+      item.productId === request.product?.id && String(item.warehouseId) === sourceWarehouseId
+    );
     return row?.availableQuantity ?? row?.quantityOnHand ?? row?.amount ?? 0;
-  }, [productId, sourceWarehouseId, sourceStockQuery.data]);
+  };
 
   const stockEditRows = stockEditsQuery.data?.content ?? [];
   const outgoingRows = outgoingQuery.data?.content ?? [];
@@ -106,13 +110,12 @@ export default function RequestStockEditPage() {
   const requestSummary = stockRequestSummaryQuery.data;
 
   const submitStockRequest = () => {
-    if (productId === '' || sourceWarehouseId === '' || Number(requestedQuantity) <= 0 || !reason.trim()) {
+    if (productId === '' || Number(requestedQuantity) <= 0 || !reason.trim()) {
       return;
     }
     createStockRequestMutation.mutate(
       {
         productId,
-        sourceWarehouseId,
         requestedQuantity: Number(requestedQuantity),
         reason: reason.trim(),
         notes: notes.trim() || undefined,
@@ -120,7 +123,6 @@ export default function RequestStockEditPage() {
       {
         onSuccess: () => {
           setProductId('');
-          setSourceWarehouseId('');
           setRequestedQuantity('');
           setReason('');
           setNotes('');
@@ -130,8 +132,8 @@ export default function RequestStockEditPage() {
     );
   };
 
-  const draftFor = (id: number) => reviewDraft[id] ?? { quantity: '', comment: '' };
-  const setDraft = (id: number, value: Partial<{ quantity: string; comment: string }>) => {
+  const draftFor = (id: number) => reviewDraft[id] ?? { sourceWarehouseId: '', quantity: '', comment: '' };
+  const setDraft = (id: number, value: Partial<{ sourceWarehouseId: string; quantity: string; comment: string }>) => {
     setReviewDraft((current) => ({ ...current, [id]: { ...draftFor(id), ...value } }));
   };
 
@@ -151,9 +153,12 @@ export default function RequestStockEditPage() {
 
   return (
     <>
-      <Topbar title="Request Stock Edit" subtitle="Stock corrections and warehouse-to-warehouse requests" />
+      <Topbar
+        title={isOperationalManager ? 'Warehouse Requests' : 'Request Stock Edit'}
+        subtitle={isOperationalManager ? 'Choose source warehouses and approve or reject product requests' : 'Stock corrections and warehouse-to-warehouse requests'}
+      />
       <div className="p-6 space-y-6">
-        <BreadCrumb items={[{ label: 'Stock', href: '/stock' }, { label: 'Request Stock Edit' }]} />
+        <BreadCrumb items={[{ label: 'Stock', href: '/stock' }, { label: isOperationalManager ? 'Warehouse Requests' : 'Request Stock Edit' }]} />
 
         {assignedWarehouse && (
           <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
@@ -169,9 +174,13 @@ export default function RequestStockEditPage() {
         </section>
 
         <div className="flex flex-wrap gap-2 border-b border-gray-200">
-          <TabButton active={activeTab === 'edits'} onClick={() => setActiveTab('edits')}>My Stock Edit Requests</TabButton>
-          <TabButton active={activeTab === 'request'} onClick={() => setActiveTab('request')}>Request Stock From Warehouse</TabButton>
-          <TabButton active={activeTab === 'incoming'} onClick={() => setActiveTab('incoming')}>Incoming Warehouse Requests</TabButton>
+          {!isOperationalManager && (
+            <>
+              <TabButton active={activeTab === 'edits'} onClick={() => setActiveTab('edits')}>My Stock Edit Requests</TabButton>
+              <TabButton active={activeTab === 'request'} onClick={() => setActiveTab('request')}>Request Stock From Warehouse</TabButton>
+            </>
+          )}
+          <TabButton active={activeTab === 'incoming'} onClick={() => setActiveTab('incoming')}>{isOperationalManager ? 'Warehouse Requests' : 'Incoming Warehouse Requests'}</TabButton>
         </div>
 
         {activeTab === 'edits' && (
@@ -212,10 +221,9 @@ export default function RequestStockEditPage() {
               <h2 className="mb-4 text-lg font-semibold text-gray-900">Request Stock From Warehouse</h2>
               <div className="space-y-4">
                 <Select id="wsr-product" label="Product" value={productId === '' ? '' : String(productId)} onChange={(e) => setProductId(e.target.value === '' ? '' : Number(e.target.value))} options={productOptions} />
-                <Select id="wsr-source" label="Source Warehouse" value={sourceWarehouseId === '' ? '' : String(sourceWarehouseId)} onChange={(e) => setSourceWarehouseId(e.target.value === '' ? '' : Number(e.target.value))} options={sourceWarehouseOptions} />
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Available Quantity at Source Warehouse</label>
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">{availableAtSource ?? 'N/A'}</div>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Destination Warehouse</label>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">{assignedWarehouse?.address ?? 'Assigned warehouse'}</div>
                 </div>
                 <Input id="wsr-qty" label="Requested Quantity" type="number" value={requestedQuantity} onChange={(e) => setRequestedQuantity(e.target.value)} />
                 <Input id="wsr-reason" label="Reason" value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Low stock before weekly sales" />
@@ -237,7 +245,7 @@ export default function RequestStockEditPage() {
 
         {activeTab === 'incoming' && (
           <Card>
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Incoming Warehouse Requests</h2>
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">{isOperationalManager ? 'Warehouse Requests' : 'Incoming Warehouse Requests'}</h2>
             {incomingQuery.error ? (
               <ErrorState title="Could not load incoming requests" message="Check that the backend is running and your session is valid." onRetry={() => void incomingQuery.refetch()} />
             ) : (
@@ -246,7 +254,7 @@ export default function RequestStockEditPage() {
                   { key: 'id', label: 'Request ID', render: (r: WarehouseStockRequest) => `WSR-${String(r.id).padStart(4, '0')}` },
                   { key: 'product', label: 'Product', render: (r: WarehouseStockRequest) => r.product?.name ?? 'N/A' },
                   { key: 'requestedBy', label: 'Requested By', render: (r: WarehouseStockRequest) => r.requestedBy?.username ?? 'N/A' },
-                  { key: 'source', label: 'Source Warehouse', render: (r: WarehouseStockRequest) => r.sourceWarehouse?.address ?? 'N/A' },
+                  { key: 'source', label: 'Source Warehouse', render: (r: WarehouseStockRequest) => r.sourceWarehouse?.address ?? 'OM selects' },
                   { key: 'destination', label: 'Destination Warehouse', render: (r: WarehouseStockRequest) => r.destinationWarehouse?.address ?? 'N/A' },
                   { key: 'requested', label: 'Requested Qty', render: (r: WarehouseStockRequest) => r.requestedQuantity },
                   { key: 'available', label: 'Available Qty', render: (r: WarehouseStockRequest) => r.availableQuantity },
@@ -259,14 +267,25 @@ export default function RequestStockEditPage() {
                     render: (r: WarehouseStockRequest) => {
                       const draft = draftFor(r.id);
                       const canAct = r.status === 'PENDING';
+                      const sourceOptions = [
+                        { value: '', label: 'Select source warehouse...' },
+                        ...warehouseOptionsForRequest.filter((option) => option.value !== String(r.destinationWarehouse?.id ?? '')),
+                      ];
+                      const available = availableFor(r, draft.sourceWarehouseId);
+                      const approvedQuantity = draft.quantity ? Number(draft.quantity) : r.requestedQuantity;
+                      const canAccept = isOperationalManager && canAct && !!draft.sourceWarehouseId && (available ?? 0) >= approvedQuantity;
                       return (
                         <div className="min-w-56 space-y-2">
-                          {canAct && (
+                          {canAct && isOperationalManager && (
                             <>
+                              <Select id={`source-${r.id}`} value={draft.sourceWarehouseId} onChange={(e) => setDraft(r.id, { sourceWarehouseId: e.target.value })} options={sourceOptions} />
+                              <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600">
+                                Available at source: <span className="font-semibold text-gray-900">{available ?? 'N/A'}</span>
+                              </div>
                               <Input id={`approved-${r.id}`} type="number" value={draft.quantity} placeholder={String(r.requestedQuantity)} onChange={(e) => setDraft(r.id, { quantity: e.target.value })} />
                               <Input id={`comment-${r.id}`} value={draft.comment} placeholder="Comment" onChange={(e) => setDraft(r.id, { comment: e.target.value })} />
                               <div className="flex gap-2">
-                                <Button size="sm" variant="primary" disabled={r.availableQuantity <= 0} onClick={() => acceptMutation.mutate({ id: r.id, data: { approvedQuantity: draft.quantity ? Number(draft.quantity) : r.requestedQuantity, comment: draft.comment || undefined } })}>
+                                <Button size="sm" variant="primary" disabled={!canAccept} onClick={() => acceptMutation.mutate({ id: r.id, data: { sourceWarehouseId: Number(draft.sourceWarehouseId), approvedQuantity, comment: draft.comment || undefined } })}>
                                   Accept
                                 </Button>
                                 <Button size="sm" variant="outline" className="border-red-300 text-red-600 hover:bg-red-50" onClick={() => rejectMutation.mutate({ id: r.id, data: { comment: draft.comment || undefined } })}>
@@ -309,7 +328,7 @@ function WarehouseRequestTable({ rows, isLoading, emptyMessage }: { rows: Wareho
       columns={[
         { key: 'id', label: 'Request ID', render: (r: WarehouseStockRequest) => `WSR-${String(r.id).padStart(4, '0')}` },
         { key: 'product', label: 'Product', render: (r: WarehouseStockRequest) => r.product?.name ?? 'N/A' },
-        { key: 'source', label: 'Source Warehouse', render: (r: WarehouseStockRequest) => r.sourceWarehouse?.address ?? 'N/A' },
+        { key: 'source', label: 'Source Warehouse', render: (r: WarehouseStockRequest) => r.sourceWarehouse?.address ?? 'OM selects' },
         { key: 'destination', label: 'Destination Warehouse', render: (r: WarehouseStockRequest) => r.destinationWarehouse?.address ?? 'N/A' },
         { key: 'requested', label: 'Requested Qty', render: (r: WarehouseStockRequest) => r.requestedQuantity },
         { key: 'approved', label: 'Approved Qty', render: (r: WarehouseStockRequest) => r.approvedQuantity ?? 'N/A' },

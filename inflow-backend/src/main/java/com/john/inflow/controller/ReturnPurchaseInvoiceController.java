@@ -2,8 +2,10 @@ package com.john.inflow.controller;
 
 import com.john.inflow.dto.request.CreateReturnPurchaseInvoiceRequest;
 import com.john.inflow.dto.response.ReturnPurchaseInvoiceResponse;
+import com.john.inflow.entity.User;
 import com.john.inflow.service.AuthService;
 import com.john.inflow.service.ReturnPurchaseInvoiceService;
+import com.john.inflow.service.WarehouseAccessService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,10 +24,16 @@ public class ReturnPurchaseInvoiceController {
 
     private final ReturnPurchaseInvoiceService returnPurchaseInvoiceService;
     private final AuthService authService;
+    private final WarehouseAccessService warehouseAccessService;
 
-    public ReturnPurchaseInvoiceController(ReturnPurchaseInvoiceService returnPurchaseInvoiceService, AuthService authService) {
+    public ReturnPurchaseInvoiceController(
+            ReturnPurchaseInvoiceService returnPurchaseInvoiceService,
+            AuthService authService,
+            WarehouseAccessService warehouseAccessService
+    ) {
         this.returnPurchaseInvoiceService = returnPurchaseInvoiceService;
         this.authService = authService;
+        this.warehouseAccessService = warehouseAccessService;
     }
 
     @PostMapping
@@ -34,7 +42,9 @@ public class ReturnPurchaseInvoiceController {
             Authentication authentication,
             @Valid @RequestBody CreateReturnPurchaseInvoiceRequest request
     ) {
-        Integer effectiveUserId = authService.getCurrentUser(authentication).getId();
+        User actor = authService.getCurrentUser(authentication);
+        warehouseAccessService.assertCanManageWarehouse(actor, request.warehouseId());
+        Integer effectiveUserId = actor.getId();
         ReturnPurchaseInvoiceResponse response = returnPurchaseInvoiceService.create(request, effectiveUserId);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -45,13 +55,21 @@ public class ReturnPurchaseInvoiceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReturnPurchaseInvoiceResponse> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(returnPurchaseInvoiceService.getById(id));
+    public ResponseEntity<ReturnPurchaseInvoiceResponse> getById(Authentication authentication, @PathVariable Integer id) {
+        ReturnPurchaseInvoiceResponse response = returnPurchaseInvoiceService.getById(id);
+        assertCanAccess(authentication, response);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
-    public ResponseEntity<List<ReturnPurchaseInvoiceResponse>> getAll() {
-        return ResponseEntity.ok(returnPurchaseInvoiceService.getAll());
+    public ResponseEntity<List<ReturnPurchaseInvoiceResponse>> getAll(Authentication authentication) {
+        User actor = authService.getCurrentUser(authentication);
+        if (warehouseAccessService.canAccessAllWarehouses(actor)) {
+            return ResponseEntity.ok(returnPurchaseInvoiceService.getAll());
+        }
+        return ResponseEntity.ok(returnPurchaseInvoiceService.getAll().stream()
+                .filter(response -> canAccess(actor, response))
+                .toList());
     }
 
     @DeleteMapping("/{id}")
@@ -59,5 +77,21 @@ public class ReturnPurchaseInvoiceController {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         returnPurchaseInvoiceService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+    private void assertCanAccess(Authentication authentication, ReturnPurchaseInvoiceResponse response) {
+        if (response.warehouse() != null) {
+            warehouseAccessService.assertCanAccessWarehouse(authService.getCurrentUser(authentication), response.warehouse().id());
+        }
+    }
+    private boolean canAccess(User actor, ReturnPurchaseInvoiceResponse response) {
+        if (response.warehouse() == null) {
+            return false;
+        }
+        try {
+            warehouseAccessService.assertCanAccessWarehouse(actor, response.warehouse().id());
+            return true;
+        } catch (RuntimeException ex) {
+            return false;
+        }
     }
 }

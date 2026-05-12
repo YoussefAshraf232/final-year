@@ -61,8 +61,6 @@ public class WarehouseStockRequestServiceImpl implements WarehouseStockRequestSe
     public WarehouseStockRequestResponse create(CreateWarehouseStockRequest request, User actor) {
         Product product = productRepository.findById(request.productId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product", request.productId()));
-        Warehouse source = warehouseRepository.findById(request.sourceWarehouseId())
-                .orElseThrow(() -> new ResourceNotFoundException("Warehouse", request.sourceWarehouseId()));
         Integer destinationId = warehouseAccessService.canAccessAllWarehouses(actor)
                 ? request.destinationWarehouseId()
                 : warehouseAccessService.getPrimaryAssignedWarehouse(actor).getId();
@@ -71,13 +69,9 @@ public class WarehouseStockRequestServiceImpl implements WarehouseStockRequestSe
         }
         Warehouse destination = warehouseRepository.findById(destinationId)
                 .orElseThrow(() -> new ResourceNotFoundException("Warehouse", destinationId));
-        if (source.getId().equals(destination.getId())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Source and destination warehouses must be different");
-        }
         warehouseAccessService.assertCanManageWarehouse(actor, destination.getId());
         WarehouseStockRequest entity = WarehouseStockRequest.builder()
                 .product(product)
-                .sourceWarehouse(source)
                 .destinationWarehouse(destination)
                 .requestedQuantity(request.requestedQuantity())
                 .status("PENDING")
@@ -87,7 +81,7 @@ public class WarehouseStockRequestServiceImpl implements WarehouseStockRequestSe
                 .build();
         WarehouseStockRequest saved = requestRepository.save(entity);
         auditLogService.log(actor, "CREATE", "WAREHOUSE_STOCK_REQUEST", saved.getId(),
-                "product=" + product.getId() + ",source=" + source.getId() + ",destination=" + destination.getId());
+                "product=" + product.getId() + ",destination=" + destination.getId());
         return toResponse(saved);
     }
 
@@ -125,9 +119,19 @@ public class WarehouseStockRequestServiceImpl implements WarehouseStockRequestSe
     @Transactional
     public WarehouseStockRequestResponse accept(Integer id, ReviewWarehouseStockRequest request, User actor) {
         WarehouseStockRequest entity = require(id);
-        warehouseAccessService.assertCanManageWarehouse(actor, entity.getSourceWarehouse().getId());
+        if (!warehouseAccessService.isOperationalManager(actor) && !warehouseAccessService.isSystemAdmin(actor)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only operational managers can accept warehouse stock requests");
+        }
         if (!"PENDING".equals(entity.getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Only pending requests can be accepted");
+        }
+        if (request == null || request.sourceWarehouseId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Source warehouse is required");
+        }
+        Warehouse source = warehouseRepository.findById(request.sourceWarehouseId())
+                .orElseThrow(() -> new ResourceNotFoundException("Warehouse", request.sourceWarehouseId()));
+        if (source.getId().equals(entity.getDestinationWarehouse().getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Source and destination warehouses must be different");
         }
         int approvedQuantity = request != null && request.approvedQuantity() != null
                 ? request.approvedQuantity()
@@ -135,9 +139,10 @@ public class WarehouseStockRequestServiceImpl implements WarehouseStockRequestSe
         if (approvedQuantity <= 0 || approvedQuantity > entity.getRequestedQuantity()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Approved quantity must be between 1 and requested quantity");
         }
-        ProductWarehouse sourceStock = requireStock(entity.getProduct(), entity.getSourceWarehouse());
+        entity.setSourceWarehouse(source);
+        ProductWarehouse sourceStock = requireStock(entity.getProduct(), source);
         if (sourceStock.getAmount() < approvedQuantity) {
-            throw new InsufficientStockException(entity.getProduct().getName(), entity.getSourceWarehouse().getId(), approvedQuantity, sourceStock.getAmount());
+            throw new InsufficientStockException(entity.getProduct().getName(), source.getId(), approvedQuantity, sourceStock.getAmount());
         }
         ProductWarehouse destinationStock = getOrCreateStock(entity.getProduct(), entity.getDestinationWarehouse());
         sourceStock.setAmount(sourceStock.getAmount() - approvedQuantity);
@@ -151,7 +156,7 @@ public class WarehouseStockRequestServiceImpl implements WarehouseStockRequestSe
         entity.setReviewedAt(OffsetDateTime.now());
         entity.setCompletedAt(entity.getReviewedAt());
         requestRepository.save(entity);
-        stockMovementService.record(entity.getProduct(), entity.getSourceWarehouse(), "TRANSFER_OUT", -approvedQuantity,
+        stockMovementService.record(entity.getProduct(), source, "TRANSFER_OUT", -approvedQuantity,
                 null, "WAREHOUSE_STOCK_REQUEST", entity.getId(), "Warehouse stock request #" + entity.getId(), actor);
         stockMovementService.record(entity.getProduct(), entity.getDestinationWarehouse(), "TRANSFER_IN", approvedQuantity,
                 null, "WAREHOUSE_STOCK_REQUEST", entity.getId(), "Warehouse stock request #" + entity.getId(), actor);
@@ -164,7 +169,9 @@ public class WarehouseStockRequestServiceImpl implements WarehouseStockRequestSe
     @Transactional
     public WarehouseStockRequestResponse reject(Integer id, ReviewWarehouseStockRequest request, User actor) {
         WarehouseStockRequest entity = require(id);
-        warehouseAccessService.assertCanManageWarehouse(actor, entity.getSourceWarehouse().getId());
+        if (!warehouseAccessService.isOperationalManager(actor) && !warehouseAccessService.isSystemAdmin(actor)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only operational managers can reject warehouse stock requests");
+        }
         if (!"PENDING".equals(entity.getStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Only pending requests can be rejected");
         }
@@ -226,7 +233,8 @@ public class WarehouseStockRequestServiceImpl implements WarehouseStockRequestSe
             return;
         }
         Integer assigned = warehouseAccessService.getPrimaryAssignedWarehouse(actor).getId();
-        if (!assigned.equals(request.getSourceWarehouse().getId()) && !assigned.equals(request.getDestinationWarehouse().getId())) {
+        Integer sourceId = request.getSourceWarehouse() != null ? request.getSourceWarehouse().getId() : null;
+        if (!assigned.equals(sourceId) && !assigned.equals(request.getDestinationWarehouse().getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You cannot access this request");
         }
     }
@@ -248,7 +256,9 @@ public class WarehouseStockRequestServiceImpl implements WarehouseStockRequestSe
     }
 
     private WarehouseStockRequestResponse toResponse(WarehouseStockRequest request) {
-        return mapper.toResponse(request, currentStock(request.getProduct().getId(), request.getSourceWarehouse().getId()));
+        return mapper.toResponse(request, request.getSourceWarehouse() == null
+                ? 0
+                : currentStock(request.getProduct().getId(), request.getSourceWarehouse().getId()));
     }
 
     private int currentStock(Integer productId, Integer warehouseId) {

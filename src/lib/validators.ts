@@ -192,14 +192,28 @@ export const createUserSchema = z.object({
   roleId: positiveInt("Role is required", "Select a role"),
 });
 
-// Mirrors the backend UpdateUserRequest. Username is intentionally
-// not editable — change requires a new account.
+// Mirrors the backend UpdateUserRequest. System admins can update account
+// credentials and details through the user management screen.
 export const updateUserSchema = z.object({
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters")
+    .max(30, "Username is too long")
+    .optional(),
   firstName: z.string().max(30, "First name is too long").optional(),
   lastName: z.string().max(30, "Last name is too long").optional(),
   phoneNumber: z.string().max(20, "Phone number is too long").optional(),
   email: z.string().email("Invalid email address").optional(),
+  password: z.preprocess(
+    (value) => (value === "" ? undefined : value),
+    z
+      .string()
+      .min(8, "Password must be at least 8 characters")
+      .max(255, "Password is too long")
+      .optional()
+  ),
   roleId: z.number().int().positive("Select a role").optional(),
+  warehouseIds: z.array(z.number().int().positive()).optional(),
 });
 
 const invoiceItemSchema = z.object({

@@ -32,6 +32,10 @@ interface AuthContextType {
 // Create context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function getAssignedWarehouse(user: User | null): User["assignedWarehouse"] | null {
+    return user?.assignedWarehouse ?? user?.assignedWarehouses?.[0] ?? null;
+}
+
 // Provider component
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
@@ -125,13 +129,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         router.push("/login");
     }, [router]);
 
+    const assignedWarehouse = getAssignedWarehouse(user);
+
     return (
         <AuthContext.Provider
             value={{
                 user,
                 token,
-                assignedWarehouse: user?.assignedWarehouse ?? null,
-                assignedWarehouseId: user?.activeWarehouseId ?? user?.assignedWarehouse?.id ?? null,
+                assignedWarehouse,
+                assignedWarehouseId: user?.activeWarehouseId ?? assignedWarehouse?.id ?? null,
                 isLoading,
                 isAuthenticated: !!token && !!user,
                 login,

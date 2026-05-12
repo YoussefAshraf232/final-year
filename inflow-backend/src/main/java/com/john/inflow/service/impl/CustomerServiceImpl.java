@@ -17,13 +17,22 @@ import com.john.inflow.repository.SalesInvoiceRepository;
 import com.john.inflow.service.CustomerService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 @Service
@@ -95,14 +104,25 @@ public class CustomerServiceImpl implements CustomerService {
             int page,
             int size
     ) {
-        Page<Customer> result = customerRepository.search(
-                normalizeSearch(search),
-                parseSearchId(search),
-                normalizeStatus(status),
-                normalizeSalesActivity(salesActivity),
-                startOfDay(createdFrom),
-                endOfDay(createdTo),
-                PageRequest.of(Math.max(page, 0), Math.max(size, 1))
+        String normalizedSearch = normalizeSearch(search);
+        String normalizedStatus = normalizeStatus(status);
+        String normalizedSalesActivity = normalizeSalesActivity(salesActivity);
+        OffsetDateTime createdFromStart = startOfDay(createdFrom);
+        OffsetDateTime createdToEnd = endOfDay(createdTo);
+        PageRequest pageRequest = PageRequest.of(
+                Math.max(page, 0),
+                Math.max(size, 1),
+                Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id"))
+        );
+        Page<Customer> result = customerRepository.findAll(
+                customerSpecification(
+                        normalizedSearch,
+                        normalizedStatus,
+                        normalizedSalesActivity,
+                        createdFromStart,
+                        createdToEnd
+                ),
+                pageRequest
         );
         return PageResponse.of(result.map(this::toResponse));
     }
@@ -170,6 +190,73 @@ public class CustomerServiceImpl implements CustomerService {
                 invoice.getReturnedAt(),
                 invoice.getTotalPrice()
         );
+    }
+
+    private Specification<Customer> customerSpecification(
+            String search,
+            String status,
+            String salesActivity,
+            OffsetDateTime createdFrom,
+            OffsetDateTime createdTo
+    ) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (search != null) {
+                String likeSearch = "%" + search.toLowerCase(Locale.ROOT) + "%";
+                Integer searchId = parseSearchId(search);
+                List<Predicate> searchPredicates = new ArrayList<>();
+                searchPredicates.add(cb.like(cb.lower(root.get("name")), likeSearch));
+                searchPredicates.add(cb.like(cb.lower(cb.coalesce(root.get("phone"), "")), likeSearch));
+                searchPredicates.add(cb.like(cb.lower(cb.coalesce(root.get("email"), "")), likeSearch));
+                if (searchId != null) {
+                    searchPredicates.add(cb.equal(root.get("id"), searchId));
+                }
+                predicates.add(cb.or(searchPredicates.toArray(Predicate[]::new)));
+            }
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+            if (createdFrom != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("createdAt"), createdFrom));
+            }
+            if (createdTo != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("createdAt"), createdTo));
+            }
+            if (salesActivity != null) {
+                predicates.add(salesActivityPredicate(salesActivity, root, query, cb));
+            }
+            return cb.and(predicates.toArray(Predicate[]::new));
+        };
+    }
+
+    private Predicate salesActivityPredicate(
+            String salesActivity,
+            Root<Customer> root,
+            CriteriaQuery<?> query,
+            CriteriaBuilder cb
+    ) {
+        return switch (salesActivity) {
+            case "HAS_SALES" -> cb.exists(salesExistsSubquery(root, query, cb));
+            case "NO_SALES" -> cb.not(cb.exists(salesExistsSubquery(root, query, cb)));
+            case "HAS_RETURNS" -> cb.exists(returnExistsSubquery(root, query, cb));
+            default -> cb.conjunction();
+        };
+    }
+
+    private Subquery<Integer> salesExistsSubquery(Root<Customer> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        Subquery<Integer> subquery = query.subquery(Integer.class);
+        Root<SalesInvoice> salesRoot = subquery.from(SalesInvoice.class);
+        subquery.select(salesRoot.get("id"));
+        subquery.where(cb.equal(salesRoot.get("customer"), root));
+        return subquery;
+    }
+
+    private Subquery<Integer> returnExistsSubquery(Root<Customer> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+        Subquery<Integer> subquery = query.subquery(Integer.class);
+        Root<ReturnSalesInvoice> returnRoot = subquery.from(ReturnSalesInvoice.class);
+        subquery.select(returnRoot.get("id"));
+        subquery.where(cb.equal(returnRoot.get("customer"), root));
+        return subquery;
     }
 
     private BigDecimal nullToZero(BigDecimal value) {

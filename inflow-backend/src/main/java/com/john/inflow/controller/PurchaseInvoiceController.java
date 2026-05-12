@@ -6,8 +6,10 @@ import com.john.inflow.dto.request.RejectOrderRequest;
 import com.john.inflow.dto.response.PageResponse;
 import com.john.inflow.dto.response.PurchaseInvoiceResponse;
 import com.john.inflow.dto.response.ReceiveSummaryResponse;
+import com.john.inflow.entity.User;
 import com.john.inflow.service.AuthService;
 import com.john.inflow.service.PurchaseInvoiceService;
+import com.john.inflow.service.WarehouseAccessService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -27,10 +29,16 @@ public class PurchaseInvoiceController {
 
     private final PurchaseInvoiceService purchaseInvoiceService;
     private final AuthService authService;
+    private final WarehouseAccessService warehouseAccessService;
 
-    public PurchaseInvoiceController(PurchaseInvoiceService purchaseInvoiceService, AuthService authService) {
+    public PurchaseInvoiceController(
+            PurchaseInvoiceService purchaseInvoiceService,
+            AuthService authService,
+            WarehouseAccessService warehouseAccessService
+    ) {
         this.purchaseInvoiceService = purchaseInvoiceService;
         this.authService = authService;
+        this.warehouseAccessService = warehouseAccessService;
     }
 
     @PostMapping
@@ -39,7 +47,9 @@ public class PurchaseInvoiceController {
             Authentication authentication,
             @Valid @RequestBody CreatePurchaseInvoiceRequest request
     ) {
-        Integer effectiveUserId = authService.getCurrentUser(authentication).getId();
+        User actor = authService.getCurrentUser(authentication);
+        warehouseAccessService.assertCanManageWarehouse(actor, request.warehouseId());
+        Integer effectiveUserId = actor.getId();
         PurchaseInvoiceResponse response = purchaseInvoiceService.create(request, effectiveUserId);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -50,8 +60,10 @@ public class PurchaseInvoiceController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PurchaseInvoiceResponse> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(purchaseInvoiceService.getById(id));
+    public ResponseEntity<PurchaseInvoiceResponse> getById(Authentication authentication, @PathVariable Integer id) {
+        PurchaseInvoiceResponse response = purchaseInvoiceService.getById(id);
+        assertCanAccess(authentication, response);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
@@ -63,12 +75,14 @@ public class PurchaseInvoiceController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime dateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime dateTo,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            Authentication authentication
     ) {
+        Integer scopedWarehouseId = warehouseAccessService.scopeWarehouseId(authService.getCurrentUser(authentication), warehouseId);
         boolean hasFilters = search != null || receiptStatus != null || supplierId != null
-                || warehouseId != null || dateFrom != null || dateTo != null;
+                || scopedWarehouseId != null || dateFrom != null || dateTo != null;
         if (hasFilters) {
-            return ResponseEntity.ok(purchaseInvoiceService.search(search, receiptStatus, supplierId, warehouseId, dateFrom, dateTo, page, size));
+            return ResponseEntity.ok(purchaseInvoiceService.search(search, receiptStatus, supplierId, scopedWarehouseId, dateFrom, dateTo, page, size));
         }
         return ResponseEntity.ok(purchaseInvoiceService.getAll(page, size));
     }
@@ -78,6 +92,15 @@ public class PurchaseInvoiceController {
         return ResponseEntity.ok(purchaseInvoiceService.getReceiveSummary());
     }
 
+    @PostMapping("/{id}/approve")
+    @PreAuthorize("hasAnyRole('SYSTEM_ADMIN','OPERATIONAL_MANAGER')")
+    public ResponseEntity<PurchaseInvoiceResponse> approve(
+            Authentication authentication,
+            @PathVariable Integer id
+    ) {
+        return ResponseEntity.ok(purchaseInvoiceService.approve(id, authService.getCurrentUser(authentication).getId()));
+    }
+
     @PostMapping("/{id}/receive")
     @PreAuthorize(CAN_WRITE)
     public ResponseEntity<PurchaseInvoiceResponse> receive(
@@ -85,6 +108,8 @@ public class PurchaseInvoiceController {
             @PathVariable Integer id,
             @Valid @RequestBody ReceiveOrderRequest request
     ) {
+        PurchaseInvoiceResponse invoice = purchaseInvoiceService.getById(id);
+        assertCanAccess(authentication, invoice);
         Integer userId = authService.getCurrentUser(authentication).getId();
         return ResponseEntity.ok(purchaseInvoiceService.receive(id, request, userId));
     }
@@ -96,6 +121,8 @@ public class PurchaseInvoiceController {
             @PathVariable Integer id,
             @Valid @RequestBody RejectOrderRequest request
     ) {
+        PurchaseInvoiceResponse invoice = purchaseInvoiceService.getById(id);
+        assertCanAccess(authentication, invoice);
         Integer userId = authService.getCurrentUser(authentication).getId();
         return ResponseEntity.ok(purchaseInvoiceService.reject(id, request, userId));
     }
@@ -105,5 +132,11 @@ public class PurchaseInvoiceController {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         purchaseInvoiceService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private void assertCanAccess(Authentication authentication, PurchaseInvoiceResponse response) {
+        if (response.warehouse() != null) {
+            warehouseAccessService.assertCanAccessWarehouse(authService.getCurrentUser(authentication), response.warehouse().id());
+        }
     }
 }

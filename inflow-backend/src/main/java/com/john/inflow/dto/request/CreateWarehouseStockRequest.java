@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 
 public record CreateWarehouseStockRequest(
         @NotNull Integer productId,
-        @NotNull Integer sourceWarehouseId,
+        Integer sourceWarehouseId,
         Integer destinationWarehouseId,
         @NotNull @Min(1) Integer requestedQuantity,
         @NotBlank @Size(max = 120) String reason,

@@ -94,13 +94,18 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 
         PurchaseInvoice invoice = purchaseInvoiceMapper.toEntity(request, user, supplier, warehouse);
         invoice.setTotalPrice(BigDecimal.ZERO);
-        invoice.setReceiptStatus("PENDING_RECEIPT");
+        invoice.setReceiptStatus(isWarehouseManager(user) ? "PENDING_APPROVAL" : "PENDING_RECEIPT");
         PurchaseInvoice savedInvoice = purchaseInvoiceRepository.save(invoice);
 
         BigDecimal totalPrice = BigDecimal.ZERO;
         for (PurchaseInvoiceItemRequest itemRequest : request.items()) {
             Product product = productRepository.findById(itemRequest.productId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product", itemRequest.productId()));
+            BigDecimal expectedPrice = product.getCurrentPrice() != null ? product.getCurrentPrice() : BigDecimal.ZERO;
+            if (itemRequest.price().compareTo(expectedPrice) > 0) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                        "Unit price for product " + product.getName() + " cannot exceed expected price " + expectedPrice);
+            }
 
             PurchaseInvoiceProduct item = purchaseInvoiceMapper.itemToEntity(itemRequest, savedInvoice, product);
             purchaseInvoiceProductRepository.save(item);
@@ -111,7 +116,7 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 
         savedInvoice.setTotalPrice(totalPrice);
         purchaseInvoiceRepository.save(savedInvoice);
-        auditLogService.log(user, "CREATE", "PURCHASE_INVOICE", savedInvoice.getId(), "totalPrice=" + totalPrice + ",status=PENDING_RECEIPT");
+        auditLogService.log(user, "CREATE", "PURCHASE_INVOICE", savedInvoice.getId(), "totalPrice=" + totalPrice + ",status=" + savedInvoice.getReceiptStatus());
 
         PurchaseInvoice refreshed = purchaseInvoiceRepository.findById(savedInvoice.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("PurchaseInvoice", savedInvoice.getId()));
@@ -163,6 +168,52 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 
     @Override
     @Transactional
+    public PurchaseInvoiceResponse approve(Integer id, Integer userId) {
+        PurchaseInvoice invoice = purchaseInvoiceRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("PurchaseInvoice", id));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+        if (!isOperationalApprover(user)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only operational managers can approve orders");
+        }
+        String currentStatus = invoice.getReceiptStatus();
+        if (!"PENDING_APPROVAL".equals(currentStatus) && !"PENDING_RECEIPT".equals(currentStatus)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Only pending approval or unreceived orders can be approved");
+        }
+        int totalReceived = 0;
+        for (PurchaseInvoiceProduct item : invoice.getPurchaseInvoiceProducts()) {
+            int ordered = item.getAmount() != null ? item.getAmount() : 0;
+            int alreadyReceived = item.getReceivedQuantity() != null ? item.getReceivedQuantity() : 0;
+            int damaged = item.getDamagedQuantity() != null ? item.getDamagedQuantity() : 0;
+            int remainingReceivable = ordered - alreadyReceived - damaged;
+            if (remainingReceivable <= 0) {
+                continue;
+            }
+
+            addStock(item.getProduct(), invoice.getWarehouse(), remainingReceivable);
+            stockMovementService.record(item.getProduct(), invoice.getWarehouse(),
+                    "PURCHASE_RECEIPT", remainingReceivable, item.getPrice(),
+                    "PURCHASE_INVOICE", invoice.getId(),
+                    "Approve order #" + invoice.getId(), user);
+
+            item.setReceivedQuantity(alreadyReceived + remainingReceivable);
+            purchaseInvoiceProductRepository.save(item);
+            totalReceived += remainingReceivable;
+        }
+        if (totalReceived <= 0) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No remaining ordered quantity to add to stock");
+        }
+
+        invoice.setReceiptStatus("RECEIVED");
+        invoice.setReceivedAt(OffsetDateTime.now());
+        invoice.setReceivedByUser(user);
+        purchaseInvoiceRepository.save(invoice);
+        auditLogService.log(user, "APPROVE", "PURCHASE_INVOICE", invoice.getId(), "received=" + totalReceived + ",status=RECEIVED");
+        return purchaseInvoiceMapper.toResponse(invoice);
+    }
+
+    @Override
+    @Transactional
     public PurchaseInvoiceResponse receive(Integer id, ReceiveOrderRequest request, Integer userId) {
         PurchaseInvoice invoice = purchaseInvoiceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("PurchaseInvoice", id));
@@ -171,6 +222,9 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
 
         if ("REJECTED".equals(invoice.getReceiptStatus())) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cannot receive a rejected order");
+        }
+        if ("PENDING_APPROVAL".equals(invoice.getReceiptStatus())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Order must be approved before receiving stock");
         }
 
         Map<Integer, PurchaseInvoiceProduct> itemsByProduct = new HashMap<>();
@@ -318,5 +372,18 @@ public class PurchaseInvoiceServiceImpl implements PurchaseInvoiceService {
         if (status == null) return null;
         String trimmed = status.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private boolean isWarehouseManager(User user) {
+        String role = user.getRole() != null ? user.getRole().getName() : null;
+        return "WAREHOUSE_MANAGER".equals(role) || "EMPLOYEE".equals(role);
+    }
+
+    private boolean isOperationalApprover(User user) {
+        String role = user.getRole() != null ? user.getRole().getName() : null;
+        return "SYSTEM_ADMIN".equals(role)
+                || "OPERATIONAL_MANAGER".equals(role)
+                || "ADMIN".equals(role)
+                || "MANAGER".equals(role);
     }
 }

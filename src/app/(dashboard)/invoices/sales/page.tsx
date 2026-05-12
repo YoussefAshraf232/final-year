@@ -54,15 +54,22 @@ function returnCode(id: number) {
 
 export default function SalesInvoicesPage() {
   const router = useRouter();
-  const { isGuest } = useAuth();
+  const { isGuest, isWarehouseManager, assignedWarehouse, assignedWarehouseId } = useAuth();
   const [filters, setFilters] = useState<SalesInvoiceFilters>({ page: 0, size: 10 });
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebounce(search.trim(), 300);
-  const queryFilters = useMemo(() => ({ ...filters, search: debouncedSearch || undefined }), [filters, debouncedSearch]);
+  const queryFilters = useMemo(
+    () => ({
+      ...filters,
+      warehouseId: isWarehouseManager ? assignedWarehouseId ?? undefined : filters.warehouseId,
+      search: debouncedSearch || undefined,
+    }),
+    [assignedWarehouseId, debouncedSearch, filters, isWarehouseManager]
+  );
   const { data, isLoading, error, refetch } = useSalesInvoices(queryFilters, { enabled: !isGuest });
   const { data: summary } = useSalesManagementSummary({ enabled: !isGuest });
   const { data: customers } = useCustomers({ page: 0, size: 200 }, { enabled: !isGuest });
-  const { data: warehouses } = useWarehouses({ page: 0, size: 200 }, { enabled: !isGuest });
+  const { data: warehouses } = useWarehouses({ page: 0, size: 200 }, { enabled: !isGuest && !isWarehouseManager });
   const [saleForm, setSaleForm] = useState({ customerId: '', warehouseId: '', productId: '', quantity: 1, unitPrice: 0, discount: 0, paymentMethod: 'Card', notes: '' });
   const [returnForm, setReturnForm] = useState({ productId: '', quantity: 1, reason: 'Damaged on delivery', condition: 'NEEDS_INSPECTION', restockDecision: 'PENDING_REVIEW', refundMethod: 'Original payment', notes: '' });
   const saleWarehouseId = saleForm.warehouseId ? Number(saleForm.warehouseId) : undefined;
@@ -81,7 +88,9 @@ export default function SalesInvoicesPage() {
 
   const invoices = data?.content ?? [];
   const customerRows = customers?.content ?? [];
-  const warehouseRows = warehouses?.content ?? [];
+  const warehouseRows = isWarehouseManager && assignedWarehouse
+    ? [assignedWarehouse]
+    : warehouses?.content ?? [];
   const stockRows = (stock?.content ?? []) as StockRow[];
   const stockRowsForWarehouse = saleWarehouseId
     ? stockRows.filter((row) => row.warehouseId === saleWarehouseId)
@@ -121,7 +130,8 @@ export default function SalesInvoicesPage() {
   async function submitSale(event: FormEvent) {
     event.preventDefault();
     const available = stockQty(selectedStock);
-    if (!saleForm.customerId || !saleForm.warehouseId || !saleForm.productId) return toast.error('Customer, warehouse, and product are required');
+    const effectiveWarehouseId = isWarehouseManager ? assignedWarehouseId : saleWarehouseId;
+    if (!saleForm.customerId || !effectiveWarehouseId || !saleForm.productId) return toast.error('Customer, warehouse, and product are required');
     if (saleForm.quantity <= 0) return toast.error('Quantity must be positive');
     if (saleForm.quantity > available) return toast.error('Quantity exceeds available stock');
     const subtotal = saleForm.quantity * saleForm.unitPrice;
@@ -130,7 +140,7 @@ export default function SalesInvoicesPage() {
     if (total < 0) return toast.error('Discount cannot make total negative');
     const payload: CreateSalesInvoiceRequest = {
       customerId: Number(saleForm.customerId),
-      warehouseId: Number(saleForm.warehouseId),
+      warehouseId: effectiveWarehouseId,
       discount: Number.isFinite(discountAmount) ? Number(discountAmount.toFixed(2)) : 0,
       paymentMethod: saleForm.paymentMethod,
       paidAmount: Number.isFinite(total) ? Number(total.toFixed(2)) : 0,
@@ -229,10 +239,15 @@ export default function SalesInvoicesPage() {
                   <select className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm" value={filters.status ?? ''} onChange={(event) => updateFilter('status', event.target.value)}>{statusOptions.map((status) => <option key={status} value={status}>{status || 'All Statuses'}</option>)}</select>
                   <Input type="date" value={filters.dateFrom?.slice(0, 10) ?? ''} onChange={(event) => updateFilter('dateFrom', event.target.value ? `${event.target.value}T00:00:00Z` : '')} />
                   <Input type="date" value={filters.dateTo?.slice(0, 10) ?? ''} onChange={(event) => updateFilter('dateTo', event.target.value ? `${event.target.value}T23:59:59Z` : '')} />
-                  <Button className="ml-auto" onClick={() => setSaleOpen(true)}>+ New Sale</Button>
+                  <Button className="ml-auto" onClick={() => {
+                    if (isWarehouseManager && assignedWarehouseId) {
+                      setSaleForm((current) => ({ ...current, warehouseId: String(assignedWarehouseId), productId: '' }));
+                    }
+                    setSaleOpen(true);
+                  }}>+ New Sale</Button>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  <select className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm" value={filters.warehouseId ?? ''} onChange={(event) => updateFilter('warehouseId', event.target.value)}><option value="">All Warehouses</option>{warehouseRows.map((w) => <option key={w.id} value={w.id}>{w.address}</option>)}</select>
+                  <select className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm" value={isWarehouseManager ? assignedWarehouseId ?? '' : filters.warehouseId ?? ''} onChange={(event) => updateFilter('warehouseId', event.target.value)} disabled={isWarehouseManager}><option value="">{isWarehouseManager ? 'Assigned Warehouse' : 'All Warehouses'}</option>{warehouseRows.map((w) => <option key={w.id} value={w.id}>{w.address}</option>)}</select>
                   <select className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm" value={filters.customerId ?? ''} onChange={(event) => updateFilter('customerId', event.target.value)}><option value="">All Customers</option>{customerRows.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
                   <Button variant="outline" onClick={clearFilters}><X className="h-4 w-4" />Clear Filters</Button>
                   <Button className="ml-auto" variant="outline" onClick={exportCsv}><FileDown className="h-4 w-4" />Export</Button>
@@ -291,7 +306,7 @@ export default function SalesInvoicesPage() {
             </div>
             <div className="space-y-1">
               <label htmlFor="sale-warehouse" className="text-xs font-semibold text-gray-600">Warehouse</label>
-              <select id="sale-warehouse" required className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" value={saleForm.warehouseId} onChange={(e) => setSaleForm((f) => ({ ...f, warehouseId: e.target.value, productId: '' }))}><option value="">Select warehouse</option>{warehouseRows.map((w) => <option key={w.id} value={w.id}>{w.address}</option>)}</select>
+              <select id="sale-warehouse" required className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-50" value={isWarehouseManager ? assignedWarehouseId ?? '' : saleForm.warehouseId} onChange={(e) => setSaleForm((f) => ({ ...f, warehouseId: e.target.value, productId: '' }))} disabled={isWarehouseManager}><option value="">Select warehouse</option>{warehouseRows.map((w) => <option key={w.id} value={w.id}>{w.address}</option>)}</select>
             </div>
             <div className="space-y-1">
               <label htmlFor="sale-product" className="text-xs font-semibold text-gray-600">Product</label>

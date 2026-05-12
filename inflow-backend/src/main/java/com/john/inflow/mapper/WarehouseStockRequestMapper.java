@@ -20,7 +20,7 @@ public class WarehouseStockRequestMapper {
         return new WarehouseStockRequestResponse(
                 request.getId(),
                 productMapper.toSummary(request.getProduct()),
-                warehouseMapper.toSummary(request.getSourceWarehouse()),
+                request.getSourceWarehouse() != null ? warehouseMapper.toSummary(request.getSourceWarehouse()) : null,
                 warehouseMapper.toSummary(request.getDestinationWarehouse()),
                 request.getRequestedQuantity(),
                 request.getApprovedQuantity(),

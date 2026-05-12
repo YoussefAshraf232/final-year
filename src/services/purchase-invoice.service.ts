@@ -41,6 +41,9 @@ export const purchaseInvoiceService = {
   delete: (id: number) =>
     api.delete<ApiResponse<void>>(`/purchase-invoices/${id}`),
 
+  approve: (id: number) =>
+    api.post<ApiResponse<PurchaseInvoice>>(`/purchase-invoices/${id}/approve`, {}),
+
   receive: (id: number, data: ReceiveOrderRequest) =>
     api.post<ApiResponse<PurchaseInvoice>>(`/purchase-invoices/${id}/receive`, data),
 

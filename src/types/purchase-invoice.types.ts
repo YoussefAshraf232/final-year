@@ -5,6 +5,7 @@ import { Product } from "./product.types";
 import { Payment, PurchaseInvoiceStatus } from "./payment.types";
 
 export type ReceiptStatus =
+  | "PENDING_APPROVAL"
   | "PENDING_RECEIPT"
   | "PARTIALLY_RECEIVED"
   | "RECEIVED"

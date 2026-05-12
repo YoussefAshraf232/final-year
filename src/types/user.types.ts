@@ -72,14 +72,16 @@ export interface CreateUserRequest {
   roleId: number;
 }
 
-// Wire format for PUT /users/{id}. Matches backend UpdateUserRequest.java —
-// username is immutable here; backend has no field for it.
+// Wire format for PUT /users/{id}. Matches backend UpdateUserRequest.java.
 export interface UpdateUserRequest {
+  username?: string;
   firstName?: string;
   lastName?: string;
   phoneNumber?: string;
   email?: string;
+  password?: string;
   roleId?: number;
+  warehouseIds?: number[];
 }
 
 export interface Role {

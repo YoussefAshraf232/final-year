@@ -49,6 +49,7 @@ export const ROUTES = {
   PURCHASE_INVOICES: "/invoices/purchases",
   PURCHASE_INVOICE_NEW: "/invoices/purchases/new",
   PURCHASE_INVOICE_DETAIL: (id: number) => `/invoices/purchases/${id}`,
+  APPROVE_ORDERS: "/invoices/approve",
 
   // Return Invoices (Customer)
   RETURN_INVOICES: "/invoices/returns",

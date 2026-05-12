@@ -59,7 +59,13 @@ function stockValue(row: WarehouseStock) {
 
 export default function StockPage() {
   const router = useRouter();
-  const { isGuest, isWarehouseManager, assignedWarehouse, assignedWarehouseId } = useAuth();
+  const {
+    isGuest,
+    isLoading: isAuthLoading,
+    isWarehouseManager,
+    assignedWarehouse,
+    assignedWarehouseId,
+  } = useAuth();
   const [search, setSearch] = useState('');
   const [warehouseId, setWarehouseId] = useState('');
   const [status, setStatus] = useState<StockStatus | ''>('');
@@ -75,8 +81,10 @@ export default function StockPage() {
     lowStockOnly,
   };
 
-  const { data, isLoading, error, refetch } = useWarehouseStock(filters, { enabled: !isGuest });
-  const { data: summary } = useStockSummary({ enabled: !isGuest });
+  const hasAssignedWarehouse = !isWarehouseManager || !!assignedWarehouseId;
+  const canLoadStock = !isGuest && !isAuthLoading && hasAssignedWarehouse;
+  const { data, isLoading, error, refetch } = useWarehouseStock(filters, { enabled: canLoadStock });
+  const { data: summary } = useStockSummary({ enabled: canLoadStock });
   const { data: warehouses } = useWarehouses({ page: 0, size: 100 }, { enabled: !isGuest && !isWarehouseManager });
   const rows = data?.content ?? [];
   const isFiltered = !!debouncedSearch || !!warehouseId || !!status || lowStockOnly;
@@ -168,7 +176,12 @@ export default function StockPage() {
       />
       <div className="bg-slate-50 p-6">
         <BreadCrumb items={[{ label: 'Stock' }]} />
-        {error ? (
+        {isWarehouseManager && !assignedWarehouseId ? (
+          <ErrorState
+            title="No warehouse assigned"
+            message="No warehouse assigned to this account. Please contact a system administrator."
+          />
+        ) : error ? (
           <ErrorState
             title="Could not load warehouse stock"
             message="Could not load warehouse stock. Check that the backend is running and your session is valid."

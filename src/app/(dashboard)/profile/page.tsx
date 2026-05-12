@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Topbar from "@/components/layout/Topbar";
 import BreadCrumb from "@/components/layout/BreadCrumb";
@@ -12,12 +13,19 @@ import { profileService } from "@/services/profile.service";
 import { tokenStorage } from "@/lib/tokenStorage";
 import { User } from "@/types/user.types";
 
+function isSystemAdminRole(user: User | null): boolean {
+  const roleName = user?.roleName ?? user?.role;
+  return roleName === "SYSTEM_ADMIN";
+}
+
 export default function ProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [profileForm, setProfileForm] = useState({
+    username: "",
     firstName: "",
     lastName: "",
     phoneNumber: "",
@@ -36,6 +44,7 @@ export default function ProfilePage() {
         const currentUser = response.data.data;
         setUser(currentUser);
         setProfileForm({
+          username: currentUser.username,
           firstName: currentUser.firstName ?? "",
           lastName: currentUser.lastName ?? "",
           phoneNumber: currentUser.phoneNumber ?? "",
@@ -55,11 +64,18 @@ export default function ProfilePage() {
     event.preventDefault();
     setIsSaving(true);
     try {
-      const response = await profileService.update(profileForm);
+      const isSystemAdmin = user ? isSystemAdminRole(user) : false;
+      const response = await profileService.update(
+        isSystemAdmin ? profileForm : { username: profileForm.username }
+      );
       const updatedUser = response.data.data;
       setUser(updatedUser);
       tokenStorage.setUser(updatedUser);
       toast.success("Profile updated");
+      if (updatedUser.username !== user?.username) {
+        tokenStorage.clear();
+        router.push("/login");
+      }
     } catch {
       toast.error("Could not update profile");
     } finally {
@@ -91,42 +107,70 @@ export default function ProfilePage() {
               <CardTitle className="mb-4 text-base">Personal information</CardTitle>
               <form onSubmit={saveProfile} className="grid gap-4 md:grid-cols-2">
                 <Input
-                  id="firstName"
-                  label="First name"
-                  value={profileForm.firstName}
+                  id="username"
+                  label="Username"
+                  value={profileForm.username}
                   onChange={(event) =>
-                    setProfileForm((current) => ({ ...current, firstName: event.target.value }))
+                    setProfileForm((current) => ({
+                      ...current,
+                      username: event.target.value,
+                    }))
                   }
                   disabled={isLoading}
                 />
-                <Input
-                  id="lastName"
-                  label="Last name"
-                  value={profileForm.lastName}
-                  onChange={(event) =>
-                    setProfileForm((current) => ({ ...current, lastName: event.target.value }))
-                  }
-                  disabled={isLoading}
-                />
-                <Input
-                  id="phoneNumber"
-                  label="Phone"
-                  value={profileForm.phoneNumber}
-                  onChange={(event) =>
-                    setProfileForm((current) => ({ ...current, phoneNumber: event.target.value }))
-                  }
-                  disabled={isLoading}
-                />
-                <Input
-                  id="email"
-                  label="Email"
-                  type="email"
-                  value={profileForm.email}
-                  onChange={(event) =>
-                    setProfileForm((current) => ({ ...current, email: event.target.value }))
-                  }
-                  disabled={isLoading}
-                />
+                {!isSystemAdminRole(user) ? null : (
+                  <>
+                    <Input
+                      id="firstName"
+                      label="First name"
+                      value={profileForm.firstName}
+                      onChange={(event) =>
+                        setProfileForm((current) => ({
+                          ...current,
+                          firstName: event.target.value,
+                        }))
+                      }
+                      disabled={isLoading}
+                    />
+                    <Input
+                      id="lastName"
+                      label="Last name"
+                      value={profileForm.lastName}
+                      onChange={(event) =>
+                        setProfileForm((current) => ({
+                          ...current,
+                          lastName: event.target.value,
+                        }))
+                      }
+                      disabled={isLoading}
+                    />
+                    <Input
+                      id="phoneNumber"
+                      label="Phone"
+                      value={profileForm.phoneNumber}
+                      onChange={(event) =>
+                        setProfileForm((current) => ({
+                          ...current,
+                          phoneNumber: event.target.value,
+                        }))
+                      }
+                      disabled={isLoading}
+                    />
+                    <Input
+                      id="email"
+                      label="Email"
+                      type="email"
+                      value={profileForm.email}
+                      onChange={(event) =>
+                        setProfileForm((current) => ({
+                          ...current,
+                          email: event.target.value,
+                        }))
+                      }
+                      disabled={isLoading}
+                    />
+                  </>
+                )}
                 <div className="md:col-span-2">
                   <Button type="submit" isLoading={isSaving} disabled={isLoading}>
                     Save changes
@@ -156,38 +200,40 @@ export default function ProfilePage() {
                 </dl>
               </Card>
 
-              <Card>
-                <CardTitle className="mb-4 text-base">Change password</CardTitle>
-                <form onSubmit={changePassword} className="space-y-4">
-                  <Input
-                    id="currentPassword"
-                    label="Current password"
-                    type="password"
-                    value={passwordForm.currentPassword}
-                    onChange={(event) =>
-                      setPasswordForm((current) => ({
-                        ...current,
-                        currentPassword: event.target.value,
-                      }))
-                    }
-                  />
-                  <Input
-                    id="newPassword"
-                    label="New password"
-                    type="password"
-                    value={passwordForm.newPassword}
-                    onChange={(event) =>
-                      setPasswordForm((current) => ({
-                        ...current,
-                        newPassword: event.target.value,
-                      }))
-                    }
-                  />
-                  <Button type="submit" variant="outline">
-                    Update password
-                  </Button>
-                </form>
-              </Card>
+              {isSystemAdminRole(user) && (
+                <Card>
+                  <CardTitle className="mb-4 text-base">Change password</CardTitle>
+                  <form onSubmit={changePassword} className="space-y-4">
+                    <Input
+                      id="currentPassword"
+                      label="Current password"
+                      type="password"
+                      value={passwordForm.currentPassword}
+                      onChange={(event) =>
+                        setPasswordForm((current) => ({
+                          ...current,
+                          currentPassword: event.target.value,
+                        }))
+                      }
+                    />
+                    <Input
+                      id="newPassword"
+                      label="New password"
+                      type="password"
+                      value={passwordForm.newPassword}
+                      onChange={(event) =>
+                        setPasswordForm((current) => ({
+                          ...current,
+                          newPassword: event.target.value,
+                        }))
+                      }
+                    />
+                    <Button type="submit" variant="outline">
+                      Update password
+                    </Button>
+                  </form>
+                </Card>
+              )}
             </div>
           </div>
         )}

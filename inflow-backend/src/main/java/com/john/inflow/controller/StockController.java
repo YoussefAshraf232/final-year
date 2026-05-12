@@ -77,9 +77,17 @@ public class StockController {
     }
 
     @GetMapping("/warehouse/{warehouseId}")
-    public ResponseEntity<List<StockOnHandResponse>> getStockByWarehouse(Authentication authentication, @PathVariable Integer warehouseId) {
+    public ResponseEntity<PageResponse<StockOnHandResponse>> getStockByWarehouse(
+            Authentication authentication,
+            @PathVariable Integer warehouseId,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(defaultValue = "false") boolean lowStockOnly,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
         warehouseAccessService.assertCanAccessWarehouse(authService.getCurrentUser(authentication), warehouseId);
-        return ResponseEntity.ok(stockService.getStockByWarehouse(warehouseId));
+        return ResponseEntity.ok(page(stockService.getAllStock(search, warehouseId, status, lowStockOnly), page, size));
     }
 
     @GetMapping("/product/{productId}")

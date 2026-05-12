@@ -25,6 +25,7 @@ public interface PurchaseInvoiceService {
     );
     void delete(Integer id);
 
+    PurchaseInvoiceResponse approve(Integer id, Integer userId);
     PurchaseInvoiceResponse receive(Integer id, ReceiveOrderRequest request, Integer userId);
     PurchaseInvoiceResponse reject(Integer id, RejectOrderRequest request, Integer userId);
     ReceiveSummaryResponse getReceiveSummary();

@@ -25,9 +25,8 @@ public class WarehouseStockRequest {
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "source_warehouse_id", nullable = false)
+    @JoinColumn(name = "source_warehouse_id")
     private Warehouse sourceWarehouse;
 
     @NotNull

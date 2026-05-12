@@ -4,8 +4,10 @@ import com.john.inflow.dto.request.CreateReturnSalesInvoiceRequest;
 import com.john.inflow.dto.response.PageResponse;
 import com.john.inflow.dto.response.ReturnSalesInvoiceResponse;
 import com.john.inflow.dto.response.ReturnSalesSummaryResponse;
+import com.john.inflow.entity.User;
 import com.john.inflow.service.AuthService;
 import com.john.inflow.service.ReturnSalesInvoiceService;
+import com.john.inflow.service.WarehouseAccessService;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -24,24 +26,34 @@ public class ReturnSalesInvoiceController {
     private static final String CAN_DELETE = "hasAnyRole('SYSTEM_ADMIN','OPERATIONAL_MANAGER')";
     private final ReturnSalesInvoiceService returnSalesInvoiceService;
     private final AuthService authService;
+    private final WarehouseAccessService warehouseAccessService;
 
-    public ReturnSalesInvoiceController(ReturnSalesInvoiceService returnSalesInvoiceService, AuthService authService) {
+    public ReturnSalesInvoiceController(
+            ReturnSalesInvoiceService returnSalesInvoiceService,
+            AuthService authService,
+            WarehouseAccessService warehouseAccessService
+    ) {
         this.returnSalesInvoiceService = returnSalesInvoiceService;
         this.authService = authService;
+        this.warehouseAccessService = warehouseAccessService;
     }
 
     @PostMapping
     @PreAuthorize(CAN_WRITE)
     public ResponseEntity<ReturnSalesInvoiceResponse> create(Authentication authentication, @Valid @RequestBody CreateReturnSalesInvoiceRequest request) {
-        Integer effectiveUserId = authService.getCurrentUser(authentication).getId();
+        User actor = authService.getCurrentUser(authentication);
+        warehouseAccessService.assertCanManageWarehouse(actor, request.warehouseId());
+        Integer effectiveUserId = actor.getId();
         ReturnSalesInvoiceResponse response = returnSalesInvoiceService.create(request, effectiveUserId);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
         return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReturnSalesInvoiceResponse> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(returnSalesInvoiceService.getById(id));
+    public ResponseEntity<ReturnSalesInvoiceResponse> getById(Authentication authentication, @PathVariable Integer id) {
+        ReturnSalesInvoiceResponse response = returnSalesInvoiceService.getById(id);
+        assertCanAccess(authentication, response);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping
@@ -55,9 +67,11 @@ public class ReturnSalesInvoiceController {
             @RequestParam(required = false) Integer warehouseId,
             @RequestParam(required = false) Integer customerId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            Authentication authentication
     ) {
-        return ResponseEntity.ok(returnSalesInvoiceService.search(search, returnStatus, restockStatus, refundStatus, dateFrom, dateTo, warehouseId, customerId, page, size));
+        Integer scopedWarehouseId = warehouseAccessService.scopeWarehouseId(authService.getCurrentUser(authentication), warehouseId);
+        return ResponseEntity.ok(returnSalesInvoiceService.search(search, returnStatus, restockStatus, refundStatus, dateFrom, dateTo, scopedWarehouseId, customerId, page, size));
     }
 
     @GetMapping("/summary")
@@ -68,24 +82,28 @@ public class ReturnSalesInvoiceController {
     @PostMapping("/{id}/approve")
     @PreAuthorize(CAN_WRITE)
     public ResponseEntity<ReturnSalesInvoiceResponse> approve(Authentication authentication, @PathVariable Integer id) {
+        assertCanAccess(authentication, returnSalesInvoiceService.getById(id));
         return ResponseEntity.ok(returnSalesInvoiceService.approve(id, authService.getCurrentUser(authentication).getId()));
     }
 
     @PostMapping("/{id}/reject")
     @PreAuthorize(CAN_WRITE)
     public ResponseEntity<ReturnSalesInvoiceResponse> reject(Authentication authentication, @PathVariable Integer id) {
+        assertCanAccess(authentication, returnSalesInvoiceService.getById(id));
         return ResponseEntity.ok(returnSalesInvoiceService.reject(id, authService.getCurrentUser(authentication).getId()));
     }
 
     @PostMapping("/{id}/restock")
     @PreAuthorize(CAN_WRITE)
     public ResponseEntity<ReturnSalesInvoiceResponse> restock(Authentication authentication, @PathVariable Integer id) {
+        assertCanAccess(authentication, returnSalesInvoiceService.getById(id));
         return ResponseEntity.ok(returnSalesInvoiceService.restock(id, authService.getCurrentUser(authentication).getId()));
     }
 
     @PostMapping("/{id}/refund")
     @PreAuthorize(CAN_WRITE)
     public ResponseEntity<ReturnSalesInvoiceResponse> refund(Authentication authentication, @PathVariable Integer id) {
+        assertCanAccess(authentication, returnSalesInvoiceService.getById(id));
         return ResponseEntity.ok(returnSalesInvoiceService.refund(id, authService.getCurrentUser(authentication).getId()));
     }
 
@@ -94,5 +112,11 @@ public class ReturnSalesInvoiceController {
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         returnSalesInvoiceService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    private void assertCanAccess(Authentication authentication, ReturnSalesInvoiceResponse response) {
+        if (response.warehouse() != null) {
+            warehouseAccessService.assertCanAccessWarehouse(authService.getCurrentUser(authentication), response.warehouse().id());
+        }
     }
 }

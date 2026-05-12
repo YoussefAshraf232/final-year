@@ -39,6 +39,7 @@ export type Permission =
   | "sales.return.manage"
   | "receive-order.view"
   | "receive-order.manage"
+  | "receive-order.approve"
   | "purchase.view"
   | "purchase.manage"
   | "purchase.create"
@@ -161,6 +162,7 @@ export const PERMISSIONS = {
   salesReturnManage: "sales.return.manage",
   receiveOrderView: "receive-order.view",
   receiveOrderManage: "receive-order.manage",
+  receiveOrderApprove: "receive-order.approve",
   purchaseView: "purchase.view",
   purchaseManage: "purchase.manage",
   purchaseCreate: "purchase.create",
@@ -200,8 +202,10 @@ export const ROLE_PERMISSIONS: Record<FrontendRole, Permission[]> = {
     PERMISSIONS.warehouseManage,
     PERMISSIONS.stockView,
     PERMISSIONS.stockMovementView,
+    PERMISSIONS.stockEditRequest,
     PERMISSIONS.transferView,
     PERMISSIONS.transferManage,
+    PERMISSIONS.receiveOrderApprove,
     PERMISSIONS.reportView,
     PERMISSIONS.financialReportView,
     PERMISSIONS.reportExport,
@@ -263,6 +267,7 @@ export function canAccessRoute(userRole: UserRole | undefined, route: string): b
   if (route.startsWith(ROUTES.CUSTOMERS)) return hasPermission(userRole, PERMISSIONS.customerView);
   if (route.startsWith(ROUTES.SUPPLIERS)) return hasPermission(userRole, PERMISSIONS.supplierView);
   if (route.startsWith(ROUTES.INTERNAL_INVOICES)) return hasPermission(userRole, PERMISSIONS.transferView);
+  if (route.startsWith(ROUTES.APPROVE_ORDERS)) return hasPermission(userRole, PERMISSIONS.receiveOrderApprove);
   if (route.startsWith(ROUTES.SALES_INVOICES)) return hasPermission(userRole, PERMISSIONS.salesInvoiceView);
   if (route.startsWith(ROUTES.RETURN_INVOICES)) return hasPermission(userRole, PERMISSIONS.salesReturnView);
   if (route.startsWith(ROUTES.PURCHASE_INVOICES)) return hasPermission(userRole, PERMISSIONS.receiveOrderView);

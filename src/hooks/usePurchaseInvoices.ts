@@ -63,6 +63,19 @@ export function useDeletePurchaseInvoice() {
   });
 }
 
+export function useApprovePurchaseOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) =>
+      purchaseInvoiceService.approve(id).then((res) => res.data.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["purchase-invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["stock"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+  });
+}
+
 export function useReceiveOrder() {
   const queryClient = useQueryClient();
   return useMutation({

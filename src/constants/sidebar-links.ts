@@ -9,6 +9,7 @@ import {
   Tags,
   Boxes,
   ScrollText,
+  CheckCircle2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { PERMISSIONS, Permission } from './roles';
@@ -51,6 +52,7 @@ export const sidebarLinks: SidebarLink[] = [
     ],
   },
   { label: 'Receive Orders', href: ROUTES.PURCHASE_INVOICES, icon: Truck, permission: PERMISSIONS.receiveOrderView },
+  { label: 'Approve', href: ROUTES.APPROVE_ORDERS, icon: CheckCircle2, permission: PERMISSIONS.receiveOrderApprove },
   { label: 'Distribute Products', href: ROUTES.INTERNAL_INVOICES, icon: FileText, permission: PERMISSIONS.transferView },
   { label: 'Request Stock Edit', href: ROUTES.STOCK_REQUEST_EDIT, icon: ScrollText, permission: PERMISSIONS.stockEditRequest },
   { label: 'Users', href: ROUTES.USERS, icon: Users, permission: PERMISSIONS.userView },

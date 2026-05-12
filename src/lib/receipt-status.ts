@@ -3,6 +3,7 @@ import type { ReceiptStatus } from '@/types/purchase-invoice.types';
 
 export function receiptStatusLabel(status?: ReceiptStatus | null): string {
   switch (status) {
+    case 'PENDING_APPROVAL': return 'Pending Approval';
     case 'PENDING_RECEIPT': return 'Pending Receipt';
     case 'PARTIALLY_RECEIVED': return 'Partially Received';
     case 'RECEIVED': return 'Received';
@@ -14,6 +15,7 @@ export function receiptStatusLabel(status?: ReceiptStatus | null): string {
 
 export function receiptStatusBadge(status?: ReceiptStatus | null): { variant: BadgeVariant } {
   switch (status) {
+    case 'PENDING_APPROVAL': return { variant: 'warning' };
     case 'RECEIVED': return { variant: 'success' };
     case 'PARTIALLY_RECEIVED': return { variant: 'warning' };
     case 'DAMAGED_ITEMS': return { variant: 'danger' };
@@ -25,6 +27,7 @@ export function receiptStatusBadge(status?: ReceiptStatus | null): { variant: Ba
 
 export const RECEIPT_STATUS_OPTIONS: { value: ReceiptStatus | ''; label: string }[] = [
   { value: '', label: 'All Statuses' },
+  { value: 'PENDING_APPROVAL', label: 'Pending Approval' },
   { value: 'PENDING_RECEIPT', label: 'Pending Receipt' },
   { value: 'PARTIALLY_RECEIVED', label: 'Partially Received' },
   { value: 'RECEIVED', label: 'Received' },

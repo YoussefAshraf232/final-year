@@ -24,6 +24,7 @@ import {
   useDeleteUser,
 } from '@/hooks/useUsers';
 import { useRoles } from '@/hooks/useRoles';
+import { useWarehouses } from '@/hooks/useWarehouses';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
 import { CreateUserFormData, UpdateUserFormData } from '@/lib/validators';
@@ -98,6 +99,10 @@ export default function UsersPage() {
   const { data: roles, isLoading: rolesLoading } = useRoles({
     enabled: canManage,
   });
+  const { data: warehouses, isLoading: warehousesLoading } = useWarehouses(
+    { page: 0, size: 200 },
+    { enabled: canManage }
+  );
 
   const createUser = useCreateUser();
   const updateUser = useUpdateUser();
@@ -346,6 +351,8 @@ export default function UsersPage() {
             user={{ ...editTarget, roleId: editRoleId }}
             roles={roles ?? []}
             rolesLoading={rolesLoading}
+            warehouses={warehouses?.content ?? []}
+            warehousesLoading={warehousesLoading}
             onSubmit={handleUpdate}
             isLoading={updateUser.isPending}
           />
