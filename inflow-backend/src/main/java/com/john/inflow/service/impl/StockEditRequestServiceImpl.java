@@ -21,6 +21,7 @@ import com.john.inflow.repository.WarehouseRepository;
 import com.john.inflow.service.AuditLogService;
 import com.john.inflow.service.StockEditRequestService;
 import com.john.inflow.service.StockMovementService;
+import com.john.inflow.service.WarehouseAccessService;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ public class StockEditRequestServiceImpl implements StockEditRequestService {
     private final StockMovementService stockMovementService;
     private final AuditLogService auditLogService;
     private final StockEditRequestMapper mapper;
+    private final WarehouseAccessService warehouseAccessService;
 
     public StockEditRequestServiceImpl(
             StockEditRequestRepository requestRepository,
@@ -52,7 +54,8 @@ public class StockEditRequestServiceImpl implements StockEditRequestService {
             ProductWarehouseRepository productWarehouseRepository,
             StockMovementService stockMovementService,
             AuditLogService auditLogService,
-            StockEditRequestMapper mapper
+            StockEditRequestMapper mapper,
+            WarehouseAccessService warehouseAccessService
     ) {
         this.requestRepository = requestRepository;
         this.productRepository = productRepository;
@@ -62,17 +65,17 @@ public class StockEditRequestServiceImpl implements StockEditRequestService {
         this.stockMovementService = stockMovementService;
         this.auditLogService = auditLogService;
         this.mapper = mapper;
+        this.warehouseAccessService = warehouseAccessService;
     }
 
     @Override
     @Transactional
-    public StockEditRequestResponse create(CreateStockEditRequest request, Integer userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", userId));
+    public StockEditRequestResponse create(CreateStockEditRequest request, User user) {
         Product product = productRepository.findById(request.productId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product", request.productId()));
-        Warehouse warehouse = warehouseRepository.findById(request.warehouseId())
-                .orElseThrow(() -> new ResourceNotFoundException("Warehouse", request.warehouseId()));
+        Integer scopedWarehouseId = warehouseAccessService.scopeWarehouseId(user, request.warehouseId());
+        Warehouse warehouse = warehouseRepository.findById(scopedWarehouseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Warehouse", scopedWarehouseId));
 
         int currentQty = currentStockOf(product.getId(), warehouse.getId());
         int requestedQty = request.requestedQuantity();
@@ -102,8 +105,10 @@ public class StockEditRequestServiceImpl implements StockEditRequestService {
     }
 
     @Override
-    public StockEditRequestResponse getById(Integer id) {
-        return mapper.toResponse(require(id));
+    public StockEditRequestResponse getById(Integer id, User actor) {
+        StockEditRequest request = require(id);
+        warehouseAccessService.assertCanAccessWarehouse(actor, request.getWarehouse().getId());
+        return mapper.toResponse(request);
     }
 
     @Override
@@ -115,14 +120,16 @@ public class StockEditRequestServiceImpl implements StockEditRequestService {
             OffsetDateTime dateFrom,
             OffsetDateTime dateTo,
             int page,
-            int size
+            int size,
+            User actor
     ) {
+        Integer scopedWarehouseId = warehouseAccessService.scopeWarehouseId(actor, warehouseId);
         return PageResponse.of(
                 requestRepository.search(
                         normalize(search),
                         normalize(status),
                         productId,
-                        warehouseId,
+                        scopedWarehouseId,
                         dateFrom,
                         dateTo,
                         PageRequest.of(page, size)
@@ -235,15 +242,18 @@ public class StockEditRequestServiceImpl implements StockEditRequestService {
     }
 
     @Override
-    public StockEditRequestSummaryResponse getSummary() {
+    public StockEditRequestSummaryResponse getSummary(User actor) {
         OffsetDateTime startOfDay = LocalDate.now().atStartOfDay().atOffset(ZoneOffset.UTC);
         OffsetDateTime endOfDay = startOfDay.plusDays(1);
         OffsetDateTime startOfMonth = LocalDate.now().withDayOfMonth(1).atStartOfDay().atOffset(ZoneOffset.UTC);
         OffsetDateTime startOfNextMonth = startOfMonth.plusMonths(1);
-        long pending = requestRepository.countByStatus("PENDING");
-        long approvedToday = requestRepository.countApprovedBetween(startOfDay, endOfDay);
-        long rejected = requestRepository.countByStatus("REJECTED");
-        long approvedThisMonth = requestRepository.countApprovedBetween(startOfMonth, startOfNextMonth);
+        Integer warehouseId = warehouseAccessService.canAccessAllWarehouses(actor)
+                ? null
+                : warehouseAccessService.getPrimaryAssignedWarehouse(actor).getId();
+        long pending = requestRepository.countByStatusAndWarehouse("PENDING", warehouseId);
+        long approvedToday = requestRepository.countApprovedBetweenForWarehouse(startOfDay, endOfDay, warehouseId);
+        long rejected = requestRepository.countByStatusAndWarehouse("REJECTED", warehouseId);
+        long approvedThisMonth = requestRepository.countApprovedBetweenForWarehouse(startOfMonth, startOfNextMonth, warehouseId);
         return new StockEditRequestSummaryResponse(pending, approvedToday, rejected, approvedThisMonth);
     }
 

@@ -12,8 +12,16 @@ export function useWarehouseStock(
   options?: { enabled?: boolean }
 ) {
   return useQuery({
-    queryKey: ["stock", params],
+    queryKey: ["stock", "on-hand", params],
     queryFn: () => stockService.getStock(params).then((res) => res.data),
+    enabled: options?.enabled ?? true,
+  });
+}
+
+export function useStockSummary(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ["stock", "summary"],
+    queryFn: () => stockService.getSummary().then((res) => res.data.data),
     enabled: options?.enabled ?? true,
   });
 }

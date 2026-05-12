@@ -15,6 +15,15 @@ export function useInternalInvoices(
   });
 }
 
+export function useInternalInvoicesSummary(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ["internal-invoices", "summary"],
+    queryFn: () =>
+      internalInvoiceService.getSummary().then((res) => res.data.data),
+    enabled: options?.enabled ?? true,
+  });
+}
+
 export function useInternalInvoice(id: number) {
   return useQuery({
     queryKey: ["internal-invoices", id],

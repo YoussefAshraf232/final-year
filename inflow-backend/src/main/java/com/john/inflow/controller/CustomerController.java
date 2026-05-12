@@ -1,26 +1,25 @@
 package com.john.inflow.controller;
 
 import com.john.inflow.dto.request.CustomerRequest;
+import com.john.inflow.dto.response.CustomerDetailResponse;
 import com.john.inflow.dto.response.CustomerResponse;
+import com.john.inflow.dto.response.CustomerSummaryResponse;
+import com.john.inflow.dto.response.PageResponse;
 import com.john.inflow.service.CustomerService;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/customers")
 public class CustomerController {
-
-    // Customers are created by anyone who can sell to them — including the
-    // warehouse manager doing the sale. Deletion is admin/manager-only.
     private static final String CAN_WRITE = "hasAnyRole('SYSTEM_ADMIN','OPERATIONAL_MANAGER','WAREHOUSE_MANAGER')";
-    private static final String CAN_DELETE = "hasAnyRole('SYSTEM_ADMIN','OPERATIONAL_MANAGER')";
-
     private final CustomerService customerService;
 
     public CustomerController(CustomerService customerService) {
@@ -40,13 +39,26 @@ public class CustomerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CustomerResponse> getById(@PathVariable Integer id) {
+    public ResponseEntity<CustomerDetailResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(customerService.getById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<CustomerResponse>> getAll() {
-        return ResponseEntity.ok(customerService.getAll());
+    public ResponseEntity<PageResponse<CustomerResponse>> getAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String salesActivity,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdFrom,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate createdTo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return ResponseEntity.ok(customerService.getAll(search, status, salesActivity, createdFrom, createdTo, page, size));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<CustomerSummaryResponse> getSummary() {
+        return ResponseEntity.ok(customerService.getSummary());
     }
 
     @PutMapping("/{id}")
@@ -55,8 +67,14 @@ public class CustomerController {
         return ResponseEntity.ok(customerService.update(id, request));
     }
 
+    @PostMapping("/{id}/deactivate")
+    @PreAuthorize(CAN_WRITE)
+    public ResponseEntity<CustomerResponse> deactivate(@PathVariable Integer id) {
+        return ResponseEntity.ok(customerService.deactivate(id));
+    }
+
     @DeleteMapping("/{id}")
-    @PreAuthorize(CAN_DELETE)
+    @PreAuthorize(CAN_WRITE)
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         customerService.delete(id);
         return ResponseEntity.noContent().build();

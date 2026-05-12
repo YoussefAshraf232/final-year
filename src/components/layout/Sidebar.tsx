@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { ChevronDown, LogOut, LucideIcon, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SidebarLink, sidebarLinks } from '@/constants/sidebar-links';
+import { PERMISSIONS } from '@/constants/roles';
+import { ROUTES } from '@/constants/routes';
 import { getLandingRoute } from '@/constants/roles';
 import { useAuth } from '@/hooks/useAuth';
 import { useSidebarStore } from '@/stores/sidebar.store';
@@ -54,7 +56,11 @@ export default function Sidebar() {
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
           {sidebarLinks.map((link) => {
             // Only show links that the current role can access.
-            if (link.permission && !can(link.permission)) return null;
+            const hasAccess =
+              link.href === ROUTES.STOCK
+                ? can(PERMISSIONS.stockView) || can(PERMISSIONS.warehouseStockView)
+                : !link.permission || can(link.permission);
+            if (!hasAccess) return null;
 
             // Has children (dropdown)
             if ('children' in link && link.children) {

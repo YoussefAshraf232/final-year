@@ -29,6 +29,7 @@ describe('loginSchema', () => {
 describe('productSchema', () => {
   const validProduct = {
     name: 'X',
+    sku: 'X-001',
     description: 'Y',
     currentPrice: 1,
     categoryIds: [1],

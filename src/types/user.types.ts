@@ -19,6 +19,17 @@ export interface User {
   createdAt?: string;
   joinedAt: string;
   leftAt: string | null;
+  assignedWarehouse?: {
+    id: number;
+    address: string;
+    name?: string;
+  } | null;
+  assignedWarehouses?: Array<{
+    id: number;
+    address: string;
+    name?: string;
+  }>;
+  activeWarehouseId?: number | null;
 }
 
 export interface LoginRequest {

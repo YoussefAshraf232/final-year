@@ -72,4 +72,18 @@ public interface SalesInvoiceRepository extends JpaRepository<SalesInvoice, Inte
     BigDecimal sumToday(@Param("start") OffsetDateTime start, @Param("end") OffsetDateTime end);
 
     long countByStatus(String status);
+
+    long countByCustomerId(Integer customerId);
+
+    @Query("SELECT COUNT(DISTINCT s.customer.id) FROM SalesInvoice s")
+    long countCustomersWithSales();
+
+    @Query("SELECT COALESCE(SUM(s.totalPrice), 0) FROM SalesInvoice s WHERE s.customer.id = :customerId AND s.status <> 'CANCELLED'")
+    BigDecimal sumByCustomerId(@Param("customerId") Integer customerId);
+
+    @Query("SELECT MAX(s.createdAt) FROM SalesInvoice s WHERE s.customer.id = :customerId AND s.status <> 'CANCELLED'")
+    OffsetDateTime findLastSaleAt(@Param("customerId") Integer customerId);
+
+    @Query("SELECT s FROM SalesInvoice s WHERE s.customer.id = :customerId ORDER BY s.createdAt DESC")
+    List<SalesInvoice> findRecentByCustomerId(@Param("customerId") Integer customerId, Pageable pageable);
 }

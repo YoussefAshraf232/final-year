@@ -7,13 +7,17 @@ import {
   StockCount,
   StockMovement,
   StockMovementFilterParams,
+  StockSummary,
   WarehouseStock,
   WarehouseStockFilterParams,
 } from "@/types/inventory.types";
 
 export const stockService = {
   getStock: (params?: WarehouseStockFilterParams) =>
-    api.get<PaginatedResponse<WarehouseStock>>("/stock", { params }),
+    api.get<PaginatedResponse<WarehouseStock>>("/stock/on-hand", { params }),
+
+  getSummary: () =>
+    api.get<ApiResponse<StockSummary>>("/stock/summary"),
 
   getWarehouseStock: (warehouseId: number, params?: WarehouseStockFilterParams) =>
     api.get<PaginatedResponse<WarehouseStock>>(`/stock/warehouse/${warehouseId}`, {

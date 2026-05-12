@@ -188,6 +188,7 @@ export const ROLE_PERMISSIONS: Record<FrontendRole, Permission[]> = {
     PERMISSIONS.reportView,
     PERMISSIONS.financialReportView,
     PERMISSIONS.reportExport,
+    PERMISSIONS.auditView,
   ],
   OPERATIONAL_MANAGER: [
     PERMISSIONS.dashboardView,

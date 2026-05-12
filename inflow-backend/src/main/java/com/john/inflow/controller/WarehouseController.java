@@ -5,6 +5,7 @@ import com.john.inflow.dto.request.WarehouseRequest;
 import com.john.inflow.dto.response.ProductWarehouseResponse;
 import com.john.inflow.dto.response.UserResponse;
 import com.john.inflow.dto.response.WarehouseResponse;
+import com.john.inflow.dto.response.WarehousesSummaryResponse;
 import com.john.inflow.service.WarehouseService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -40,6 +41,11 @@ public class WarehouseController {
         return ResponseEntity.created(location).body(response);
     }
 
+    @GetMapping("/summary")
+    public ResponseEntity<WarehousesSummaryResponse> getSummary() {
+        return ResponseEntity.ok(warehouseService.getSummary());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<WarehouseResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(warehouseService.getById(id));
@@ -54,6 +60,13 @@ public class WarehouseController {
     @PreAuthorize(CAN_WRITE)
     public ResponseEntity<WarehouseResponse> update(@PathVariable Integer id, @Valid @RequestBody WarehouseRequest request) {
         return ResponseEntity.ok(warehouseService.update(id, request));
+    }
+
+    @PostMapping("/{id}/deactivate")
+    @PreAuthorize(CAN_WRITE)
+    public ResponseEntity<Void> deactivate(@PathVariable Integer id) {
+        warehouseService.deactivate(id);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

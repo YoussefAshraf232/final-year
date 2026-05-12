@@ -30,6 +30,20 @@ public class Warehouse {
     private Boolean isCentral = false;
 
     @Builder.Default
+    @Column(nullable = false, length = 20)
+    private String status = "ACTIVE";
+
+    @Size(max = 40)
+    @Column(length = 40)
+    private String phone;
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
+    @Column(name = "deactivated_at")
+    private OffsetDateTime deactivatedAt;
+
+    @Builder.Default
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt = OffsetDateTime.now();
 

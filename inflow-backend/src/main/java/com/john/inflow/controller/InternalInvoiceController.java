@@ -44,6 +44,11 @@ public class InternalInvoiceController {
         return ResponseEntity.created(location).body(response);
     }
 
+    @GetMapping("/summary")
+    public ResponseEntity<com.john.inflow.dto.response.TransfersSummaryResponse> getSummary() {
+        return ResponseEntity.ok(internalInvoiceService.getSummary());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<InternalInvoiceResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(internalInvoiceService.getById(id));

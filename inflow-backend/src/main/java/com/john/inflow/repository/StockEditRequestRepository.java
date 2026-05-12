@@ -59,9 +59,29 @@ public interface StockEditRequestRepository extends JpaRepository<StockEditReque
 
     @Query("""
             SELECT COUNT(r) FROM StockEditRequest r
+            WHERE r.status = :status
+              AND (:warehouseId IS NULL OR r.warehouse.id = :warehouseId)
+            """)
+    long countByStatusAndWarehouse(@Param("status") String status, @Param("warehouseId") Integer warehouseId);
+
+    @Query("""
+            SELECT COUNT(r) FROM StockEditRequest r
             WHERE r.status = 'APPROVED'
               AND r.reviewedAt >= :start
               AND r.reviewedAt < :end
             """)
     long countApprovedBetween(@Param("start") OffsetDateTime start, @Param("end") OffsetDateTime end);
+
+    @Query("""
+            SELECT COUNT(r) FROM StockEditRequest r
+            WHERE r.status = 'APPROVED'
+              AND (:warehouseId IS NULL OR r.warehouse.id = :warehouseId)
+              AND r.reviewedAt >= :start
+              AND r.reviewedAt < :end
+            """)
+    long countApprovedBetweenForWarehouse(
+            @Param("start") OffsetDateTime start,
+            @Param("end") OffsetDateTime end,
+            @Param("warehouseId") Integer warehouseId
+    );
 }

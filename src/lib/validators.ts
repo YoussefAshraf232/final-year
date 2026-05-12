@@ -76,6 +76,10 @@ export const productSchema = z.object({
     .string()
     .min(1, "Product name is required")
     .max(200, "Product name is too long"),
+  sku: z
+    .string()
+    .min(1, "SKU is required")
+    .max(50, "SKU is too long"),
   description: z
     .string()
     .max(1000, "Description is too long")
@@ -85,6 +89,19 @@ export const productSchema = z.object({
     "Price is required",
     "Price cannot be negative"
   ),
+  costPrice: z
+    .preprocess(
+      (v) => (v === "" || v === null || v === undefined || Number.isNaN(v) ? undefined : v),
+      z.number().min(0, "Cost price cannot be negative")
+    )
+    .optional(),
+  reorderLevel: z
+    .preprocess(
+      (v) => (v === "" || v === null || v === undefined || Number.isNaN(v) ? undefined : v),
+      z.number().int().min(0, "Reorder level cannot be negative")
+    )
+    .optional(),
+  status: z.enum(["ACTIVE", "INACTIVE", "DISCONTINUED"]).optional(),
   categoryIds: z.array(z.number().int().positive()).optional(),
   supplierId: positiveInt("Select a supplier", "Select a supplier").optional(),
 });
@@ -99,10 +116,22 @@ export const customerSchema = z.object({
     .max(20, "Phone is too long")
     .optional()
     .or(z.literal("")),
+  email: z
+    .string()
+    .email("Invalid email address")
+    .optional()
+    .or(z.literal("")),
   address: z
     .string()
-    .min(1, "Address is required")
-    .max(500, "Address is too long"),
+    .max(500, "Address is too long")
+    .optional()
+    .or(z.literal("")),
+  notes: z
+    .string()
+    .max(2000, "Notes are too long")
+    .optional()
+    .or(z.literal("")),
+  status: z.enum(["ACTIVE", "INACTIVE"]),
 });
 
 export const supplierSchema = z.object({
@@ -110,14 +139,21 @@ export const supplierSchema = z.object({
     .string()
     .min(1, "Supplier name is required")
     .max(200, "Name is too long"),
-  address: z
+  address: z.string().max(500, "Address is too long").optional().or(z.literal("")),
+  phone: z.string().max(20, "Phone is too long").optional().or(z.literal("")),
+  email: z
     .string()
-    .min(1, "Address is required")
-    .max(500, "Address is too long"),
-  phone: z
+    .email("Invalid email address")
+    .max(255, "Email is too long")
+    .optional()
+    .or(z.literal("")),
+  contactPerson: z
     .string()
-    .min(1, "Phone is required")
-    .max(20, "Phone is too long"),
+    .max(100, "Contact person is too long")
+    .optional()
+    .or(z.literal("")),
+  notes: z.string().max(2000, "Notes are too long").optional().or(z.literal("")),
+  status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
 });
 
 export const warehouseSchema = z.object({

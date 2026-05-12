@@ -11,8 +11,8 @@ import java.util.List;
 
 @Repository
 public interface ProductWarehouseRepository extends JpaRepository<ProductWarehouse, ProductWarehouseId> {
-    @Query("SELECT new com.john.inflow.dto.response.StockOnHandResponse(p.id, p.name, w.id, w.address, pw.amount) FROM ProductWarehouse pw JOIN pw.product p JOIN pw.warehouse w")
-    List<com.john.inflow.dto.response.StockOnHandResponse> getStockOnHand();
+    @Query("SELECT pw FROM ProductWarehouse pw JOIN FETCH pw.product p JOIN FETCH pw.warehouse w")
+    List<ProductWarehouse> findAllWithProductAndWarehouse();
 
     List<ProductWarehouse> findByWarehouseId(Integer warehouseId);
 

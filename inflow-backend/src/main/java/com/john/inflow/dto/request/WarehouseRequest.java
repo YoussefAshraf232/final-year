@@ -5,5 +5,9 @@ import jakarta.validation.constraints.Size;
 
 public record WarehouseRequest(
     @NotBlank @Size(max = 255) String address,
-    Boolean isCentral
+    Boolean isCentral,
+    @Size(max = 20) String status,
+    @Size(max = 40) String phone,
+    String notes,
+    Integer managerUserId
 ) {}

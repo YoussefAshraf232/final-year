@@ -6,5 +6,13 @@ public record WarehouseResponse(
     Integer id,
     String address,
     Boolean isCentral,
-    OffsetDateTime createdAt
+    String status,
+    String phone,
+    String notes,
+    UserSummaryResponse manager,
+    Integer productsCount,
+    Integer totalStock,
+    Integer lowStockItems,
+    OffsetDateTime createdAt,
+    OffsetDateTime deactivatedAt
 ) {}

@@ -20,6 +20,7 @@ export type StockReferenceType =
   | "RETURN_INVOICE"
   | "RETURN_PURCHASE_INVOICE"
   | "TRANSFER"
+  | "WAREHOUSE_STOCK_REQUEST"
   | "MANUAL_ADJUSTMENT"
   | "STOCK_COUNT"
   | "OPENING_BALANCE";
@@ -58,12 +59,15 @@ export interface WarehouseStock {
   sku: string;
   warehouseId: number;
   warehouseName: string;
+  amount?: number;
   quantityOnHand: number;
   reservedQuantity: number;
   availableQuantity: number;
-  averageCost: number;
+  averageCost?: number;
+  unitValue?: number;
   totalValue: number;
   reorderLevel: number;
+  status?: StockStatus;
   minimumStock?: number;
   maximumStock?: number;
   reorderQuantity?: number;
@@ -73,11 +77,22 @@ export interface WarehouseStock {
   updatedAt: string;
 }
 
+export type StockStatus = "OK" | "LOW_STOCK" | "OUT_OF_STOCK";
+
+export interface StockSummary {
+  totalSkus: number;
+  totalWarehouses: number;
+  lowStockItems: number;
+  outOfStockItems: number;
+}
+
 export interface WarehouseStockFilterParams extends PaginationParams {
   productId?: number;
   warehouseId?: number;
   categoryId?: number;
   supplierId?: number;
+  search?: string;
+  status?: StockStatus | "";
   lowStockOnly?: boolean;
 }
 

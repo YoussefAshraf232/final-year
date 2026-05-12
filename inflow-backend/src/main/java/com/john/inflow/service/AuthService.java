@@ -103,7 +103,7 @@ public class AuthService {
         if (authentication == null || authentication.getName() == null) {
             throw new InvalidOperationException("Authentication is required");
         }
-        return userRepository.findByUsername(authentication.getName())
+        return userRepository.findWithRoleByUsername(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException("User", authentication.getName()));
     }
 

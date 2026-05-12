@@ -12,11 +12,11 @@ describe("role permissions", () => {
     expect(hasPermission("MANAGER", PERMISSIONS.roleAssign)).toBe(false);
   });
 
-  it("keeps system admins limited to users and reports", () => {
+  it("gives system admins access to users, reports, and audit logs", () => {
     expect(canAccessRoute("ADMIN", "/users")).toBe(true);
     expect(canAccessRoute("ADMIN", "/reports")).toBe(true);
     expect(canAccessRoute("ADMIN", "/dashboard")).toBe(false);
-    expect(canAccessRoute("ADMIN", "/audit-logs")).toBe(false);
+    expect(canAccessRoute("ADMIN", "/audit-logs")).toBe(true);
     expect(canAccessRoute("ADMIN", "/products")).toBe(false);
   });
 

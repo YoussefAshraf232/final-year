@@ -27,9 +27,10 @@ public class AuditLogController {
             @RequestParam(required = false) Integer actorUserId,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime dateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime dateTo,
+            @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
-        return ResponseEntity.ok(auditLogService.getAll(entityType, action, actorUserId, dateFrom, dateTo, page, size));
+        return ResponseEntity.ok(auditLogService.getAll(entityType, action, actorUserId, dateFrom, dateTo, search, page, size));
     }
 }

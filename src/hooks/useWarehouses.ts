@@ -18,6 +18,14 @@ export function useWarehouses(
   });
 }
 
+export function useWarehouseSummary(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ["warehouses", "summary"],
+    queryFn: () => warehouseService.getSummary().then((res) => res.data.data),
+    enabled: options?.enabled ?? true,
+  });
+}
+
 export function useWarehouse(id: number) {
   return useQuery({
     queryKey: ["warehouses", id],
@@ -60,6 +68,17 @@ export function useUpdateWarehouse() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateWarehouseRequest }) =>
       warehouseService.update(id, data).then((res) => res.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["warehouses"] });
+    },
+  });
+}
+
+export function useDeactivateWarehouse() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) =>
+      warehouseService.deactivate(id).then((res) => res.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["warehouses"] });
     },

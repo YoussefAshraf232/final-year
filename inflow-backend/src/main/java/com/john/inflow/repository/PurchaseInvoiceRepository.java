@@ -68,6 +68,14 @@ public interface PurchaseInvoiceRepository extends JpaRepository<PurchaseInvoice
 
     long countByReceiptStatus(String receiptStatus);
 
+    @Query("SELECT pi FROM PurchaseInvoice pi WHERE pi.supplier.id = :supplierId ORDER BY pi.createdAt DESC")
+    List<PurchaseInvoice> findRecentBySupplier(@Param("supplierId") Integer supplierId, Pageable pageable);
+
+    long countBySupplierId(Integer supplierId);
+
+    @Query("SELECT COUNT(pi) FROM PurchaseInvoice pi WHERE pi.createdAt >= :start AND pi.createdAt < :end")
+    long countBetween(@Param("start") OffsetDateTime start, @Param("end") OffsetDateTime end);
+
     @Query("""
             SELECT COUNT(p) FROM PurchaseInvoice p
             WHERE p.receivedAt >= :start AND p.receivedAt < :end

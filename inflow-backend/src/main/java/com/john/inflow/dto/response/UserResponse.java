@@ -1,6 +1,7 @@
 package com.john.inflow.dto.response;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 public record UserResponse(
     Integer id,
@@ -11,5 +12,8 @@ public record UserResponse(
     String email,
     String roleName,
     OffsetDateTime createdAt,
-    OffsetDateTime leftAt
+    OffsetDateTime leftAt,
+    WarehouseSummaryResponse assignedWarehouse,
+    List<WarehouseSummaryResponse> assignedWarehouses,
+    Integer activeWarehouseId
 ) {}

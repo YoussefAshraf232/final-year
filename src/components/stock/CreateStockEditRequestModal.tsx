@@ -13,25 +13,27 @@ import {
   CreateStockEditRequestPayload,
   STOCK_EDIT_REASON_OPTIONS,
 } from '@/types/stock-edit-request.types';
+import { Warehouse } from '@/types/warehouse.types';
 import { cn } from '@/lib/utils';
 
 interface Props {
   isOpen: boolean;
   isSaving?: boolean;
+  lockedWarehouse?: Pick<Warehouse, 'id' | 'address'> | null;
   onClose: () => void;
   onSubmit: (data: CreateStockEditRequestPayload) => void;
 }
 
-export default function CreateStockEditRequestModal({ isOpen, isSaving, onClose, onSubmit }: Props) {
+export default function CreateStockEditRequestModal({ isOpen, isSaving, lockedWarehouse, onClose, onSubmit }: Props) {
   const [productId, setProductId] = useState<number | ''>('');
-  const [warehouseId, setWarehouseId] = useState<number | ''>('');
+  const [warehouseId, setWarehouseId] = useState<number | ''>(lockedWarehouse?.id ?? '');
   const [adjustment, setAdjustment] = useState<string>('');
   const [reason, setReason] = useState<string>('');
   const [notes, setNotes] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const productsQuery = useProducts({ size: 200 }, { enabled: isOpen });
-  const warehousesQuery = useWarehouses({ size: 200 }, { enabled: isOpen });
+  const warehousesQuery = useWarehouses({ size: 200 }, { enabled: isOpen && !lockedWarehouse });
   const stockQuery = useQuery({
     queryKey: ['stock', 'warehouse', warehouseId],
     queryFn: () => stockService.getWarehouseStock(warehouseId as number).then((res) => res.data),
@@ -44,9 +46,9 @@ export default function CreateStockEditRequestModal({ isOpen, isSaving, onClose,
   ]), [productsQuery.data]);
 
   const warehouseOptions = useMemo(() => ([
-    { value: '', label: 'Select warehouse...' },
-    ...((warehousesQuery.data?.content ?? []).map((w) => ({ value: String(w.id), label: w.address }))),
-  ]), [warehousesQuery.data]);
+    ...(lockedWarehouse ? [{ value: String(lockedWarehouse.id), label: lockedWarehouse.address }] : [{ value: '', label: 'Select warehouse...' }]),
+    ...(!lockedWarehouse ? (warehousesQuery.data?.content ?? []).map((w) => ({ value: String(w.id), label: w.address })) : []),
+  ]), [lockedWarehouse, warehousesQuery.data]);
 
   const reasonOptions = useMemo(() => ([
     { value: '', label: 'Select reason...' },

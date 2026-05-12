@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.OffsetDateTime;
 import java.util.Set;
 
 @Entity
@@ -28,9 +29,27 @@ public class Customer {
     @Column(length = 20)
     private String phone;
 
+    @Size(max = 255)
+    @Column(length = 255)
+    private String email;
+
     @Size(max = 200)
     @Column(length = 200)
     private String address;
+
+    @Builder.Default
+    @Column(nullable = false, length = 20)
+    private String status = "ACTIVE";
+
+    @Column(columnDefinition = "TEXT")
+    private String notes;
+
+    @Builder.Default
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt = OffsetDateTime.now();
+
+    @Column(name = "deactivated_at")
+    private OffsetDateTime deactivatedAt;
 
     @OneToMany(mappedBy = "customer")
     private Set<SalesInvoice> salesInvoices;

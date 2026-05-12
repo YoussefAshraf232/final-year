@@ -18,6 +18,7 @@ const COLLECTION_PATHS = [
   '/users',
   '/roles',
   '/stock',
+  '/warehouse-stock-requests',
   '/sales-invoices',
   '/purchase-invoices',
   '/internal-invoices',

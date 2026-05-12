@@ -5,6 +5,7 @@ import com.john.inflow.dto.request.ReviewStockEditRequest;
 import com.john.inflow.dto.response.PageResponse;
 import com.john.inflow.dto.response.StockEditRequestResponse;
 import com.john.inflow.dto.response.StockEditRequestSummaryResponse;
+import com.john.inflow.entity.User;
 import com.john.inflow.service.AuthService;
 import com.john.inflow.service.StockEditRequestService;
 import jakarta.validation.Valid;
@@ -39,8 +40,8 @@ public class StockEditRequestController {
             Authentication authentication,
             @Valid @RequestBody CreateStockEditRequest request
     ) {
-        Integer userId = authService.getCurrentUser(authentication).getId();
-        StockEditRequestResponse response = service.create(request, userId);
+        User user = authService.getCurrentUser(authentication);
+        StockEditRequestResponse response = service.create(request, user);
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
@@ -59,21 +60,22 @@ public class StockEditRequestController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime dateFrom,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) OffsetDateTime dateTo,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size
+            @RequestParam(defaultValue = "20") int size,
+            Authentication authentication
     ) {
-        return ResponseEntity.ok(service.search(search, status, productId, warehouseId, dateFrom, dateTo, page, size));
+        return ResponseEntity.ok(service.search(search, status, productId, warehouseId, dateFrom, dateTo, page, size, authService.getCurrentUser(authentication)));
     }
 
     @GetMapping("/summary")
     @PreAuthorize(CAN_VIEW)
-    public ResponseEntity<StockEditRequestSummaryResponse> summary() {
-        return ResponseEntity.ok(service.getSummary());
+    public ResponseEntity<StockEditRequestSummaryResponse> summary(Authentication authentication) {
+        return ResponseEntity.ok(service.getSummary(authService.getCurrentUser(authentication)));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize(CAN_VIEW)
-    public ResponseEntity<StockEditRequestResponse> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(service.getById(id));
+    public ResponseEntity<StockEditRequestResponse> getById(Authentication authentication, @PathVariable Integer id) {
+        return ResponseEntity.ok(service.getById(id, authService.getCurrentUser(authentication)));
     }
 
     @PostMapping("/{id}/approve")

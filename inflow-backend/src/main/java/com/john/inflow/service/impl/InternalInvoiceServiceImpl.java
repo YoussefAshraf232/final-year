@@ -114,6 +114,21 @@ public class InternalInvoiceServiceImpl implements InternalInvoiceService {
     }
 
     @Override
+    public com.john.inflow.dto.response.TransfersSummaryResponse getSummary() {
+        java.time.OffsetDateTime weekStart = java.time.OffsetDateTime.now().minusDays(7);
+        List<InternalInvoice> all = internalInvoiceRepository.findAll();
+        long completedThisWeek = all.stream()
+                .filter(inv -> inv.getCreatedAt() != null && inv.getCreatedAt().isAfter(weekStart))
+                .count();
+        long destinations = all.stream()
+                .map(inv -> inv.getDestinationWarehouse().getId())
+                .distinct()
+                .count();
+        // Workflow is immediate-complete: no PENDING / IN_TRANSIT records exist.
+        return new com.john.inflow.dto.response.TransfersSummaryResponse(0L, 0L, completedThisWeek, destinations);
+    }
+
+    @Override
     @Transactional
     public void delete(Integer id) {
         var entity = internalInvoiceRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("InternalInvoice", id));

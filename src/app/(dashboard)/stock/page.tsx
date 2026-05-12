@@ -1,12 +1,13 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Topbar from '@/components/layout/Topbar';
 import BreadCrumb from '@/components/layout/BreadCrumb';
 import Card from '@/components/ui/Card';
-import DemoModeBanner from '@/components/ui/DemoModeBanner';
 import ErrorState from '@/components/ui/ErrorState';
 import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
 import Pagination from '@/components/ui/Pagination';
 import Table from '@/components/ui/Table';
 import Badge from '@/components/ui/Badge';
@@ -14,159 +15,141 @@ import Button from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { useDebounce } from '@/hooks/useDebounce';
 import { usePagination } from '@/hooks/usePagination';
-import { useWarehouseStock } from '@/hooks/useStock';
-import { WarehouseStock } from '@/types/inventory.types';
-import { formatCurrency, formatDate } from '@/lib/formatters';
+import { useStockSummary, useWarehouseStock } from '@/hooks/useStock';
+import { useWarehouses } from '@/hooks/useWarehouses';
+import { WarehouseStock, StockStatus } from '@/types/inventory.types';
+import { formatCurrency, formatDateTime, formatNumber } from '@/lib/formatters';
 import { downloadCsv } from '@/lib/exportCsv';
-import { Download } from 'lucide-react';
+import { ROUTES } from '@/constants/routes';
+import { AlertTriangle, Boxes, Download, Eye, FilePenLine, OctagonX, Warehouse } from 'lucide-react';
 
-const demoStock: WarehouseStock[] = [
-  {
-    productId: 1,
-    productName: 'Wireless Mouse',
-    sku: 'SKU-WM-001',
-    warehouseId: 1,
-    warehouseName: 'Main Warehouse',
-    quantityOnHand: 32,
-    reservedQuantity: 6,
-    availableQuantity: 26,
-    averageCost: 18,
-    totalValue: 576,
-    reorderLevel: 10,
-    reorderQuantity: 40,
-    preferredSupplierName: 'Tech Supplies Inc',
-    lastMovementAt: '2026-04-22T09:30:00Z',
-    updatedAt: '2026-04-22T09:30:00Z',
-  },
-  {
-    productId: 2,
-    productName: 'USB-C Cable',
-    sku: 'SKU-USB-C-1M',
-    warehouseId: 2,
-    warehouseName: 'Tech Store',
-    quantityOnHand: 4,
-    reservedQuantity: 1,
-    availableQuantity: 3,
-    averageCost: 3.2,
-    totalValue: 12.8,
-    reorderLevel: 15,
-    reorderQuantity: 50,
-    preferredSupplierName: 'Cable World',
-    lastMovementAt: '2026-04-24T11:10:00Z',
-    updatedAt: '2026-04-24T11:10:00Z',
-  },
-];
+const statusLabel: Record<StockStatus, string> = {
+  OK: 'OK',
+  LOW_STOCK: 'Low Stock',
+  OUT_OF_STOCK: 'Out of Stock',
+};
 
-export default function StockOnHandPage() {
-  const { isGuest } = useAuth();
+const statusVariant: Record<StockStatus, 'success' | 'warning' | 'danger'> = {
+  OK: 'success',
+  LOW_STOCK: 'warning',
+  OUT_OF_STOCK: 'danger',
+};
+
+function numberValue(value: unknown, fallback = 0) {
+  const parsed = Number(value ?? fallback);
+  return Number.isFinite(parsed) ? parsed : fallback;
+}
+
+function rowStatus(row: WarehouseStock): StockStatus {
+  if (row.status) return row.status;
+  const available = numberValue(row.availableQuantity, numberValue(row.quantityOnHand, row.amount));
+  const reorderLevel = numberValue(row.reorderLevel, 10);
+  if (available <= 0) return 'OUT_OF_STOCK';
+  if (available <= reorderLevel) return 'LOW_STOCK';
+  return 'OK';
+}
+
+function stockValue(row: WarehouseStock) {
+  const totalValue = Number(row.totalValue);
+  if (Number.isFinite(totalValue)) return totalValue;
+  const available = numberValue(row.availableQuantity, numberValue(row.quantityOnHand, row.amount));
+  const unitValue = numberValue(row.unitValue ?? row.averageCost, 0);
+  return available * unitValue;
+}
+
+export default function StockPage() {
+  const router = useRouter();
+  const { isGuest, isWarehouseManager, assignedWarehouse, assignedWarehouseId } = useAuth();
   const [search, setSearch] = useState('');
+  const [warehouseId, setWarehouseId] = useState('');
+  const [status, setStatus] = useState<StockStatus | ''>('');
   const [lowStockOnly, setLowStockOnly] = useState(false);
   const debouncedSearch = useDebounce(search.trim(), 300);
-  const { page, setPage, resetPage, paginationParams } = usePagination({
-    initialSize: 20,
-  });
+  const { page, setPage, resetPage, paginationParams } = usePagination({ initialSize: 8 });
 
-  const { data, isLoading, error, refetch } = useWarehouseStock(
-    {
-      ...paginationParams,
-      search: debouncedSearch || undefined,
-      lowStockOnly,
-    },
-    { enabled: !isGuest }
-  );
+  const filters = {
+    ...paginationParams,
+    search: debouncedSearch || undefined,
+    warehouseId: isWarehouseManager ? assignedWarehouseId ?? undefined : warehouseId ? Number(warehouseId) : undefined,
+    status: status || undefined,
+    lowStockOnly,
+  };
 
-  const showDemoData = isGuest;
-  const showError = !showDemoData && !!error;
-  const rows = useMemo(
-    () => (showDemoData ? demoStock : data?.content ?? []),
-    [data?.content, showDemoData]
-  );
-
-  const filteredRows = useMemo(() => {
-    if (!showDemoData || !debouncedSearch) return rows;
-    const query = debouncedSearch.toLowerCase();
-    return rows.filter(
-      (row) =>
-        row.productName.toLowerCase().includes(query) ||
-        row.sku.toLowerCase().includes(query) ||
-        row.warehouseName.toLowerCase().includes(query)
-    );
-  }, [debouncedSearch, rows, showDemoData]);
-
-  const visibleRows = showDemoData && lowStockOnly
-    ? filteredRows.filter((row) => row.availableQuantity <= row.reorderLevel)
-    : filteredRows;
+  const { data, isLoading, error, refetch } = useWarehouseStock(filters, { enabled: !isGuest });
+  const { data: summary } = useStockSummary({ enabled: !isGuest });
+  const { data: warehouses } = useWarehouses({ page: 0, size: 100 }, { enabled: !isGuest && !isWarehouseManager });
+  const rows = data?.content ?? [];
+  const isFiltered = !!debouncedSearch || !!warehouseId || !!status || lowStockOnly;
 
   const columns = [
+    { key: 'productName', label: 'Product', render: (row: WarehouseStock) => <span className="font-medium text-gray-900">{row.productName}</span> },
+    { key: 'sku', label: 'SKU', render: (row: WarehouseStock) => row.sku || `SKU-${row.productId}` },
+    { key: 'warehouseName', label: 'Warehouse', render: (row: WarehouseStock) => row.warehouseName },
+    { key: 'quantityOnHand', label: 'On Hand', render: (row: WarehouseStock) => formatNumber(numberValue(row.quantityOnHand, row.amount)) },
+    { key: 'reservedQuantity', label: 'Reserved', render: (row: WarehouseStock) => formatNumber(numberValue(row.reservedQuantity, 0)) },
+    { key: 'availableQuantity', label: 'Available', render: (row: WarehouseStock) => formatNumber(numberValue(row.availableQuantity, numberValue(row.quantityOnHand, row.amount))) },
+    { key: 'reorderLevel', label: 'Reorder Level', render: (row: WarehouseStock) => formatNumber(numberValue(row.reorderLevel, 10)) },
     {
-      key: 'productName',
-      label: 'Product',
+      key: 'status',
+      label: 'Status',
+      render: (row: WarehouseStock) => {
+        const currentStatus = rowStatus(row);
+        return <Badge variant={statusVariant[currentStatus]}>{statusLabel[currentStatus]}</Badge>;
+      },
+    },
+    { key: 'totalValue', label: 'Value', render: (row: WarehouseStock) => <span className="font-semibold text-gray-900">{formatCurrency(stockValue(row))}</span> },
+    { key: 'lastMovementAt', label: 'Last Movement', render: (row: WarehouseStock) => row.lastMovementAt ? formatDateTime(row.lastMovementAt) : 'N/A' },
+    {
+      key: 'actions',
+      label: 'Actions',
+      className: 'w-32',
       render: (row: WarehouseStock) => (
-        <div>
-          <p className="font-medium text-gray-900">{row.productName}</p>
-          <p className="text-xs text-gray-400">{row.sku}</p>
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            title="View movements"
+            onClick={() => router.push(`${ROUTES.STOCK_MOVEMENTS}?productId=${row.productId}&warehouseId=${row.warehouseId}`)}
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            title="Request stock edit"
+            onClick={() => router.push(`${ROUTES.STOCK_REQUEST_EDIT}?productId=${row.productId}&warehouseId=${row.warehouseId}`)}
+          >
+            <FilePenLine className="h-4 w-4" />
+          </Button>
         </div>
       ),
     },
-    {
-      key: 'warehouseName',
-      label: 'Warehouse',
-      render: (row: WarehouseStock) => (
-        <span className="text-gray-600">{row.warehouseName}</span>
-      ),
-    },
-    {
-      key: 'quantityOnHand',
-      label: 'On Hand',
-      render: (row: WarehouseStock) => (
-        <span className="font-semibold text-gray-900">{row.quantityOnHand}</span>
-      ),
-    },
-    {
-      key: 'availableQuantity',
-      label: 'Available',
-      render: (row: WarehouseStock) => (
-        <span className="font-semibold text-gray-900">{row.availableQuantity}</span>
-      ),
-    },
-    {
-      key: 'reservedQuantity',
-      label: 'Reserved',
-      render: (row: WarehouseStock) => (
-        <span className="text-gray-600">{row.reservedQuantity}</span>
-      ),
-    },
-    {
-      key: 'reorderLevel',
-      label: 'Status',
-      render: (row: WarehouseStock) => (
-        <Badge variant={row.availableQuantity <= row.reorderLevel ? 'warning' : 'success'}>
-          {row.availableQuantity <= row.reorderLevel ? 'Low stock' : 'OK'}
-        </Badge>
-      ),
-    },
-    {
-      key: 'totalValue',
-      label: 'Value',
-      render: (row: WarehouseStock) => (
-        <span className="font-semibold">{formatCurrency(row.totalValue)}</span>
-      ),
-    },
-    {
-      key: 'lastMovementAt',
-      label: 'Last Movement',
-      render: (row: WarehouseStock) => (
-        <span className="text-sm text-gray-600">
-          {row.lastMovementAt ? formatDate(row.lastMovementAt) : 'N/A'}
-        </span>
-      ),
-    },
+  ];
+
+  const exportRows = rows.map((row) => ({
+    ...row,
+    status: statusLabel[rowStatus(row)],
+    totalValue: stockValue(row),
+  }));
+  const csvColumns = [
+    { label: 'Product', value: (row: typeof exportRows[number]) => row.productName },
+    { label: 'SKU', value: (row: typeof exportRows[number]) => row.sku },
+    { label: 'Warehouse', value: (row: typeof exportRows[number]) => row.warehouseName },
+    { label: 'On Hand', value: (row: typeof exportRows[number]) => row.quantityOnHand },
+    { label: 'Reserved', value: (row: typeof exportRows[number]) => row.reservedQuantity },
+    { label: 'Available', value: (row: typeof exportRows[number]) => row.availableQuantity },
+    { label: 'Reorder Level', value: (row: typeof exportRows[number]) => row.reorderLevel },
+    { label: 'Status', value: (row: typeof exportRows[number]) => row.status },
+    { label: 'Value', value: (row: typeof exportRows[number]) => row.totalValue },
+    { label: 'Last Movement', value: (row: typeof exportRows[number]) => row.lastMovementAt },
   ];
 
   return (
     <>
       <Topbar
-        title="Stock On Hand"
+        title="Stock"
         subtitle="Warehouse-level quantity, availability, reorder status, and valuation"
         actions={
           <Button
@@ -174,43 +157,37 @@ export default function StockOnHandPage() {
             variant="outline"
             size="sm"
             onClick={() =>
-              downloadCsv(
-                'stock-on-hand.csv',
-                [
-                  { label: 'Product', value: (row) => row.productName },
-                  { label: 'SKU', value: (row) => row.sku },
-                  { label: 'Warehouse', value: (row) => row.warehouseName },
-                  { label: 'On Hand', value: (row) => row.quantityOnHand },
-                  { label: 'Reserved', value: (row) => row.reservedQuantity },
-                  { label: 'Available', value: (row) => row.availableQuantity },
-                  { label: 'Average Cost', value: (row) => row.averageCost },
-                  { label: 'Total Value', value: (row) => row.totalValue },
-                ],
-                visibleRows
-              )
+              downloadCsv('stock.csv', csvColumns, exportRows)
             }
-            disabled={visibleRows.length === 0}
+            disabled={rows.length === 0}
           >
             <Download className="h-4 w-4" />
             CSV
           </Button>
         }
       />
-
-      <div className="p-6">
-        <BreadCrumb items={[{ label: 'Stock On Hand' }]} />
-        {showDemoData && <DemoModeBanner resource="stock records" />}
-
-        {showError ? (
+      <div className="bg-slate-50 p-6">
+        <BreadCrumb items={[{ label: 'Stock' }]} />
+        {error ? (
           <ErrorState
-            title="Could not load stock"
-            message="Stock on hand requires the backend /stock endpoint. No demo stock is shown to authenticated users."
+            title="Could not load warehouse stock"
+            message="Could not load warehouse stock. Check that the backend is running and your session is valid."
             onRetry={() => void refetch()}
           />
         ) : (
-          <Card>
-            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-end">
-              <div className="md:w-80">
+          <div className="space-y-5">
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              <KpiCard icon={<Boxes className="h-5 w-5" />} label="Total SKUs" value={summary?.totalSkus ?? 0} tone="indigo" />
+              <KpiCard icon={<Warehouse className="h-5 w-5" />} label="Total Warehouses" value={summary?.totalWarehouses ?? 0} tone="emerald" />
+              <KpiCard icon={<AlertTriangle className="h-5 w-5" />} label="Low Stock Items" value={summary?.lowStockItems ?? 0} tone="amber" />
+              <KpiCard icon={<OctagonX className="h-5 w-5" />} label="Out of Stock" value={summary?.outOfStockItems ?? 0} tone="red" />
+            </div>
+
+            <Card>
+              <div className="mb-5 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Stock</h2>
+              </div>
+              <div className="mb-5 grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr_auto_auto] lg:items-end">
                 <Input
                   id="stock-search"
                   label="Search"
@@ -221,42 +198,113 @@ export default function StockOnHandPage() {
                     resetPage();
                   }}
                 />
-              </div>
-              <label className="flex items-center gap-2 pb-2 text-sm text-gray-700">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                  checked={lowStockOnly}
+                {isWarehouseManager ? (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Warehouse</label>
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-700">
+                      {assignedWarehouse?.address ?? 'Assigned warehouse'}
+                    </div>
+                  </div>
+                ) : (
+                  <Select
+                    id="stock-warehouse"
+                    label="Warehouse"
+                    value={warehouseId}
+                    placeholder="All Warehouses"
+                    options={(warehouses?.content ?? []).map((warehouse) => ({
+                      value: warehouse.id,
+                      label: warehouse.address,
+                    }))}
+                    onChange={(event) => {
+                      setWarehouseId(event.target.value);
+                      resetPage();
+                    }}
+                  />
+                )}
+                <Select
+                  id="stock-status"
+                  label="Status"
+                  value={status}
+                  placeholder="All Statuses"
+                  options={[
+                    { value: 'OK', label: 'OK' },
+                    { value: 'LOW_STOCK', label: 'Low Stock' },
+                    { value: 'OUT_OF_STOCK', label: 'Out of Stock' },
+                  ]}
                   onChange={(event) => {
-                    setLowStockOnly(event.target.checked);
+                    setStatus(event.target.value as StockStatus | '');
                     resetPage();
                   }}
                 />
-                Low stock only
-              </label>
-            </div>
-
-            <Table
-              columns={columns}
-              data={visibleRows}
-              keyExtractor={(row) => `${row.productId}-${row.warehouseId}`}
-              isLoading={!showDemoData && isLoading}
-              emptyMessage="No stock records found"
-            />
-
-            {!showDemoData && data && (
-              <Pagination
-                page={page}
-                totalPages={data.totalPages}
-                totalElements={data.totalElements}
-                isFirst={data.first}
-                isLast={data.last}
-                onPageChange={setPage}
+                <label className="flex items-center gap-2 pb-2 text-sm text-gray-700">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    checked={lowStockOnly}
+                    onChange={(event) => {
+                      setLowStockOnly(event.target.checked);
+                      resetPage();
+                    }}
+                  />
+                  Low stock only
+                </label>
+                <Button type="button" variant="outline" size="sm" onClick={() => downloadCsv('stock.csv', csvColumns, exportRows)} disabled={rows.length === 0}>
+                  <Download className="h-4 w-4" />
+                  CSV
+                </Button>
+              </div>
+              {isLoading && <p className="pb-3 text-sm text-gray-500">Loading stock...</p>}
+              <Table
+                columns={columns}
+                data={rows}
+                keyExtractor={(row) => `${row.productId}-${row.warehouseId}`}
+                isLoading={isLoading}
+                emptyMessage={isFiltered ? 'No records match the current filters.' : 'No stock records found.'}
               />
-            )}
-          </Card>
+              {data && (
+                <Pagination
+                  page={page}
+                  totalPages={data.totalPages}
+                  totalElements={data.totalElements}
+                  isFirst={data.first}
+                  isLast={data.last}
+                  onPageChange={setPage}
+                />
+              )}
+            </Card>
+          </div>
         )}
       </div>
     </>
+  );
+}
+
+function KpiCard({
+  icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: number;
+  tone: 'indigo' | 'emerald' | 'amber' | 'red';
+}) {
+  const tones = {
+    indigo: 'bg-indigo-50 text-indigo-600',
+    emerald: 'bg-emerald-50 text-emerald-600',
+    amber: 'bg-amber-50 text-amber-600',
+    red: 'bg-red-50 text-red-600',
+  };
+  return (
+    <Card className="border border-gray-200 shadow-sm">
+      <div className="flex items-center gap-4">
+        <div className={`rounded-2xl p-3 ${tones[tone]}`}>{icon}</div>
+        <div>
+          <p className="text-sm font-medium text-gray-500">{label}</p>
+          <p className="mt-1 text-2xl font-bold text-gray-900">{formatNumber(value)}</p>
+        </div>
+      </div>
+    </Card>
   );
 }

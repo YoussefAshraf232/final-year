@@ -19,6 +19,8 @@ import { getLandingRoute } from "@/constants/roles";
 interface AuthContextType {
     user: User | null;
     token: string | null;
+    assignedWarehouse: User["assignedWarehouse"] | null;
+    assignedWarehouseId: number | null;
     isLoading: boolean;
     isAuthenticated: boolean;
     login: (data: LoginRequest) => Promise<void>;
@@ -103,6 +105,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             role: "EMPLOYEE",
             joinedAt: new Date().toISOString(),
             leftAt: null,
+            assignedWarehouse: null,
+            assignedWarehouses: [],
+            activeWarehouseId: null,
         };
 
         tokenStorage.setToken(GUEST_TOKEN);
@@ -125,6 +130,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             value={{
                 user,
                 token,
+                assignedWarehouse: user?.assignedWarehouse ?? null,
+                assignedWarehouseId: user?.activeWarehouseId ?? user?.assignedWarehouse?.id ?? null,
                 isLoading,
                 isAuthenticated: !!token && !!user,
                 login,

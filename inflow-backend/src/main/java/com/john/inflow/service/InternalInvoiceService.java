@@ -10,4 +10,5 @@ public interface InternalInvoiceService {
     InternalInvoiceResponse getById(Integer id);
     List<InternalInvoiceResponse> getAll();
     void delete(Integer id);
+    com.john.inflow.dto.response.TransfersSummaryResponse getSummary();
 }

@@ -4,17 +4,22 @@ import com.john.inflow.dto.request.CreateUserRequest;
 import com.john.inflow.dto.request.UpdateUserRequest;
 import com.john.inflow.dto.response.UserResponse;
 import com.john.inflow.dto.response.UserSummaryResponse;
+import com.john.inflow.dto.response.WarehouseSummaryResponse;
 import com.john.inflow.entity.Role;
 import com.john.inflow.entity.User;
+import com.john.inflow.repository.UserWarehouseRepository;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class UserMapper {
-
     private final RoleMapper roleMapper;
+    private final UserWarehouseRepository userWarehouseRepository;
 
-    public UserMapper(RoleMapper roleMapper) {
+    public UserMapper(RoleMapper roleMapper, UserWarehouseRepository userWarehouseRepository) {
         this.roleMapper = roleMapper;
+        this.userWarehouseRepository = userWarehouseRepository;
     }
 
     public User toEntity(CreateUserRequest request, String passwordHash, Role role) {
@@ -45,6 +50,12 @@ public class UserMapper {
     }
 
     public UserResponse toResponse(User user) {
+        List<WarehouseSummaryResponse> assignedWarehouses = userWarehouseRepository
+                .findActiveByUserIdWithWarehouse(user.getId())
+                .stream()
+                .map(uw -> new WarehouseSummaryResponse(uw.getWarehouse().getId(), uw.getWarehouse().getAddress()))
+                .toList();
+        WarehouseSummaryResponse assignedWarehouse = assignedWarehouses.isEmpty() ? null : assignedWarehouses.get(0);
         return new UserResponse(
                 user.getId(),
                 user.getUsername(),
@@ -54,7 +65,10 @@ public class UserMapper {
                 user.getEmail(),
                 user.getRole() != null ? user.getRole().getName() : null,
                 user.getCreatedAt(),
-                user.getLeftAt()
+                user.getLeftAt(),
+                assignedWarehouse,
+                assignedWarehouses,
+                assignedWarehouse != null ? assignedWarehouse.id() : null
         );
     }
 

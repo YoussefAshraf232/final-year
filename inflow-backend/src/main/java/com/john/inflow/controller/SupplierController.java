@@ -1,7 +1,10 @@
 package com.john.inflow.controller;
 
 import com.john.inflow.dto.request.SupplierRequest;
+import com.john.inflow.dto.response.PageResponse;
+import com.john.inflow.dto.response.SupplierDetailResponse;
 import com.john.inflow.dto.response.SupplierResponse;
+import com.john.inflow.dto.response.SupplierStatsResponse;
 import com.john.inflow.service.SupplierService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -10,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("/suppliers")
@@ -36,20 +38,43 @@ public class SupplierController {
         return ResponseEntity.created(location).body(response);
     }
 
+    @GetMapping("/summary")
+    public ResponseEntity<SupplierStatsResponse> stats() {
+        return ResponseEntity.ok(supplierService.stats());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<SupplierResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(supplierService.getById(id));
     }
 
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<SupplierDetailResponse> getDetail(@PathVariable Integer id) {
+        return ResponseEntity.ok(supplierService.getDetail(id));
+    }
+
     @GetMapping
-    public ResponseEntity<List<SupplierResponse>> getAll() {
-        return ResponseEntity.ok(supplierService.getAll());
+    public ResponseEntity<PageResponse<SupplierResponse>> getAll(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String hasProducts,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        return ResponseEntity.ok(supplierService.search(search, status, hasProducts, page, size));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize(CAN_WRITE)
     public ResponseEntity<SupplierResponse> update(@PathVariable Integer id, @Valid @RequestBody SupplierRequest request) {
         return ResponseEntity.ok(supplierService.update(id, request));
+    }
+
+    @PostMapping("/{id}/deactivate")
+    @PreAuthorize(CAN_WRITE)
+    public ResponseEntity<Void> deactivate(@PathVariable Integer id) {
+        supplierService.deactivate(id);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

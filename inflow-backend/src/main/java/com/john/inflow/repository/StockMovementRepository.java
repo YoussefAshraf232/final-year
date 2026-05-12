@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 @Repository
 public interface StockMovementRepository extends JpaRepository<StockMovement, Integer> {
@@ -28,4 +29,6 @@ public interface StockMovementRepository extends JpaRepository<StockMovement, In
             @Param("dateTo") OffsetDateTime dateTo,
             Pageable pageable
     );
+
+    Optional<StockMovement> findTopByProductIdAndWarehouseIdOrderByCreatedAtDesc(Integer productId, Integer warehouseId);
 }

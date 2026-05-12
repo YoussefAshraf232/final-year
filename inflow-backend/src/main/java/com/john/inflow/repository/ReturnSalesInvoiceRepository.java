@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Repository
 public interface ReturnSalesInvoiceRepository extends JpaRepository<ReturnSalesInvoice, Integer> {
@@ -72,4 +73,18 @@ public interface ReturnSalesInvoiceRepository extends JpaRepository<ReturnSalesI
     long countByRestockStatus(String restockStatus);
 
     boolean existsBySalesInvoiceId(Integer salesInvoiceId);
+
+    long countByCustomerId(Integer customerId);
+
+    @Query("SELECT COUNT(DISTINCT r.customer.id) FROM ReturnSalesInvoice r")
+    long countCustomersWithReturns();
+
+    @Query("SELECT COALESCE(SUM(r.totalPrice), 0) FROM ReturnSalesInvoice r WHERE r.customer.id = :customerId")
+    BigDecimal sumByCustomerId(@Param("customerId") Integer customerId);
+
+    @Query("SELECT MAX(r.returnedAt) FROM ReturnSalesInvoice r WHERE r.customer.id = :customerId")
+    OffsetDateTime findLastReturnAt(@Param("customerId") Integer customerId);
+
+    @Query("SELECT r FROM ReturnSalesInvoice r WHERE r.customer.id = :customerId ORDER BY r.returnedAt DESC")
+    List<ReturnSalesInvoice> findRecentByCustomerId(@Param("customerId") Integer customerId, Pageable pageable);
 }

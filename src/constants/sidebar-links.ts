@@ -29,18 +29,9 @@ export const sidebarLinks: SidebarLink[] = [
   { label: 'Suppliers', href: ROUTES.SUPPLIERS, icon: Truck, permission: PERMISSIONS.supplierView },
   {
     label: 'Stock',
-    icon: Boxes,
-    permission: PERMISSIONS.stockView,
-    children: [
-      { label: 'Stock On Hand', href: ROUTES.STOCK, permission: PERMISSIONS.stockView },
-      { label: 'Movements', href: ROUTES.STOCK_MOVEMENTS, permission: PERMISSIONS.stockMovementView },
-    ],
-  },
-  {
-    label: 'Warehouse Stock',
     href: ROUTES.STOCK,
     icon: Boxes,
-    permission: PERMISSIONS.warehouseStockView,
+    permission: PERMISSIONS.stockView,
   },
   { label: 'Warehouses', href: ROUTES.WAREHOUSES, icon: Warehouse, permission: PERMISSIONS.warehouseView },
   { label: 'Customers', href: ROUTES.CUSTOMERS, icon: Users, permission: PERMISSIONS.customerView },

@@ -15,6 +15,14 @@ export const internalInvoiceService = {
       params,
     }),
 
+  getSummary: () =>
+    api.get<ApiResponse<{
+      pendingCount: number;
+      inTransitCount: number;
+      completedThisWeekCount: number;
+      destinationWarehousesCount: number;
+    }>>("/internal-invoices/summary"),
+
   getById: (id: number) =>
     api.get<ApiResponse<InternalInvoice>>(`/internal-invoices/${id}`),
 
