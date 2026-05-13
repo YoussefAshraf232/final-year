@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, FilePenLine, Inbox, Plus, Send } from 'lucide-react';
 import Topbar from '@/components/layout/Topbar';
@@ -47,7 +47,8 @@ const requestStatusVariant: Record<string, 'warning' | 'success' | 'danger' | 'd
 
 export default function RequestStockEditPage() {
   const { assignedWarehouse, assignedWarehouseId, isGuest, isWarehouseManager, isOperationalManager } = useAuth();
-  const [activeTab, setActiveTab] = useState<Tab>(isOperationalManager ? 'incoming' : 'edits');
+  const [activeTab, setActiveTab] = useState<Tab>('edits');
+  const currentTab: Tab = isOperationalManager ? 'incoming' : activeTab;
   const [createEditOpen, setCreateEditOpen] = useState(false);
   const [productId, setProductId] = useState<number | ''>('');
   const [requestedQuantity, setRequestedQuantity] = useState('');
@@ -79,12 +80,6 @@ export default function RequestStockEditPage() {
   const createStockRequestMutation = useCreateWarehouseStockRequest();
   const acceptMutation = useAcceptWarehouseStockRequest();
   const rejectMutation = useRejectWarehouseStockRequest();
-
-  useEffect(() => {
-    if (isOperationalManager) {
-      setActiveTab('incoming');
-    }
-  }, [isOperationalManager]);
 
   const productOptions = useMemo(() => [
     { value: '', label: 'Select product...' },
@@ -176,14 +171,18 @@ export default function RequestStockEditPage() {
         <div className="flex flex-wrap gap-2 border-b border-gray-200">
           {!isOperationalManager && (
             <>
-              <TabButton active={activeTab === 'edits'} onClick={() => setActiveTab('edits')}>My Stock Edit Requests</TabButton>
-              <TabButton active={activeTab === 'request'} onClick={() => setActiveTab('request')}>Request Stock From Warehouse</TabButton>
+              <TabButton active={currentTab === 'edits'} onClick={() => setActiveTab('edits')}>My Stock Edit Requests</TabButton>
+              <TabButton active={currentTab === 'request'} onClick={() => setActiveTab('request')}>Request Stock From Warehouse</TabButton>
             </>
           )}
-          <TabButton active={activeTab === 'incoming'} onClick={() => setActiveTab('incoming')}>{isOperationalManager ? 'Warehouse Requests' : 'Incoming Warehouse Requests'}</TabButton>
+          <TabButton active={currentTab === 'incoming'} onClick={() => {
+            if (!isOperationalManager) {
+              setActiveTab('incoming');
+            }
+          }}>{isOperationalManager ? 'Warehouse Requests' : 'Incoming Warehouse Requests'}</TabButton>
         </div>
 
-        {activeTab === 'edits' && (
+        {currentTab === 'edits' && (
           <Card>
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
@@ -215,7 +214,7 @@ export default function RequestStockEditPage() {
           </Card>
         )}
 
-        {activeTab === 'request' && (
+        {currentTab === 'request' && (
           <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
             <Card>
               <h2 className="mb-4 text-lg font-semibold text-gray-900">Request Stock From Warehouse</h2>
@@ -243,7 +242,7 @@ export default function RequestStockEditPage() {
           </div>
         )}
 
-        {activeTab === 'incoming' && (
+        {currentTab === 'incoming' && (
           <Card>
             <h2 className="mb-4 text-lg font-semibold text-gray-900">{isOperationalManager ? 'Warehouse Requests' : 'Incoming Warehouse Requests'}</h2>
             {incomingQuery.error ? (

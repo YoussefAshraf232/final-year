@@ -98,14 +98,20 @@ export default function DistributeProductsPage() {
   const createMutation = useCreateInternalInvoice();
   const deleteMutation = useDeleteInternalInvoice();
 
-  const warehouses = warehousesData?.content ?? [];
+  const warehouses = useMemo(
+    () => warehousesData?.content ?? [],
+    [warehousesData?.content]
+  );
   const products = productsData?.content ?? [];
   const central = useMemo(() => warehouses.find((w) => w.isCentral), [warehouses]);
   const branches = useMemo(() => warehouses.filter((w) => !w.isCentral), [warehouses]);
 
   const showDemoData = isGuest;
   const showError = !showDemoData && !!error;
-  const allInvoices = data?.content ?? [];
+  const allInvoices = useMemo(
+    () => data?.content ?? [],
+    [data?.content]
+  );
 
   const filtered = useMemo(() => {
     return allInvoices.filter((inv) => {
