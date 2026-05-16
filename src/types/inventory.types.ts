@@ -1,19 +1,5 @@
 import { PaginationParams } from "./api.types";
 
-export type StockMovementType =
-  | "OPENING_STOCK"
-  | "PURCHASE"
-  | "SALE"
-  | "CUSTOMER_RETURN"
-  | "SUPPLIER_RETURN"
-  | "TRANSFER_IN"
-  | "TRANSFER_OUT"
-  | "ADJUSTMENT_IN"
-  | "ADJUSTMENT_OUT"
-  | "DAMAGE"
-  | "LOSS"
-  | "CORRECTION";
-
 export type StockReferenceType =
   | "SALES_INVOICE"
   | "PURCHASE_INVOICE"
@@ -24,34 +10,6 @@ export type StockReferenceType =
   | "MANUAL_ADJUSTMENT"
   | "STOCK_COUNT"
   | "OPENING_BALANCE";
-
-export interface StockMovement {
-  id: number;
-  productId: number;
-  productName: string;
-  sku?: string;
-  warehouseId: number;
-  warehouseName: string;
-  movementType: StockMovementType;
-  quantity: number;
-  unitCost: number;
-  totalValue: number;
-  referenceType: StockReferenceType;
-  referenceId: number | string;
-  note?: string;
-  createdByUserId: number;
-  createdByUsername: string;
-  createdAt: string;
-}
-
-export interface StockMovementFilterParams extends PaginationParams {
-  productId?: number;
-  warehouseId?: number;
-  movementType?: StockMovementType;
-  referenceType?: StockReferenceType;
-  dateFrom?: string;
-  dateTo?: string;
-}
 
 export interface WarehouseStock {
   productId: number;

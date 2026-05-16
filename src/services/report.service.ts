@@ -10,7 +10,6 @@ import {
 const REPORT_ENDPOINTS: Record<ReportKey, string> = {
   stockOnHand: "/reports/stock-on-hand",
   lowStock: "/reports/low-stock",
-  stockMovements: "/reports/stock-movements",
   salesSummary: "/reports/sales-summary",
   purchaseSummary: "/reports/purchase-summary",
   returns: "/reports/returns",

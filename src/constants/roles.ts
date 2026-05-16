@@ -21,7 +21,6 @@ export type Permission =
   | "warehouse.assignStaff"
   | "stock.view"
   | "warehouse-stock.view"
-  | "stock.movement.view"
   | "stock-edit-request.create"
   | "stock.adjust"
   | "stock.transfer"
@@ -144,7 +143,6 @@ export const PERMISSIONS = {
   warehouseAssignStaff: "warehouse.assignStaff",
   stockView: "stock.view",
   warehouseStockView: "warehouse-stock.view",
-  stockMovementView: "stock.movement.view",
   stockEditRequest: "stock-edit-request.create",
   stockAdjust: "stock.adjust",
   stockTransfer: "stock.transfer",
@@ -201,7 +199,6 @@ export const ROLE_PERMISSIONS: Record<FrontendRole, Permission[]> = {
     PERMISSIONS.warehouseView,
     PERMISSIONS.warehouseManage,
     PERMISSIONS.stockView,
-    PERMISSIONS.stockMovementView,
     PERMISSIONS.stockEditRequest,
     PERMISSIONS.transferView,
     PERMISSIONS.transferManage,
@@ -254,7 +251,6 @@ export function canAccessRoute(userRole: UserRole | undefined, route: string): b
   if (route.startsWith(ROUTES.AUDIT_LOGS)) return hasPermission(userRole, PERMISSIONS.auditView);
   if (route.startsWith(ROUTES.REPORTS)) return hasPermission(userRole, PERMISSIONS.reportView);
   if (route.startsWith(`${ROUTES.STOCK}/request-edit`)) return hasPermission(userRole, PERMISSIONS.stockEditRequest);
-  if (route.startsWith(ROUTES.STOCK_MOVEMENTS)) return hasPermission(userRole, PERMISSIONS.stockMovementView);
   if (route.startsWith(ROUTES.STOCK)) {
     return (
       hasPermission(userRole, PERMISSIONS.stockView) ||

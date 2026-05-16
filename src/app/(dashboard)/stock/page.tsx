@@ -21,7 +21,7 @@ import { WarehouseStock, StockStatus } from '@/types/inventory.types';
 import { formatCurrency, formatDateTime, formatNumber } from '@/lib/formatters';
 import { downloadCsv } from '@/lib/exportCsv';
 import { ROUTES } from '@/constants/routes';
-import { AlertTriangle, Boxes, Download, Eye, FilePenLine, OctagonX, Warehouse } from 'lucide-react';
+import { AlertTriangle, Boxes, Download, FilePenLine, OctagonX, Warehouse } from 'lucide-react';
 
 const statusLabel: Record<StockStatus, string> = {
   OK: 'OK',
@@ -113,15 +113,6 @@ export default function StockPage() {
       className: 'w-32',
       render: (row: WarehouseStock) => (
         <div className="flex items-center gap-1">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            title="View movements"
-            onClick={() => router.push(`${ROUTES.STOCK_MOVEMENTS}?productId=${row.productId}&warehouseId=${row.warehouseId}`)}
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
           <Button
             type="button"
             variant="ghost"

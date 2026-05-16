@@ -5,8 +5,6 @@ import {
   CreateStockCountRequest,
   StockAdjustment,
   StockCount,
-  StockMovement,
-  StockMovementFilterParams,
   StockSummary,
   WarehouseStock,
   WarehouseStockFilterParams,
@@ -29,8 +27,6 @@ export const stockService = {
       params,
     }),
 
-  getMovements: (params?: StockMovementFilterParams) =>
-    api.get<PaginatedResponse<StockMovement>>("/stock/movements", { params }),
 
   createAdjustment: (data: CreateStockAdjustmentRequest) =>
     api.post<ApiResponse<StockAdjustment>>("/stock/adjustments", data),

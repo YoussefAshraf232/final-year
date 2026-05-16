@@ -1,14 +1,9 @@
-import {
-  StockMovementType,
-  StockMovement,
-  WarehouseStock,
-} from "./inventory.types";
+import { WarehouseStock } from "./inventory.types";
 import { PaginationParams } from "./api.types";
 
 export type ReportKey =
   | "stockOnHand"
   | "lowStock"
-  | "stockMovements"
   | "salesSummary"
   | "purchaseSummary"
   | "returns"
@@ -25,7 +20,6 @@ export interface ReportFilterParams extends PaginationParams {
   categoryId?: number;
   supplierId?: number;
   customerId?: number;
-  movementType?: StockMovementType;
 }
 
 export interface ReportResult<T> {
@@ -40,8 +34,6 @@ export interface LowStockReportRow extends WarehouseStock {
   suggestedReorderQuantity: number;
   preferredSupplierName?: string;
 }
-
-export type StockMovementReportRow = StockMovement;
 
 export interface SalesSummaryReportRow {
   period: string;
@@ -107,7 +99,6 @@ export interface CustomerPurchaseHistoryReportRow {
 export interface ReportRowByKey {
   stockOnHand: StockOnHandReportRow;
   lowStock: LowStockReportRow;
-  stockMovements: StockMovementReportRow;
   salesSummary: SalesSummaryReportRow;
   purchaseSummary: PurchaseSummaryReportRow;
   returns: ReturnsReportRow;

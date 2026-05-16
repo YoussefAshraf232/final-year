@@ -36,6 +36,5 @@ describe("role permissions", () => {
     expect(canAccessRoute("EMPLOYEE", "/invoices/purchases")).toBe(true);
     expect(canAccessRoute("EMPLOYEE", "/stock/request-edit")).toBe(true);
     expect(canAccessRoute("EMPLOYEE", "/reports")).toBe(false);
-    expect(canAccessRoute("EMPLOYEE", "/stock/movements")).toBe(false);
   });
 });

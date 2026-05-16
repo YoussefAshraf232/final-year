@@ -3,7 +3,6 @@ import { stockService } from "@/services/stock.service";
 import {
   CreateStockAdjustmentRequest,
   CreateStockCountRequest,
-  StockMovementFilterParams,
   WarehouseStockFilterParams,
 } from "@/types/inventory.types";
 
@@ -22,17 +21,6 @@ export function useStockSummary(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["stock", "summary"],
     queryFn: () => stockService.getSummary().then((res) => res.data.data),
-    enabled: options?.enabled ?? true,
-  });
-}
-
-export function useStockMovements(
-  params?: StockMovementFilterParams,
-  options?: { enabled?: boolean }
-) {
-  return useQuery({
-    queryKey: ["stock", "movements", params],
-    queryFn: () => stockService.getMovements(params).then((res) => res.data),
     enabled: options?.enabled ?? true,
   });
 }

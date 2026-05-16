@@ -41,12 +41,6 @@ const reportOptions: { key: ReportKey; title: string; description: string; endpo
     endpoint: 'GET /reports/low-stock',
   },
   {
-    key: 'stockMovements',
-    title: 'Stock Movements',
-    description: 'Ledger of stock-changing events with reference document and actor.',
-    endpoint: 'GET /reports/stock-movements',
-  },
-  {
     key: 'salesSummary',
     title: 'Sales Summary',
     description: 'Sales totals, invoice count, average order value, and top customers.',
@@ -115,15 +109,6 @@ const reportColumns: Record<ReportKey, ReportColumn[]> = {
     { key: 'preferredSupplierName', label: 'Supplier', csvValue: (row) => text(row, 'preferredSupplierName') },
     { key: 'suggestedReorderQuantity', label: 'Suggested Qty', render: (row) => <Badge variant="warning">{numberValue(row, 'suggestedReorderQuantity')}</Badge>, csvValue: (row) => numberValue(row, 'suggestedReorderQuantity') },
   ],
-  stockMovements: [
-    { key: 'createdAt', label: 'Date', render: (row) => dateText(row, 'createdAt'), csvValue: (row) => text(row, 'createdAt') },
-    { key: 'productName', label: 'Product', csvValue: (row) => text(row, 'productName') },
-    { key: 'warehouseName', label: 'Warehouse', csvValue: (row) => text(row, 'warehouseName') },
-    { key: 'movementType', label: 'Movement', render: (row) => <Badge variant="info">{text(row, 'movementType').replaceAll('_', ' ')}</Badge>, csvValue: (row) => text(row, 'movementType') },
-    { key: 'quantity', label: 'Qty', csvValue: (row) => numberValue(row, 'quantity') },
-    { key: 'referenceId', label: 'Reference', render: (row) => `${text(row, 'referenceType')} #${text(row, 'referenceId')}`, csvValue: (row) => `${text(row, 'referenceType')} #${text(row, 'referenceId')}` },
-    { key: 'createdByUsername', label: 'User', csvValue: (row) => text(row, 'createdByUsername') },
-  ],
   salesSummary: [
     { key: 'period', label: 'Period', csvValue: (row) => text(row, 'period') },
     { key: 'totalSales', label: 'Sales', render: (row) => formatCurrency(numberValue(row, 'totalSales')), csvValue: (row) => numberValue(row, 'totalSales') },
@@ -180,9 +165,6 @@ const demoRows: Record<ReportKey, Record<string, unknown>[]> = {
   ],
   lowStock: [
     { productName: 'USB-C Cable', warehouseName: 'Tech Store', availableQuantity: 3, reorderLevel: 15, preferredSupplierName: 'Cable World', suggestedReorderQuantity: 50 },
-  ],
-  stockMovements: [
-    { createdAt: '2026-04-24T11:10:00Z', productName: 'USB-C Cable', warehouseName: 'Tech Store', movementType: 'SALE', quantity: -12, referenceType: 'SALES_INVOICE', referenceId: 101, createdByUsername: 'manager1' },
   ],
   salesSummary: [
     { period: 'Apr 2026', totalSales: 18450, invoiceCount: 42, averageOrderValue: 439.29, topCustomerName: 'ABC Corp' },
