@@ -3,10 +3,8 @@
 import { useMemo, useState } from 'react';
 import {
   Eye,
-  Truck,
   Plus,
   CheckCircle2,
-  AlertTriangle,
   Ban,
   Printer,
   PackageCheck,
@@ -411,15 +409,6 @@ export default function ReceiveOrdersPage() {
             )}
             <Button size="sm" variant="outline" onClick={() => requireSelection(() => openDrawer(selectedSummary!, 'view'))} disabled={!selectedSummary}>
               <Eye className="h-4 w-4" /> View Order
-            </Button>
-            <Button size="sm" variant="primary" onClick={() => requireSelection(() => openDrawer(selectedSummary!, 'receive'))} disabled={!selectedSummary || selectedSummary.receiptStatus === 'PENDING_APPROVAL'}>
-              <Truck className="h-4 w-4" /> Receive Order
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => requireSelection(() => openDrawer(selectedSummary!, 'partial'))} disabled={!selectedSummary}>
-              <PackageCheck className="h-4 w-4" /> Partial Receive
-            </Button>
-            <Button size="sm" variant="outline" onClick={() => requireSelection(() => openDrawer(selectedSummary!, 'damaged'))} disabled={!selectedSummary}>
-              <AlertTriangle className="h-4 w-4" /> Mark Damaged
             </Button>
             <Button size="sm" variant="danger" onClick={() => requireSelection(() => setRejectOpen(true))} disabled={!selectedSummary}>
               <Ban className="h-4 w-4" /> Reject Items
