@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">IMS logo mark</title>
+  <desc id="desc">Rounded purple square containing the letters IMS</desc>
+  <rect x="4" y="4" width="120" height="120" rx="24" fill="#5B4CF0"/>
+  <rect x="16" y="16" width="96" height="96" rx="18" fill="none" stroke="#FFFFFF" stroke-opacity=".24" stroke-width="2"/>
+  <text x="64" y="74" text-anchor="middle" font-family="Inter,Segoe UI,sans-serif" font-size="34" font-weight="700" fill="#FFFFFF">IMS</text>
+</svg>

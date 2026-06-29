@@ -1,0 +1,11 @@
+{
+  "name": "inventory-ms-slide-skill-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "qa": "node .claude/skills/inventory-ms-html-deck/scripts/qa-slides.mjs presentation/index.html presentation/qa"
+  },
+  "devDependencies": {
+    "playwright": "^1.55.0"
+  }
+}

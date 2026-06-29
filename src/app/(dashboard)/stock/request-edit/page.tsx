@@ -19,7 +19,10 @@ import {
   useStockEditRequests,
   useStockEditRequestSummary,
   useCreateStockEditRequest,
+  useApproveStockEditRequest,
+  useRejectStockEditRequest,
   useCancelStockEditRequest,
+  useAddStockEditRequestComment,
 } from '@/hooks/useStockEditRequests';
 import {
   useAcceptWarehouseStockRequest,
@@ -34,11 +37,14 @@ import { StockEditRequest } from '@/types/stock-edit-request.types';
 import { WarehouseStockRequest } from '@/types/warehouse-stock-request.types';
 import { formatDate } from '@/lib/formatters';
 import CreateStockEditRequestModal from '@/components/stock/CreateStockEditRequestModal';
+import StockEditRequestDrawer from '@/components/stock/StockEditRequestDrawer';
+import toast from 'react-hot-toast';
 
 type Tab = 'edits' | 'request' | 'incoming';
 
 const requestStatusVariant: Record<string, 'warning' | 'success' | 'danger' | 'default'> = {
   PENDING: 'warning',
+  APPROVED: 'success',
   COMPLETED: 'success',
   ACCEPTED: 'success',
   REJECTED: 'danger',
@@ -48,8 +54,10 @@ const requestStatusVariant: Record<string, 'warning' | 'success' | 'danger' | 'd
 export default function RequestStockEditPage() {
   const { assignedWarehouse, assignedWarehouseId, isGuest, isWarehouseManager, isOperationalManager } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('edits');
-  const currentTab: Tab = isOperationalManager ? 'incoming' : activeTab;
+  const currentTab: Tab = activeTab;
   const [createEditOpen, setCreateEditOpen] = useState(false);
+  const [stockEditDrawerOpen, setStockEditDrawerOpen] = useState(false);
+  const [selectedStockEdit, setSelectedStockEdit] = useState<StockEditRequest | null>(null);
   const [productId, setProductId] = useState<number | ''>('');
   const [requestedQuantity, setRequestedQuantity] = useState('');
   const [reason, setReason] = useState('');
@@ -60,6 +68,7 @@ export default function RequestStockEditPage() {
   const editFilters = {
     page: 0,
     size: 50,
+    ...(isOperationalManager ? { status: 'PENDING' as const } : {}),
     warehouseId: isWarehouseManager ? assignedWarehouseId ?? undefined : undefined,
   };
   const stockEditsQuery = useStockEditRequests(editFilters, { enabled: !isGuest && hasAssignedWarehouse });
@@ -76,10 +85,17 @@ export default function RequestStockEditPage() {
   });
 
   const createEditMutation = useCreateStockEditRequest();
+  const approveStockEditMutation = useApproveStockEditRequest();
+  const rejectStockEditMutation = useRejectStockEditRequest();
   const cancelEditMutation = useCancelStockEditRequest();
+  const addStockEditCommentMutation = useAddStockEditRequestComment();
   const createStockRequestMutation = useCreateWarehouseStockRequest();
   const acceptMutation = useAcceptWarehouseStockRequest();
   const rejectMutation = useRejectWarehouseStockRequest();
+  const stockEditSaving = approveStockEditMutation.isPending
+    || rejectStockEditMutation.isPending
+    || addStockEditCommentMutation.isPending
+    || cancelEditMutation.isPending;
 
   const productOptions = useMemo(() => [
     { value: '', label: 'Select product...' },
@@ -132,6 +148,69 @@ export default function RequestStockEditPage() {
     setReviewDraft((current) => ({ ...current, [id]: { ...draftFor(id), ...value } }));
   };
 
+  const openStockEditDrawer = (request: StockEditRequest) => {
+    setSelectedStockEdit(request);
+    setStockEditDrawerOpen(true);
+  };
+
+  const closeStockEditDrawer = () => {
+    setStockEditDrawerOpen(false);
+    setSelectedStockEdit(null);
+  };
+
+  const approveStockEdit = (comment?: string) => {
+    if (!selectedStockEdit) return;
+    approveStockEditMutation.mutate(
+      { id: selectedStockEdit.id, data: { comment } },
+      {
+        onSuccess: () => {
+          toast.success('Stock edit request approved');
+          closeStockEditDrawer();
+        },
+        onError: () => toast.error('Could not approve stock edit request'),
+      }
+    );
+  };
+
+  const rejectStockEdit = (comment?: string) => {
+    if (!selectedStockEdit) return;
+    rejectStockEditMutation.mutate(
+      { id: selectedStockEdit.id, data: { comment } },
+      {
+        onSuccess: () => {
+          toast.success('Stock edit request rejected');
+          closeStockEditDrawer();
+        },
+        onError: () => toast.error('Could not reject stock edit request'),
+      }
+    );
+  };
+
+  const addStockEditComment = (comment: string) => {
+    if (!selectedStockEdit) return;
+    addStockEditCommentMutation.mutate(
+      { id: selectedStockEdit.id, data: { comment } },
+      {
+        onSuccess: (request) => {
+          setSelectedStockEdit(request);
+          toast.success('Comment saved');
+        },
+        onError: () => toast.error('Could not save comment'),
+      }
+    );
+  };
+
+  const cancelStockEdit = () => {
+    if (!selectedStockEdit) return;
+    cancelEditMutation.mutate(selectedStockEdit.id, {
+      onSuccess: () => {
+        toast.success('Stock edit request cancelled');
+        closeStockEditDrawer();
+      },
+      onError: () => toast.error('Could not cancel stock edit request'),
+    });
+  };
+
   if (isWarehouseManager && !assignedWarehouseId) {
     return (
       <>
@@ -149,11 +228,11 @@ export default function RequestStockEditPage() {
   return (
     <>
       <Topbar
-        title={isOperationalManager ? 'Warehouse Requests' : 'Request Stock Edit'}
-        subtitle={isOperationalManager ? 'Choose source warehouses and approve or reject product requests' : 'Stock corrections and warehouse-to-warehouse requests'}
+        title={isOperationalManager ? 'Stock Requests' : 'Request Stock Edit'}
+        subtitle={isOperationalManager ? 'Review stock corrections and warehouse product requests' : 'Stock corrections and warehouse-to-warehouse requests'}
       />
       <div className="p-6 space-y-6">
-        <BreadCrumb items={[{ label: 'Stock', href: '/stock' }, { label: isOperationalManager ? 'Warehouse Requests' : 'Request Stock Edit' }]} />
+        <BreadCrumb items={[{ label: 'Stock', href: '/stock' }, { label: isOperationalManager ? 'Stock Requests' : 'Request Stock Edit' }]} />
 
         {assignedWarehouse && (
           <div className="rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-800">
@@ -169,29 +248,36 @@ export default function RequestStockEditPage() {
         </section>
 
         <div className="flex flex-wrap gap-2 border-b border-gray-200">
-          {!isOperationalManager && (
+          {isOperationalManager ? (
+            <>
+              <TabButton active={currentTab === 'edits'} onClick={() => setActiveTab('edits')}>Stock Edit Requests</TabButton>
+              <TabButton active={currentTab === 'incoming'} onClick={() => setActiveTab('incoming')}>Warehouse Requests</TabButton>
+            </>
+          ) : (
             <>
               <TabButton active={currentTab === 'edits'} onClick={() => setActiveTab('edits')}>My Stock Edit Requests</TabButton>
               <TabButton active={currentTab === 'request'} onClick={() => setActiveTab('request')}>Request Stock From Warehouse</TabButton>
             </>
           )}
-          <TabButton active={currentTab === 'incoming'} onClick={() => {
-            if (!isOperationalManager) {
-              setActiveTab('incoming');
-            }
-          }}>{isOperationalManager ? 'Warehouse Requests' : 'Incoming Warehouse Requests'}</TabButton>
+          {!isOperationalManager && (
+            <TabButton active={currentTab === 'incoming'} onClick={() => setActiveTab('incoming')}>Incoming Warehouse Requests</TabButton>
+          )}
         </div>
 
         {currentTab === 'edits' && (
           <Card>
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">My Stock Edit Requests</h2>
-                <p className="text-sm text-gray-500">Corrections are locked to your assigned warehouse.</p>
+                <h2 className="text-lg font-semibold text-gray-900">{isOperationalManager ? 'Pending Stock Edit Requests' : 'My Stock Edit Requests'}</h2>
+                <p className="text-sm text-gray-500">
+                  {isOperationalManager ? 'Review warehouse stock corrections before they update inventory.' : 'Corrections are locked to your assigned warehouse.'}
+                </p>
               </div>
-              <Button variant="primary" onClick={() => setCreateEditOpen(true)}>
-                <Plus className="h-4 w-4" /> New Stock Edit Request
-              </Button>
+              {!isOperationalManager && (
+                <Button variant="primary" onClick={() => setCreateEditOpen(true)}>
+                  <Plus className="h-4 w-4" /> New Stock Edit Request
+                </Button>
+              )}
             </div>
             <Table
               columns={[
@@ -204,12 +290,20 @@ export default function RequestStockEditPage() {
                 { key: 'reason', label: 'Reason', render: (r: StockEditRequest) => r.reason },
                 { key: 'status', label: 'Status', render: (r: StockEditRequest) => <Badge variant={requestStatusVariant[r.status] ?? 'default'}>{r.status}</Badge> },
                 { key: 'date', label: 'Date', render: (r: StockEditRequest) => formatDate(r.createdAt) },
-                { key: 'actions', label: '', render: (r: StockEditRequest) => r.status === 'PENDING' ? <Button variant="ghost" size="sm" onClick={() => cancelEditMutation.mutate(r.id)}>Cancel</Button> : null },
+                {
+                  key: 'actions',
+                  label: '',
+                  render: (r: StockEditRequest) => isOperationalManager ? (
+                    <Button variant="ghost" size="sm" onClick={() => openStockEditDrawer(r)}>Review</Button>
+                  ) : r.status === 'PENDING' ? (
+                    <Button variant="ghost" size="sm" onClick={() => cancelEditMutation.mutate(r.id)}>Cancel</Button>
+                  ) : null,
+                },
               ]}
               data={stockEditRows}
               keyExtractor={(r) => r.id}
               isLoading={stockEditsQuery.isLoading}
-              emptyMessage="No stock edit requests found."
+              emptyMessage={isOperationalManager ? 'No stock edit requests are waiting for review.' : 'No stock edit requests found.'}
             />
           </Card>
         )}
@@ -317,6 +411,18 @@ export default function RequestStockEditPage() {
           onSubmit={(data) => createEditMutation.mutate(data, { onSuccess: () => setCreateEditOpen(false) })}
         />
       )}
+      <StockEditRequestDrawer
+        isOpen={stockEditDrawerOpen}
+        request={selectedStockEdit}
+        canReview={isOperationalManager}
+        canCancel={!isOperationalManager}
+        isSaving={stockEditSaving}
+        onClose={closeStockEditDrawer}
+        onApprove={approveStockEdit}
+        onReject={rejectStockEdit}
+        onAddComment={addStockEditComment}
+        onCancel={cancelStockEdit}
+      />
     </>
   );
 }

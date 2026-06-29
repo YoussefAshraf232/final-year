@@ -1,0 +1,66 @@
+[
+  {
+    "query": "Build the final HTML graduation-defense slides for Inventory MS and test them in a browser.",
+    "should_trigger": true
+  },
+  {
+    "query": "I need a Level 2 HTML deck matching the purple inventory dashboard in this repo.",
+    "should_trigger": true
+  },
+  {
+    "query": "Use Playwright to inspect and fix every slide in my project presentation.",
+    "should_trigger": true
+  },
+  {
+    "query": "Turn this SCM codebase into a professor-facing presentation with a live-demo flow.",
+    "should_trigger": true
+  },
+  {
+    "query": "Revise presentation/index.html so it matches the app UI and is readable on a projector.",
+    "should_trigger": true
+  },
+  {
+    "query": "Create an appendix with ERD, role matrix, migration history, and testing evidence for the defense.",
+    "should_trigger": true
+  },
+  {
+    "query": "The sales screenshot is unreadable in my HTML slides; crop it and rerun visual QA.",
+    "should_trigger": true
+  },
+  {
+    "query": "Make a browser-based slide deck for Inflow with keyboard navigation and PDF printing.",
+    "should_trigger": true
+  },
+  {
+    "query": "Explain the difference between JWT and sessions in one paragraph.",
+    "should_trigger": false
+  },
+  {
+    "query": "Fix the sales invoice API bug that deducts stock twice.",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a PowerPoint .pptx from these screenshots.",
+    "should_trigger": false
+  },
+  {
+    "query": "Review my Spring Security configuration for privilege escalation.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write speaker notes only for an existing PowerPoint file.",
+    "should_trigger": false
+  },
+  {
+    "query": "Generate a database migration for a new barcode column.",
+    "should_trigger": false
+  },
+  {
+    "query": "Summarize the README in five bullets.",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a normal marketing landing page for the inventory product.",
+    "should_trigger": false
+  }
+]

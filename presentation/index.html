@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Inventory MS — Graduation Defense</title>
+<style>
+:root{
+  --ims-primary:#5B4CF0; --ims-primary-dark:#4C3EDB; --ims-primary-soft:#EEF0FF;
+  --ims-canvas:#F7F8FC; --ims-surface:#FFFFFF; --ims-border:#E7E9F0;
+  --ims-text:#171A25; --ims-text-secondary:#667085; --ims-text-muted:#98A2B3;
+  --ims-success:#10A37F; --ims-success-soft:#EAFBF5;
+  --ims-warning:#D97706; --ims-warning-soft:#FFF8E6;
+  --ims-danger:#EF4444; --ims-danger-soft:#FFF0F0;
+  --ims-info:#3B82F6; --ims-info-soft:#EAF2FF;
+  --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%; background:#0d1020; font-family:var(--font); -webkit-font-smoothing:antialiased;}
+body{overflow:hidden;}
+
+#viewport{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:radial-gradient(1200px 800px at 50% -10%, #1a1f3a, #0d1020);}
+#stage{position:relative; width:1920px; height:1080px; transform-origin:center center; flex:0 0 auto;}
+
+.slide{
+  position:absolute; inset:0; width:1920px; height:1080px;
+  background:var(--ims-canvas); color:var(--ims-text);
+  padding:80px 96px 76px; overflow:hidden;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transition:opacity .5s ease;
+  display:flex; flex-direction:column;
+}
+.slide.active{opacity:1; visibility:visible; pointer-events:auto;}
+
+/* chrome */
+.brand{display:flex; align-items:center; gap:14px;}
+.brand img{width:48px; height:48px; border-radius:12px;}
+.brand .bt{line-height:1.1;}
+.brand .bt b{font-size:22px; font-weight:700; letter-spacing:-.2px;}
+.brand .bt span{display:block; font-size:13px; color:var(--ims-text-muted); font-weight:500; letter-spacing:.3px;}
+
+.kicker{display:inline-flex; align-items:center; gap:8px; font-size:16px; font-weight:600;
+  color:var(--ims-primary); text-transform:uppercase; letter-spacing:1.4px;}
+.kicker::before{content:""; width:26px; height:3px; border-radius:2px; background:var(--ims-primary);}
+
+.s-head{display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:26px;}
+h1.title{font-size:42px; font-weight:700; letter-spacing:-.6px; line-height:1.1;}
+.subtitle{font-size:21px; color:var(--ims-text-secondary); margin-top:8px; font-weight:450; max-width:1500px;}
+
+.body{flex:1; min-height:0; display:flex; flex-direction:column; justify-content:center;}
+
+.footer{position:absolute; left:96px; right:96px; bottom:30px; display:flex; align-items:center;
+  justify-content:space-between; font-size:14px; color:var(--ims-text-muted); border-top:1px solid var(--ims-border);
+  padding-top:14px;}
+.footer .sec{font-weight:600; color:var(--ims-text-secondary); letter-spacing:.3px;}
+
+/* cards / grids */
+.grid{display:grid; gap:22px;}
+.g2{grid-template-columns:1fr 1fr;} .g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);} .g23{grid-template-columns:2fr 3fr;} .g32{grid-template-columns:3fr 2fr;}
+
+.card{background:var(--ims-surface); border:1px solid var(--ims-border); border-radius:12px;
+  padding:26px 28px; box-shadow:0 1px 2px rgba(16,24,40,.04); transition:transform .25s ease, box-shadow .25s ease;}
+.card:hover{transform:translateY(-4px); box-shadow:0 12px 28px rgba(91,76,240,.12);}
+.card h3{font-size:24px; font-weight:650; margin-bottom:10px; letter-spacing:-.2px; display:flex; align-items:center; gap:12px;}
+.card p{font-size:19px; line-height:1.5; color:var(--ims-text-secondary);}
+.card.tight{padding:20px 22px;}
+.card.soft{background:var(--ims-primary-soft); border-color:#dfe1ff;}
+
+.ic{width:34px; height:34px; flex:0 0 34px; border-radius:9px; background:var(--ims-primary-soft);
+  display:inline-flex; align-items:center; justify-content:center; color:var(--ims-primary);}
+
+ul.lst{list-style:none; display:flex; flex-direction:column; gap:13px;}
+ul.lst li{font-size:19px; line-height:1.45; color:var(--ims-text); display:flex; gap:12px; align-items:flex-start;}
+ul.lst li::before{content:""; flex:0 0 9px; width:9px; height:9px; border-radius:50%; background:var(--ims-primary); margin-top:8px;}
+ul.lst li b{font-weight:650;}
+ul.lst.dim li{color:var(--ims-text-secondary);}
+
+.badge{display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:600; padding:4px 11px;
+  border-radius:999px; letter-spacing:.2px; white-space:nowrap;}
+.b-primary{background:var(--ims-primary-soft); color:var(--ims-primary-dark);}
+.b-success{background:var(--ims-success-soft); color:var(--ims-success);}
+.b-warning{background:var(--ims-warning-soft); color:var(--ims-warning);}
+.b-danger{background:var(--ims-danger-soft); color:var(--ims-danger);}
+.b-info{background:var(--ims-info-soft); color:var(--ims-info);}
+.b-muted{background:#EEF0F4; color:var(--ims-text-secondary);}
+
+/* flow chains */
+.flow{display:flex; align-items:stretch; gap:0; flex-wrap:wrap;}
+.node{background:var(--ims-surface); border:1px solid var(--ims-border); border-radius:10px; padding:16px 18px;
+  min-width:150px; text-align:center; box-shadow:0 1px 2px rgba(16,24,40,.04);}
+.node .nl{font-size:13px; color:var(--ims-text-muted); text-transform:uppercase; letter-spacing:.6px; font-weight:600;}
+.node .nv{font-size:19px; font-weight:650; margin-top:3px;}
+.node.accent{background:var(--ims-primary); border-color:var(--ims-primary);}
+.node.accent .nl{color:#c9c4ff;} .node.accent .nv{color:#fff;}
+.arrow{display:flex; align-items:center; padding:0 10px; color:var(--ims-primary); font-size:26px;}
+
+/* layered pipeline */
+.layers{display:flex; flex-direction:column; gap:12px;}
+.layer{display:flex; align-items:center; gap:18px; background:var(--ims-surface); border:1px solid var(--ims-border);
+  border-radius:10px; padding:16px 22px; transition:transform .25s ease;}
+.layer:hover{transform:translateX(6px);}
+.layer .lname{width:230px; font-weight:650; font-size:20px; display:flex; align-items:center; gap:12px;}
+.layer .ldesc{font-size:18px; color:var(--ims-text-secondary);}
+.layer .ltag{margin-left:auto; font-size:13px; font-family:ui-monospace,monospace; color:var(--ims-text-muted);}
+
+/* screenshot */
+.shot{border:1px solid var(--ims-border); border-radius:12px; overflow:hidden; box-shadow:0 6px 24px rgba(16,24,40,.10); background:#fff;}
+.shot img{display:block; width:100%; height:auto; transform-origin:center center;}
+.shot.kb img{animation:kenburns 18s ease-in-out infinite alternate;}
+
+.callout{display:flex; gap:14px; align-items:flex-start; padding:14px 16px; background:var(--ims-surface);
+  border:1px solid var(--ims-border); border-radius:10px; transition:transform .2s ease, border-color .2s ease;}
+.callout:hover{transform:translateX(5px); border-color:var(--ims-primary);}
+.callout .num{flex:0 0 30px; width:30px; height:30px; border-radius:50%; background:var(--ims-primary); color:#fff;
+  font-weight:700; font-size:16px; display:flex; align-items:center; justify-content:center;}
+.callout .ct b{font-size:18px; font-weight:650; display:block;}
+.callout .ct span{font-size:16px; color:var(--ims-text-secondary);}
+
+/* tables */
+table.t{width:100%; border-collapse:collapse; background:var(--ims-surface); border:1px solid var(--ims-border);
+  border-radius:10px; overflow:hidden; font-size:18px;}
+table.t th{background:#fafbfe; text-align:left; padding:13px 18px; font-weight:650; color:var(--ims-text-secondary);
+  font-size:15px; text-transform:uppercase; letter-spacing:.5px; border-bottom:1px solid var(--ims-border);}
+table.t td{padding:13px 18px; border-bottom:1px solid var(--ims-border); color:var(--ims-text);}
+table.t tr:last-child td{border-bottom:none;}
+table.t code{font-family:ui-monospace,monospace; font-size:15px; background:#f3f4fb; padding:2px 6px; border-radius:5px; color:var(--ims-primary-dark);}
+code{font-family:ui-monospace,monospace;}
+
+.codebox{background:#171A25; color:#e6e8f0; border-radius:12px; padding:22px 26px; font-family:ui-monospace,SFMono-Regular,monospace;
+  font-size:17px; line-height:1.7; overflow:hidden;}
+.codebox .k{color:#c4b5fd;} .codebox .s{color:#86efac;} .codebox .c{color:#64748b;} .codebox .f{color:#7dd3fc;}
+
+.note{font-size:16px; color:var(--ims-text-muted); margin-top:12px; font-style:italic;}
+
+/* ===== ANIMATION ENGINE ===== */
+@keyframes riseIn{from{opacity:0; transform:translateY(26px);} to{opacity:1; transform:translateY(0);}}
+@keyframes floaty{0%,100%{transform:translateY(0);} 50%{transform:translateY(-12px);}}
+@keyframes kenburns{0%{transform:scale(1) translate(0,0);} 100%{transform:scale(1.07) translate(-1.5%, -1%);}}
+@keyframes arrowPulse{0%,100%{opacity:.4; transform:translateX(0);} 50%{opacity:1; transform:translateX(5px);}}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(91,76,240,.0);} 50%{box-shadow:0 0 0 6px rgba(91,76,240,.12);}}
+@keyframes shimmer{0%{background-position:-200% 0;} 100%{background-position:200% 0;}}
+
+.reveal{opacity:0;}
+.slide.active .reveal.go{animation:riseIn .55s cubic-bezier(.2,.75,.25,1) both;}
+.slide.active .flow .arrow{animation:arrowPulse 2.2s ease-in-out infinite;}
+/* accent nodes are also .reveal — combine entrance + glow so opacity still animates to 1 */
+.slide.active .node.accent.go{animation:riseIn .55s cubic-bezier(.2,.75,.25,1) both, glow 2.6s ease-in-out infinite;}
+/* non-reveal accent nodes (no entrance) still glow */
+.slide.active .node.accent:not(.reveal){animation:glow 2.6s ease-in-out infinite;}
+
+/* ===== COVER ===== */
+#s-cover{background:radial-gradient(1100px 700px at 80% -10%, #2a2470, #171a25 60%); color:#fff; padding:0; overflow:hidden;}
+.orb-wrap{position:absolute; inset:0; overflow:hidden; z-index:0; pointer-events:none;}
+.orb{position:absolute; border-radius:50%; filter:blur(60px); opacity:.5;}
+#s-cover .orb{opacity:.5;}
+#s-cover .orb1{width:520px; height:520px; background:#5B4CF0; top:18px; right:18px; animation:floaty 9s ease-in-out infinite;}
+#s-cover .orb2{width:360px; height:360px; background:#8b7bff; bottom:18px; left:18px; animation:floaty 11s ease-in-out infinite reverse;}
+#s-cover .cv{position:absolute; inset:0; display:flex; flex-direction:column; justify-content:center; padding:0 120px; z-index:2;}
+#s-cover .cvbrand{display:flex; align-items:center; gap:18px; margin-bottom:46px;}
+#s-cover .cvbrand img{width:72px; height:72px; border-radius:18px; animation:floaty 6s ease-in-out infinite;}
+#s-cover .cvbrand b{font-size:30px; font-weight:700;}
+#s-cover .cvbrand span{display:block; font-size:16px; color:#a8a3e0; letter-spacing:.4px;}
+#s-cover .ck{font-size:18px; letter-spacing:3px; text-transform:uppercase; color:#a8a3e0; font-weight:600;}
+#s-cover h1{font-size:88px; font-weight:800; letter-spacing:-2px; line-height:1.02; margin:20px 0 14px;
+  background:linear-gradient(90deg,#fff,#c9c4ff,#fff); background-size:200% auto; -webkit-background-clip:text; background-clip:text; color:transparent;
+  animation:shimmer 6s linear infinite;}
+#s-cover .csub{font-size:30px; color:#d7d5f2; font-weight:400; max-width:1200px;}
+#s-cover .cmeta{display:flex; gap:60px; margin-top:64px;}
+#s-cover .cmeta .blk .lab{font-size:15px; text-transform:uppercase; letter-spacing:1.5px; color:#8983c9; font-weight:600; margin-bottom:10px;}
+#s-cover .cmeta .blk .team{font-size:21px; color:#fff; line-height:1.7; font-weight:500;}
+#s-cover .cmeta .blk .one{font-size:22px; color:#fff; font-weight:600;}
+#s-cover .cmeta .blk .sm{font-size:16px; color:#b8b4e6; margin-top:4px;}
+#s-cover .stackchips{position:absolute; right:120px; bottom:80px; display:flex; flex-direction:column; gap:12px; align-items:flex-end; z-index:2;}
+#s-cover .stackchips span{background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14); color:#d7d5f2;
+  padding:8px 16px; border-radius:999px; font-size:15px; font-weight:500;}
+
+.center-hero{height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; z-index:2;}
+
+/* progress + controls */
+#progress{position:fixed; top:0; left:0; height:4px; background:linear-gradient(90deg,var(--ims-primary),#8b7bff);
+  z-index:50; transition:width .35s ease;}
+#ctrl{position:fixed; bottom:18px; right:22px; z-index:50; display:flex; align-items:center; gap:10px;
+  background:rgba(23,26,37,.82); border:1px solid rgba(255,255,255,.12); border-radius:999px; padding:7px 8px; backdrop-filter:blur(8px);}
+#ctrl button{width:34px; height:34px; border:none; border-radius:50%; background:rgba(255,255,255,.10); color:#fff;
+  font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .2s;}
+#ctrl button:hover{background:var(--ims-primary);}
+#counter{color:#fff; font-size:14px; font-weight:600; padding:0 8px; min-width:54px; text-align:center; font-variant-numeric:tabular-nums;}
+#hint{position:fixed; bottom:20px; left:22px; z-index:50; color:rgba(255,255,255,.55); font-size:13px;}
+
+.appx{position:absolute; top:80px; right:96px; font-size:13px; font-weight:700; letter-spacing:1.5px;
+  color:var(--ims-primary); background:var(--ims-primary-soft); padding:5px 12px; border-radius:6px;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation:none !important; transition:none !important;}
+  .reveal{opacity:1 !important;}
+}
+
+/* ===== PRINT ===== */
+@media print{
+  @page{size:1920px 1080px; margin:0;}
+  html,body{background:#fff; overflow:visible; height:auto;}
+  #viewport{position:static; display:block; background:#fff;}
+  #stage{transform:none !important; width:1920px; height:auto;}
+  .slide{position:relative; opacity:1 !important; visibility:visible !important; page-break-after:always;
+    break-after:page; inset:auto; transition:none;}
+  .reveal{opacity:1 !important; animation:none !important;}
+  #progress,#ctrl,#hint{display:none !important;}
+  -webkit-print-color-adjust:exact; print-color-adjust:exact;
+}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="viewport"><div id="stage">
+
+<!-- ===== 1. COVER ===== -->
+<section class="slide" id="s-cover" data-sec="Title">
+  <div class="orb-wrap"><div class="orb orb1"></div><div class="orb orb2"></div></div>
+  <div class="cv">
+    <div class="cvbrand reveal"><img src="assets/ims-mark.svg" alt="Inventory MS logo" /><div><b>Inventory MS</b><span>Management System</span></div></div>
+    <div class="ck reveal">Graduation Project · Faculty of Science · 2026</div>
+    <h1 class="reveal">Inventory MS</h1>
+    <div class="csub reveal">A Supply-Chain &amp; Inventory Management System with controlled stock movement, role-based access, and full auditability.</div>
+    <div class="cmeta">
+      <div class="blk reveal"><div class="lab">Team</div><div class="team">Yossef Ashraf &nbsp;·&nbsp; John Samhan<br/>Maryam Hamdy &nbsp;·&nbsp; Momen Abdelmonam</div></div>
+      <div class="blk reveal"><div class="lab">Supervisor</div><div class="one">Prof. Mohamed Abdelbaky</div><div class="sm">Faculty of Science · 2026</div></div>
+    </div>
+    <div class="stackchips">
+      <span class="reveal">Next.js · React · TypeScript</span>
+      <span class="reveal">Spring Boot · Java 21 · JWT</span>
+      <span class="reveal">PostgreSQL · Flyway · Docker</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 2. PROBLEM ===== -->
+<section class="slide" data-sec="Problem">
+  <div class="s-head">
+    <div><div class="kicker reveal">The problem</div><h1 class="title reveal">Inventory operations break without a controlled system</h1>
+      <div class="subtitle reveal">Spreadsheets and disconnected tools lose the one thing warehouses depend on: trustworthy stock.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g4">
+      <div class="card reveal"><h3 style="font-size:22px;">Fragmented data</h3><p>Products, stock, suppliers, and sales live in separate sheets that drift out of sync.</p></div>
+      <div class="card reveal"><h3 style="font-size:22px;">Weak traceability</h3><p>Quantities are overwritten in place — no record of <b>who</b> changed <b>what</b>, or <b>why</b>.</p></div>
+      <div class="card reveal"><h3 style="font-size:22px;">Manual transactions</h3><p>Receiving, sales, returns, and transfers are handled by memory and ad-hoc edits.</p></div>
+      <div class="card reveal"><h3 style="font-size:22px;">No access control</h3><p>Everyone can touch everything — no roles, no per-warehouse boundaries, no approvals.</p></div>
+    </div>
+    <div class="card soft reveal" style="margin-top:24px;"><p style="font-size:21px; color:var(--ims-text);"><b>Consequence:</b> stockouts, phantom inventory, disputed numbers, and zero accountability when something goes wrong.</p></div>
+  </div>
+  <div class="footer"><span class="sec">Problem</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 3. OBJECTIVES ===== -->
+<section class="slide" data-sec="Objectives">
+  <div class="s-head">
+    <div><div class="kicker reveal">Objectives</div><h1 class="title reveal">Five goals the system is designed to meet</h1></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid" style="grid-template-columns:repeat(5,1fr); gap:18px;">
+      <div class="card tight reveal"><div class="badge b-primary">01</div><h3 style="font-size:21px; margin-top:14px;">Centralize</h3><p>One source of truth for master data and stock.</p></div>
+      <div class="card tight reveal"><div class="badge b-primary">02</div><h3 style="font-size:21px; margin-top:14px;">Control movement</h3><p>Stock changes only through tracked transactions.</p></div>
+      <div class="card tight reveal"><div class="badge b-primary">03</div><h3 style="font-size:21px; margin-top:14px;">Multi-warehouse</h3><p>Per-warehouse stock with scoped access.</p></div>
+      <div class="card tight reveal"><div class="badge b-primary">04</div><h3 style="font-size:21px; margin-top:14px;">Authorize</h3><p>Role + method-level permission enforcement.</p></div>
+      <div class="card tight reveal"><div class="badge b-primary">05</div><h3 style="font-size:21px; margin-top:14px;">Report &amp; audit</h3><p>Dashboards, reports, and an immutable log.</p></div>
+    </div>
+    <div class="card reveal" style="margin-top:26px;"><p style="font-size:21px; color:var(--ims-text);">Design principle &nbsp;—&nbsp; <b>the system models inventory <i>movement and state</i>, not just rows in a table.</b> Quantities are a consequence of transactions, never an input that can be silently overwritten.</p></div>
+  </div>
+  <div class="footer"><span class="sec">Objectives</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 4. SOLUTION ===== -->
+<section class="slide" data-sec="Solution">
+  <div class="s-head">
+    <div><div class="kicker reveal">Proposed solution</div><h1 class="title reveal">One platform around a controlled inventory core</h1>
+      <div class="subtitle reveal">Master data, transactions, and governance orbit a single stock ledger.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g3" style="align-items:stretch;">
+      <div class="card reveal"><h3 style="font-size:22px;">📦 Master data</h3><ul class="lst dim" style="margin-top:8px;"><li>Products &amp; categories</li><li>Suppliers &amp; customers</li><li>Warehouses &amp; staff</li></ul></div>
+      <div class="card soft reveal" style="display:flex; flex-direction:column; justify-content:center; text-align:center; border:2px solid var(--ims-primary);">
+        <div style="font-size:28px; font-weight:750; color:var(--ims-primary-dark);">Inventory Core</div>
+        <p style="font-size:19px; color:var(--ims-text); margin-top:10px;">Per-warehouse stock &amp; an append-only <b>stock-movement ledger</b></p>
+        <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:14px;"><span class="badge b-primary">products_warehouses</span><span class="badge b-primary">stock_movements</span></div>
+      </div>
+      <div class="card reveal"><h3 style="font-size:22px;">🔁 Transactions</h3><ul class="lst dim" style="margin-top:8px;"><li>Purchases &amp; receiving</li><li>Sales &amp; returns</li><li>Internal transfers</li></ul></div>
+    </div>
+    <div class="grid g4" style="margin-top:22px;">
+      <div class="card tight reveal"><h3 style="font-size:19px;">🛡 Governance</h3><p style="font-size:17px;">Approvals &amp; stock-edit requests</p></div>
+      <div class="card tight reveal"><h3 style="font-size:19px;">📊 Reporting</h3><p style="font-size:17px;">Dashboards &amp; financial reports</p></div>
+      <div class="card tight reveal"><h3 style="font-size:19px;">🧾 Audit</h3><p style="font-size:17px;">Immutable action log</p></div>
+      <div class="card tight reveal"><h3 style="font-size:19px;">🔔 Notifications</h3><p style="font-size:17px;">Low-stock &amp; workflow alerts</p></div>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Solution</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 5. USERS & SCOPE ===== -->
+<section class="slide" data-sec="Users & Scope">
+  <div class="s-head">
+    <div><div class="kicker reveal">Users &amp; functional scope</div><h1 class="title reveal">Three roles, scoped to what they operate</h1>
+      <div class="subtitle reveal">Verified in <code style="font-size:16px;">roles.ts</code> (frontend matrix) and the seeded backend roles.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card reveal"><div class="badge b-danger">SYSTEM_ADMIN</div><h3 style="font-size:21px; margin-top:14px;">Governance &amp; identity</h3><ul class="lst" style="margin-top:6px;"><li>Users &amp; roles</li><li>Reports</li><li>Audit logs</li></ul></div>
+      <div class="card reveal"><div class="badge b-warning">OPERATIONAL_MANAGER</div><h3 style="font-size:21px; margin-top:14px;">Master data &amp; oversight</h3><ul class="lst" style="margin-top:6px;"><li>Products, suppliers, warehouses</li><li>Transfers &amp; receive approvals</li><li>Reports, audit, low-stock</li></ul></div>
+      <div class="card reveal"><div class="badge b-info">WAREHOUSE_MANAGER</div><h3 style="font-size:21px; margin-top:14px;">Floor operations</h3><ul class="lst" style="margin-top:6px;"><li>Customers &amp; warehouse stock</li><li>Sales &amp; sales returns</li><li>Receive orders · stock-edit requests</li></ul></div>
+    </div>
+    <div class="card soft reveal" style="margin-top:22px;"><p style="font-size:20px; color:var(--ims-text);"><b>Functional scope groups:</b> &nbsp; Master Data &nbsp;·&nbsp; Inventory Operations &nbsp;·&nbsp; Transactions &nbsp;·&nbsp; Governance &amp; Reporting — each gated by the role's permission set.</p></div>
+  </div>
+  <div class="footer"><span class="sec">Users &amp; Scope</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 6. INVENTORY FLOW ===== -->
+<section class="slide" data-sec="Inventory Flow">
+  <div class="s-head">
+    <div><div class="kicker reveal">End-to-end inventory flow</div><h1 class="title reveal">How goods move from supplier to customer</h1>
+      <div class="subtitle reveal">Stock only changes at the highlighted points — each writes a movement record.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="flow" style="justify-content:center; align-items:center;">
+      <div class="node reveal"><div class="nl">source</div><div class="nv">Supplier</div></div><div class="arrow">→</div>
+      <div class="node reveal"><div class="nl">create</div><div class="nv">Purchase</div></div><div class="arrow">→</div>
+      <div class="node reveal"><div class="nl">approve</div><div class="nv">Approval</div></div><div class="arrow">→</div>
+      <div class="node accent reveal"><div class="nl">+ stock</div><div class="nv">Receiving</div></div><div class="arrow">→</div>
+      <div class="node reveal"><div class="nl">custody</div><div class="nv">Warehouse</div></div><div class="arrow">→</div>
+      <div class="node accent reveal"><div class="nl">− stock</div><div class="nv">Sale</div></div><div class="arrow">→</div>
+      <div class="node reveal"><div class="nl">dest</div><div class="nv">Customer</div></div>
+    </div>
+    <div class="grid g3" style="margin-top:42px;">
+      <div class="card tight reveal"><h3 style="font-size:20px;">↩ Returns</h3><p>Sales &amp; purchase returns branch off and restore/reduce stock by the rules.</p></div>
+      <div class="card tight reveal"><h3 style="font-size:20px;">🔀 Transfers</h3><p>Internal transfers move stock between two warehouses (source ≠ destination).</p></div>
+      <div class="card tight reveal"><h3 style="font-size:20px;">📝 Adjustments</h3><p>Stock-edit requests create movement history instead of silent overwrites.</p></div>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Inventory Flow</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 7. LIFECYCLES ===== -->
+<section class="slide" data-sec="Lifecycles">
+  <div class="s-head">
+    <div><div class="kicker reveal">Transaction lifecycles</div><h1 class="title reveal">State machines, not free-form edits</h1>
+      <div class="subtitle reveal">State names taken directly from the Flyway migrations (V7, V8).</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g2">
+      <div class="card reveal"><h3 style="font-size:22px;">Purchase receiving <span class="badge b-muted" style="font-size:12px;">V8</span></h3>
+        <div class="flow" style="margin-top:16px; align-items:center;">
+          <div class="node" style="min-width:130px;"><div class="nv" style="font-size:16px;">PENDING_<br/>RECEIPT</div></div><div class="arrow">→</div>
+          <div class="node accent" style="min-width:130px;"><div class="nv" style="font-size:16px;">RECEIVED</div></div>
+        </div>
+        <p style="margin-top:16px;">Per line: <code style="font-size:15px;">received_quantity</code> &amp; <code style="font-size:15px;">damaged_quantity</code>. Receiving is what increases warehouse stock — creation does not.</p></div>
+      <div class="card reveal"><h3 style="font-size:22px;">Sales return <span class="badge b-muted" style="font-size:12px;">V7</span></h3>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:14px;">
+          <div class="layer" style="padding:11px 16px;"><span class="lname" style="width:auto; font-size:17px;">Return</span><span class="ltag" style="margin-left:auto;">PENDING_REVIEW → APPROVED / REJECTED</span></div>
+          <div class="layer" style="padding:11px 16px;"><span class="lname" style="width:auto; font-size:17px;">Restock</span><span class="ltag" style="margin-left:auto;">PENDING_RESTOCK → RESTOCKED</span></div>
+          <div class="layer" style="padding:11px 16px;"><span class="lname" style="width:auto; font-size:17px;">Refund</span><span class="ltag" style="margin-left:auto;">PENDING_REFUND → REFUNDED</span></div>
+        </div>
+        <p style="margin-top:14px;">Three independent sub-states + per-item <code style="font-size:15px;">condition</code> &amp; <code style="font-size:15px;">restock_decision</code>.</p></div>
+    </div>
+    <div class="card soft reveal" style="margin-top:20px;"><p style="font-size:19px; color:var(--ims-text);">Sales invoices carry a <code style="font-size:15px;">status</code> (default <b>PAID</b>) with void fields (<code style="font-size:15px;">voided_at</code>, <code style="font-size:15px;">voided_by_user_id</code>) — compensating actions, not deletes.</p></div>
+  </div>
+  <div class="footer"><span class="sec">Lifecycles</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 8. SYSTEM ARCHITECTURE ===== -->
+<section class="slide" data-sec="Architecture">
+  <div class="s-head">
+    <div><div class="kicker reveal">System architecture</div><h1 class="title reveal">A layered request, end to end</h1>
+      <div class="subtitle reveal">Three containers orchestrated by Docker Compose.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="layers">
+      <div class="layer reveal"><span class="lname"><span class="ic">🖥</span>Browser</span><span class="ldesc">User interacts with the Next.js UI</span><span class="ltag">Frontend container · :3000</span></div>
+      <div class="layer reveal"><span class="lname"><span class="ic">⚛</span>Next.js</span><span class="ldesc">App Router pages → feature components → React Query hooks → Axios services</span><span class="ltag">React · TypeScript · Tailwind</span></div>
+      <div class="layer reveal" style="border-color:var(--ims-primary); border-width:2px;"><span class="lname" style="color:var(--ims-primary-dark);">REST / JSON</span><span class="ldesc">Stateless HTTP with JWT bearer token</span><span class="ltag">Authorization: Bearer …</span></div>
+      <div class="layer reveal"><span class="lname"><span class="ic">☕</span>Spring</span><span class="ldesc">Controller → business service → repository, with validation &amp; transactions</span><span class="ltag">Backend container · Java 21 · :8080</span></div>
+      <div class="layer reveal"><span class="lname"><span class="ic">🗄</span>PostgreSQL</span><span class="ldesc">Relational store; schema evolved by Flyway migrations</span><span class="ltag">DB container · Flyway V1–V14</span></div>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Architecture</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 9. CODE ARCHITECTURE (FE + BE merged) ===== -->
+<section class="slide" data-sec="Code Architecture">
+  <div class="s-head">
+    <div><div class="kicker reveal">Code architecture</div><h1 class="title reveal">One vertical slice, front to back</h1>
+      <div class="subtitle reveal">Every domain follows the same shape — Products shown end to end.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g2" style="align-items:center;">
+      <div class="reveal">
+        <div class="flow" style="flex-direction:column; gap:0; align-items:stretch;">
+          <div class="node" style="text-align:left;"><div class="nl">page</div><div class="nv">products/page.tsx</div></div>
+          <div class="arrow" style="justify-content:center;">↓</div>
+          <div class="node" style="text-align:left;"><div class="nl">hook · React Query</div><div class="nv">useProducts()</div></div>
+          <div class="arrow" style="justify-content:center;">↓</div>
+          <div class="node" style="text-align:left;"><div class="nl">service · Axios</div><div class="nv">product.service.ts</div></div>
+          <div class="arrow" style="justify-content:center;">↓</div>
+          <div class="node accent" style="text-align:left;"><div class="nl">REST · JWT</div><div class="nv">GET /products</div></div>
+          <div class="arrow" style="justify-content:center;">↓</div>
+          <div class="node" style="text-align:left;"><div class="nl">controller → service → repository</div><div class="nv">ProductController → JPA → PostgreSQL</div></div>
+        </div>
+      </div>
+      <div class="reveal">
+        <ul class="lst">
+          <li><b>React Query</b> owns server cache, loading/error states, and invalidation after mutations.</li>
+          <li><b>Typed services</b> — one <code style="font-size:15px;">*.service.ts</code> + <code style="font-size:15px;">*.types.ts</code> per domain.</li>
+          <li><b>Layered backend</b> — controller (HTTP + <code style="font-size:15px;">@PreAuthorize</code>) → service (<code style="font-size:15px;">@Transactional</code> rules) → repository.</li>
+          <li><b>Integrity</b> — a receive/sale updates stock <i>and</i> writes a movement atomically; DB CHECK constraints enforce invariants.</li>
+          <li><b>Flyway only</b> changes the schema — no <code style="font-size:15px;">ddl-auto=update</code>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Code Architecture</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 10. DATA DOMAINS ===== -->
+<section class="slide" data-sec="Data Domains">
+  <div class="s-head">
+    <div><div class="kicker reveal">Database domains</div><h1 class="title reveal">25 core tables across four domains</h1>
+      <div class="subtitle reveal">Full ERD lives in the appendix — this is the map.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g4" style="align-items:stretch;">
+      <div class="card reveal"><h3 style="font-size:20px;">👤 Identity</h3><ul class="lst dim" style="margin-top:8px; font-size:17px;"><li>roles</li><li>users</li><li>users_warehouses</li></ul></div>
+      <div class="card reveal"><h3 style="font-size:20px;">📦 Master &amp; stock</h3><ul class="lst dim" style="margin-top:8px; font-size:17px;"><li>products · categories</li><li>suppliers · customers</li><li>warehouses</li><li>products_warehouses</li><li>stock_movements</li></ul></div>
+      <div class="card reveal"><h3 style="font-size:20px;">🔁 Transactions</h3><ul class="lst dim" style="margin-top:8px; font-size:17px;"><li>sales / purchase invoices</li><li>return invoices (×2)</li><li>internal_invoices</li><li>…_products line items</li></ul></div>
+      <div class="card reveal"><h3 style="font-size:20px;">🛡 Governance</h3><ul class="lst dim" style="margin-top:8px; font-size:17px;"><li>audit_logs</li><li>stock_edit_requests</li><li>warehouse_stock_requests</li><li>notifications</li></ul></div>
+    </div>
+    <div class="card soft reveal" style="margin-top:22px;"><p style="font-size:19px; color:var(--ims-text);">Composite keys model real relationships: <code style="font-size:15px;">products_warehouses(product_id, warehouse_id)</code> is the per-warehouse stock level; invoice line items key on <code style="font-size:15px;">(invoice_id, product_id)</code>.</p></div>
+  </div>
+  <div class="footer"><span class="sec">Data Domains</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 11. SECURITY ===== -->
+<section class="slide" data-sec="Security">
+  <div class="s-head">
+    <div><div class="kicker reveal">Security model</div><h1 class="title reveal">The backend is the authority — not the UI</h1>
+      <div class="subtitle reveal">Hiding a button is UX. Every request is independently authorized server-side.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g4">
+      <div class="card tight reveal"><h3 style="font-size:19px;">🔑 Stateless JWT</h3><p style="font-size:17px;">No server sessions; token carries identity &amp; role.</p></div>
+      <div class="card tight reveal"><h3 style="font-size:19px;">🔒 BCrypt</h3><p style="font-size:17px;">Password hashes only — never plaintext.</p></div>
+      <div class="card tight reveal"><h3 style="font-size:19px;">🚧 URL guards</h3><p style="font-size:17px;"><code style="font-size:14px;">/users</code>, <code style="font-size:14px;">/audit-logs</code>, <code style="font-size:14px;">/reports</code> by role.</p></div>
+      <div class="card tight reveal"><h3 style="font-size:19px;">🎯 Method security</h3><p style="font-size:17px;"><code style="font-size:14px;">@PreAuthorize</code> for fine-grained rules.</p></div>
+    </div>
+    <div class="grid g2" style="margin-top:22px;">
+      <div class="card reveal"><h3 style="font-size:20px;">Warehouse scope</h3><p>Scoped users only act on their assigned warehouses — checked in a dedicated <code style="font-size:15px;">WarehouseAccessService</code>, enforced on the server.</p></div>
+      <div class="card reveal"><h3 style="font-size:20px;">Audit &amp; CORS</h3><p>Sensitive actions are logged with actor, entity &amp; timestamp. CORS locks the API to the configured frontend origin only.</p></div>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Security</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 12. APPLICATION UI ===== -->
+<section class="slide" data-sec="Application UI">
+  <div class="s-head">
+    <div><div class="kicker reveal">Application UI</div><h1 class="title reveal">Manage Sales — a real operational screen</h1></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g32" style="align-items:center;">
+      <div class="shot kb reveal"><img src="assets/ui-sales-invoices.png" alt="Manage Sales screen with KPI strip, filters, sales invoice table with PAID badges, and recent returns with PENDING_RESTOCK status" /></div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div class="callout reveal"><div class="num">1</div><div class="ct"><b>Role-aware sidebar</b><span>Only permitted modules render (warehouse manager view).</span></div></div>
+        <div class="callout reveal"><div class="num">2</div><div class="ct"><b>Operational KPIs</b><span>Today's sales, pending orders, returns, low-stock alerts.</span></div></div>
+        <div class="callout reveal"><div class="num">3</div><div class="ct"><b>Low-stock warning</b><span>Amber banner drives a stock-edit request, not a silent fix.</span></div></div>
+        <div class="callout reveal"><div class="num">4</div><div class="ct"><b>Warehouse + status filters</b><span>Scoped to the user's warehouse; status badges show state.</span></div></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Application UI</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 13. AUDITABILITY ===== -->
+<section class="slide" data-sec="Auditability">
+  <div class="s-head">
+    <div><div class="kicker reveal">Auditability &amp; reporting</div><h1 class="title reveal">Every sensitive action is on the record</h1></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g32" style="align-items:center;">
+      <div class="shot kb reveal"><img src="assets/ui-audit-logs.png" alt="Audit Logs listing time, actor, action (LOGIN, CREATE, APPROVE), entity (AUTH, PURCHASE_INVOICE, SALES_INVOICE, RETURN_SALES_INVOICE), entity id" /></div>
+      <div style="display:flex; flex-direction:column; gap:14px;">
+        <div class="card tight reveal"><h3 style="font-size:19px;">Who · what · when</h3><p style="font-size:17px;">Actor, action, entity type, entity id, timestamp, and details per event.</p></div>
+        <div class="card tight reveal"><h3 style="font-size:19px;">Real actions captured</h3><p style="font-size:17px;"><span class="badge b-info">LOGIN</span> <span class="badge b-success">CREATE</span> <span class="badge b-warning">APPROVE</span> on purchases, sales &amp; returns.</p></div>
+        <div class="card tight reveal"><h3 style="font-size:19px;">Restricted access</h3><p style="font-size:17px;">Log is visible only to <b>SYSTEM_ADMIN</b> &amp; <b>OPERATIONAL_MANAGER</b>.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Auditability</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 14. DEMO PLAN ===== -->
+<section class="slide" data-sec="Live Demo">
+  <div class="s-head">
+    <div><div class="kicker reveal">Live demo plan</div><h1 class="title reveal">A deterministic stock round-trip</h1>
+      <div class="subtitle reveal">Watch the same product's quantity move up, then down — with evidence.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="flow" style="justify-content:space-between; align-items:stretch;">
+      <div class="node reveal"><div class="nl">1</div><div class="nv">Login</div></div><div class="arrow">→</div>
+      <div class="node reveal"><div class="nl">2</div><div class="nv">Stock baseline</div></div><div class="arrow">→</div>
+      <div class="node accent reveal"><div class="nl">3 · +</div><div class="nv">Receive</div></div><div class="arrow">→</div>
+      <div class="node reveal"><div class="nl">4</div><div class="nv">Stock ↑</div></div><div class="arrow">→</div>
+      <div class="node accent reveal"><div class="nl">5 · −</div><div class="nv">Sell</div></div><div class="arrow">→</div>
+      <div class="node reveal"><div class="nl">6</div><div class="nv">Stock ↓</div></div><div class="arrow">→</div>
+      <div class="node reveal"><div class="nl">7</div><div class="nv">Movement + audit</div></div>
+    </div>
+    <div class="grid g2" style="margin-top:40px;">
+      <div class="card reveal"><h3 style="font-size:20px;">Why this order</h3><p>It proves the core claim end-to-end: stock is a function of transactions, and each one leaves a trail.</p></div>
+      <div class="card reveal"><h3 style="font-size:20px;">Fallback</h3><p>Data &amp; account prepared in advance; screenshots stand in if the live environment fails.</p></div>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Live Demo</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 15. TESTING ===== -->
+<section class="slide" data-sec="Testing">
+  <div class="s-head">
+    <div><div class="kicker reveal">Testing &amp; verification</div><h1 class="title reveal">How we gained confidence</h1>
+      <div class="subtitle reveal">Tooling is in place; present only the evidence actually produced on the branch.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card reveal"><h3 style="font-size:21px;">Backend</h3><p>JUnit / Spring test scope present; service-layer tests target stock &amp; lifecycle rules.</p><div class="badge b-muted" style="margin-top:12px;">Maven test</div></div>
+      <div class="card reveal"><h3 style="font-size:21px;">Frontend</h3><p>Vitest configured (<code style="font-size:14px;">vitest.config.mts</code>) for component &amp; logic tests.</p><div class="badge b-muted" style="margin-top:12px;">Vitest</div></div>
+      <div class="card reveal"><h3 style="font-size:21px;">Build &amp; smoke</h3><p>Production builds for both apps; Docker Compose brings the full stack up for smoke checks.</p><div class="badge b-muted" style="margin-top:12px;">Docker Compose</div></div>
+    </div>
+    <div class="card soft reveal" style="margin-top:22px;"><p style="font-size:19px; color:var(--ims-text);"><b>Honesty note for the panel:</b> show live test runs / counts during the defense rather than asserting a coverage number here. Tooling is wired; quote real output.</p></div>
+  </div>
+  <div class="footer"><span class="sec">Testing</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 16. CHALLENGES ===== -->
+<section class="slide" data-sec="Challenges">
+  <div class="s-head">
+    <div><div class="kicker reveal">Challenges &amp; engineering decisions</div><h1 class="title reveal">The hard parts — and how we resolved them</h1></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card tight reveal"><h3 style="font-size:19px;">Stock consistency</h3><p style="font-size:17px;">Transactional writes + movement ledger; receiving — not creation — adds stock (V8).</p></div>
+      <div class="card tight reveal"><h3 style="font-size:19px;">Lifecycle modeling</h3><p style="font-size:17px;">Explicit status columns &amp; sub-states instead of booleans or deletes.</p></div>
+      <div class="card tight reveal"><h3 style="font-size:19px;">Warehouse scoping</h3><p style="font-size:17px;">Centralized access service so scope is enforced once, server-side.</p></div>
+      <div class="card tight reveal"><h3 style="font-size:19px;">Schema evolution</h3><p style="font-size:17px;">14 ordered Flyway migrations; back-fill scripts protect existing data.</p></div>
+      <div class="card tight reveal"><h3 style="font-size:19px;">UI ↔ server sync</h3><p style="font-size:17px;">React Query invalidation keeps the UI truthful after every mutation.</p></div>
+      <div class="card tight reveal"><h3 style="font-size:19px;">Traceability</h3><p style="font-size:17px;">Audit log + stock movements give a complete operational record.</p></div>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Challenges</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 17. LIMITATIONS & FUTURE ===== -->
+<section class="slide" data-sec="Limitations">
+  <div class="s-head">
+    <div><div class="kicker reveal">Limitations &amp; future work</div><h1 class="title reveal">Honest about today; clear about tomorrow</h1></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g2">
+      <div class="card reveal"><h3 style="font-size:22px;">Current limitations <span class="badge b-warning">today</span></h3>
+        <ul class="lst" style="margin-top:8px;"><li>Registration flow vs. seeded roles need careful pairing before deployment.</li><li>Seeded admin hash must be rotated before any real use.</li><li>Reporting covers core metrics; advanced analytics not yet built.</li><li>Single-currency, single-language as implemented.</li></ul></div>
+      <div class="card reveal"><h3 style="font-size:22px;">Future work <span class="badge b-info">proposed</span></h3>
+        <ul class="lst" style="margin-top:8px;"><li>Barcode / scanner-driven receiving and counts.</li><li>Reorder points with automatic purchase suggestions.</li><li>Richer analytics &amp; exportable financial dashboards.</li><li>Refresh-token rotation &amp; per-permission UI gating.</li></ul></div>
+    </div>
+    <div class="note reveal">Limitations are stated as current; future items are explicitly proposals, not claims of completed work.</div>
+  </div>
+  <div class="footer"><span class="sec">Limitations</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 18. CONCLUSION ===== -->
+<section class="slide" data-sec="Conclusion">
+  <div class="s-head">
+    <div><div class="kicker reveal">Conclusion</div><h1 class="title reveal">What Inventory MS delivers</h1></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="grid g3">
+      <div class="card reveal"><div style="font-size:44px;">🎯</div><h3 style="font-size:22px; margin-top:10px;">Controlled inventory</h3><p>Stock moves only through tracked, transactional workflows.</p></div>
+      <div class="card reveal"><div style="font-size:44px;">🛡</div><h3 style="font-size:22px; margin-top:10px;">Enforced governance</h3><p>Role &amp; warehouse scope authoritative on the backend.</p></div>
+      <div class="card reveal"><div style="font-size:44px;">🧾</div><h3 style="font-size:22px; margin-top:10px;">Full accountability</h3><p>Movement ledger + audit log answer who, what, and when.</p></div>
+    </div>
+    <div class="card soft reveal" style="margin-top:26px; text-align:center;"><p style="font-size:22px; color:var(--ims-text);">A modular, migration-driven, secure system — <b>built and demonstrable</b>, not just diagrammed.</p></div>
+  </div>
+  <div class="footer"><span class="sec">Conclusion</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 19. Q&A ===== -->
+<section class="slide" id="s-questions" data-sec="Q&amp;A" style="background:radial-gradient(1100px 700px at 20% 110%, #2a2470, #171a25 60%); color:#fff; overflow:hidden;">
+  <div class="orb-wrap"><div class="orb" style="width:420px; height:420px; opacity:.4; background:#8b7bff; top:18px; right:18px; animation:floaty 10s ease-in-out infinite;"></div></div>
+  <div class="center-hero">
+    <img src="assets/ims-mark.svg" alt="Inventory MS" style="width:84px; height:84px; border-radius:20px; margin-bottom:30px; animation:floaty 6s ease-in-out infinite;" />
+    <div class="kicker reveal" style="color:#a8a3e0;">Thank you</div>
+    <h1 class="reveal" style="font-size:76px; font-weight:800; letter-spacing:-1.5px; margin:14px 0;">Questions &amp; Discussion</h1>
+    <div class="reveal" style="font-size:24px; color:#d7d5f2;">Inventory MS &nbsp;·&nbsp; Faculty of Science &nbsp;·&nbsp; 2026</div>
+    <div class="reveal" style="font-size:18px; color:#8983c9; margin-top:30px;">Yossef Ashraf · John Samhan · Maryam Hamdy · Momen Abdelmonam &nbsp;—&nbsp; Supervisor: Prof. Mohamed Abdelbaky</div>
+  </div>
+</section>
+
+<!-- ===== 20. APPENDIX A · ERD ===== -->
+<section class="slide" data-sec="Appendix · ERD">
+  <div class="appx">APPENDIX A</div>
+  <div class="s-head"><div><div class="kicker reveal">Data model</div><h1 class="title reveal">Entity relationships (core)</h1></div></div>
+  <div class="body">
+    <div class="grid g4" style="font-size:16px;">
+      <div class="card tight reveal"><h3 style="font-size:18px;">users</h3><p style="font-size:15px;">id · username · email · password_hash · <b>user_role→roles</b> · left_at</p></div>
+      <div class="card tight reveal"><h3 style="font-size:18px;">products</h3><p style="font-size:15px;">id · name · current_price · <b>supplier_id→suppliers</b></p></div>
+      <div class="card tight reveal"><h3 style="font-size:18px;">warehouses</h3><p style="font-size:15px;">id · address · is_central · created_at</p></div>
+      <div class="card tight reveal"><h3 style="font-size:18px;">products_warehouses</h3><p style="font-size:15px;"><b>(product_id, warehouse_id)</b> · amount ≥ 0</p></div>
+      <div class="card tight reveal"><h3 style="font-size:18px;">sales_invoices</h3><p style="font-size:15px;">user · customer · warehouse · total · status · voided_*</p></div>
+      <div class="card tight reveal"><h3 style="font-size:18px;">purchase_invoices</h3><p style="font-size:15px;">user · supplier · warehouse · receipt_status · received_*</p></div>
+      <div class="card tight reveal"><h3 style="font-size:18px;">internal_invoices</h3><p style="font-size:15px;">source_wh ≠ destination_wh</p></div>
+      <div class="card tight reveal"><h3 style="font-size:18px;">stock_movements</h3><p style="font-size:15px;">product · warehouse · movement_type · qty · reference_* · actor</p></div>
+      <div class="card tight reveal"><h3 style="font-size:18px;">return_sales_invoices</h3><p style="font-size:15px;">→sales_invoice · return/restock/refund_status</p></div>
+      <div class="card tight reveal"><h3 style="font-size:18px;">return_purchase_invoices</h3><p style="font-size:15px;">→purchase_invoice · supplier · warehouse</p></div>
+      <div class="card tight reveal"><h3 style="font-size:18px;">audit_logs</h3><p style="font-size:15px;">actor · action · entity · entity_id · created_at</p></div>
+      <div class="card tight reveal"><h3 style="font-size:18px;">…_invoices_products</h3><p style="font-size:15px;">composite line items: (invoice_id, product_id) · amount · price</p></div>
+    </div>
+    <div class="note reveal">Bold = foreign key / composite key. Junction tables also include users_warehouses &amp; categories_products.</div>
+  </div>
+  <div class="footer"><span class="sec">Appendix · ERD</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 21. APPENDIX B · PERMISSIONS + API ===== -->
+<section class="slide" data-sec="Appendix · Auth & API">
+  <div class="appx">APPENDIX B</div>
+  <div class="s-head"><div><div class="kicker reveal">Authorization &amp; REST surface</div><h1 class="title reveal">Permission matrix · endpoint groups</h1></div></div>
+  <div class="body">
+    <div class="grid g2" style="align-items:start;">
+      <div class="reveal">
+        <table class="t" style="font-size:16px;">
+          <thead><tr><th>Capability</th><th>ADMIN</th><th>OP. MGR</th><th>WH. MGR</th></tr></thead>
+          <tbody>
+            <tr><td>Users &amp; roles</td><td><span class="badge b-success">✓</span></td><td>—</td><td>—</td></tr>
+            <tr><td>Reports &amp; audit</td><td><span class="badge b-success">✓</span></td><td><span class="badge b-success">✓</span></td><td>—</td></tr>
+            <tr><td>Products / suppliers / warehouses</td><td>—</td><td><span class="badge b-success">✓</span></td><td>view</td></tr>
+            <tr><td>Transfers &amp; receive approval</td><td>—</td><td><span class="badge b-success">✓</span></td><td>—</td></tr>
+            <tr><td>Sales &amp; sales returns</td><td>—</td><td>—</td><td><span class="badge b-success">✓</span></td></tr>
+            <tr><td>Receive orders · stock-edit</td><td>—</td><td>request</td><td><span class="badge b-success">✓</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid g2 reveal" style="gap:16px;">
+        <div class="card tight"><h3 style="font-size:18px;">Auth &amp; identity</h3><ul class="lst dim" style="font-size:15px;"><li>/auth · /profile</li><li>/users · /roles</li></ul></div>
+        <div class="card tight"><h3 style="font-size:18px;">Master data</h3><ul class="lst dim" style="font-size:15px;"><li>/products · /categories</li><li>/suppliers · /customers · /warehouses</li></ul></div>
+        <div class="card tight"><h3 style="font-size:18px;">Inventory &amp; txns</h3><ul class="lst dim" style="font-size:15px;"><li>/stock · /sales-invoices</li><li>/orders · /internal-invoices · /returns</li></ul></div>
+        <div class="card tight"><h3 style="font-size:18px;">Governance</h3><ul class="lst dim" style="font-size:15px;"><li>/audit-logs · /reports</li><li>/stock-edit-requests · /notifications</li></ul></div>
+      </div>
+    </div>
+    <div class="note reveal">25 controllers; frontend visibility is convenience — Spring Security URL rules &amp; <code style="font-size:14px;">@PreAuthorize</code> are authoritative.</div>
+  </div>
+  <div class="footer"><span class="sec">Appendix · Auth &amp; API</span><span class="pg"></span></div>
+</section>
+
+<!-- ===== 22. APPENDIX C · MIGRATIONS + DEPLOY + STOCK ===== -->
+<section class="slide" data-sec="Appendix · Engineering">
+  <div class="appx">APPENDIX C</div>
+  <div class="s-head"><div><div class="kicker reveal">Engineering reference</div><h1 class="title reveal">Migrations · deployment · stock ledger</h1></div></div>
+  <div class="body">
+    <div class="grid g2" style="align-items:start;">
+      <div class="reveal">
+        <table class="t" style="font-size:15px;">
+          <thead><tr><th>Version</th><th>Adds</th></tr></thead>
+          <tbody>
+            <tr><td><code>V1–V2</code></td><td>Core 20 tables + seeded roles &amp; admin</td></tr>
+            <tr><td><code>V3–V5</code></td><td>audit_logs · stock_movements · notifications</td></tr>
+            <tr><td><code>V6</code></td><td>seed mock data</td></tr>
+            <tr><td><code>V7–V8</code></td><td>sales states + receiving workflow (stock on receive)</td></tr>
+            <tr><td><code>V9</code></td><td>stock_edit_requests</td></tr>
+            <tr><td><code>V10–V14</code></td><td>customer/supplier/warehouse refinements</td></tr>
+          </tbody>
+        </table>
+        <div class="flow reveal" style="margin-top:18px; justify-content:center; align-items:center;">
+          <div class="node tight" style="min-width:120px; padding:11px 14px;"><div class="nl">:3000</div><div class="nv" style="font-size:16px;">Frontend</div></div><div class="arrow">→</div>
+          <div class="node accent tight" style="min-width:120px; padding:11px 14px;"><div class="nl">:8080</div><div class="nv" style="font-size:16px;">Backend</div></div><div class="arrow">→</div>
+          <div class="node tight" style="min-width:120px; padding:11px 14px;"><div class="nl">:5432</div><div class="nv" style="font-size:16px;">PostgreSQL</div></div>
+        </div>
+        <div class="note" style="text-align:center;">Docker Compose · <code style="font-size:13px;">docker compose up</code> · Flyway runs on boot</div>
+      </div>
+      <div class="reveal">
+        <div class="codebox"><span class="c">-- V4__stock_movements.sql</span>
+<span class="k">CREATE TABLE</span> stock_movements(
+  id            <span class="f">SERIAL</span> PRIMARY KEY,
+  product_id    <span class="f">→ products</span>,
+  warehouse_id  <span class="f">→ warehouses</span>,
+  movement_type <span class="f">VARCHAR(40)</span>,
+  quantity      <span class="f">INTEGER</span>,
+  reference_type/_id  <span class="c">-- src txn</span>,
+  actor_user_id <span class="f">→ users</span>,
+  created_at    <span class="f">TIMESTAMPTZ</span>
+);</div>
+        <ul class="lst" style="margin-top:16px; font-size:17px;">
+          <li><b>Append-only</b>, <b>typed</b> by movement, <b>linked</b> to source txn, <b>attributed</b> to a user.</li>
+          <li>Indexed on product, warehouse, type &amp; date — quantities stay trustworthy &amp; reportable.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Appendix · Engineering</span><span class="pg"></span></div>
+</section>
+
+</div></div>
+
+<div id="hint">← → navigate · F fullscreen · Home/End jump</div>
+<div id="ctrl">
+  <button id="prev" aria-label="Previous slide">‹</button>
+  <span id="counter">1 / 1</span>
+  <button id="next" aria-label="Next slide">›</button>
+  <button id="full" aria-label="Toggle fullscreen">⛶</button>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var stage = document.getElementById("stage");
+  var slides = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var total = slides.length;
+  var current = 0;
+
+  function scale(){
+    var s = Math.min(window.innerWidth/1920, window.innerHeight/1080);
+    stage.style.transform = "scale(" + s + ")";
+  }
+  window.addEventListener("resize", scale);
+
+  // staggered entrance for the active slide's .reveal elements
+  function animateIn(slide){
+    var els = slide.querySelectorAll(".reveal");
+    for(var i=0;i<els.length;i++){
+      var el = els[i];
+      el.classList.remove("go");
+      // force reflow so the animation restarts on every visit
+      void el.offsetWidth;
+      el.style.animationDelay = (i*70) + "ms";
+      el.classList.add("go");
+    }
+  }
+
+  function render(){
+    slides.forEach(function(sl, i){ sl.classList.toggle("active", i === current); });
+    document.getElementById("counter").textContent = (current+1) + " / " + total;
+    document.getElementById("progress").style.width = ((current+1)/total*100) + "%";
+    var pg = slides[current].querySelector(".pg");
+    if(pg) pg.textContent = (current+1) + " / " + total;
+    document.getElementById("hint").style.display = (current === 0) ? "block" : "none";
+    animateIn(slides[current]);
+  }
+
+  function go(n, opts){
+    current = Math.max(0, Math.min(total-1, n));
+    render();
+    if(!opts || !opts.noHash){
+      if(("#"+(current+1)) !== location.hash) location.hash = String(current+1);
+    }
+  }
+  function next(){ if(current < total-1) go(current+1); }
+  function prev(){ if(current > 0) go(current-1); }
+
+  window.addEventListener("keydown", function(e){
+    switch(e.key){
+      case "ArrowRight": case " ": case "PageDown": e.preventDefault(); next(); break;
+      case "ArrowLeft": case "PageUp": e.preventDefault(); prev(); break;
+      case "Home": e.preventDefault(); go(0); break;
+      case "End": e.preventDefault(); go(total-1); break;
+      case "f": case "F": toggleFull(); break;
+    }
+  });
+
+  document.getElementById("next").addEventListener("click", next);
+  document.getElementById("prev").addEventListener("click", prev);
+  document.getElementById("full").addEventListener("click", toggleFull);
+  function toggleFull(){
+    if(!document.fullscreenElement){ if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen(); }
+    else { if(document.exitFullscreen) document.exitFullscreen(); }
+  }
+
+  var tx=0, ty=0;
+  window.addEventListener("touchstart", function(e){ tx=e.changedTouches[0].clientX; ty=e.changedTouches[0].clientY; }, {passive:true});
+  window.addEventListener("touchend", function(e){
+    var dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>50 && Math.abs(dx)>Math.abs(dy)){ if(dx<0) next(); else prev(); }
+  }, {passive:true});
+
+  window.addEventListener("hashchange", function(){
+    var n = parseInt(location.hash.replace("#",""),10);
+    if(!isNaN(n) && (n-1)!==current){ go(n-1, {noHash:true}); }
+  });
+
+  scale();
+  var start = parseInt(location.hash.replace("#",""),10);
+  if(!isNaN(start) && start>=1 && start<=total){ go(start-1, {noHash:true}); }
+  else { go(0, {noHash:true}); }
+})();
+</script>
+</body>
+</html>
