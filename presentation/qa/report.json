@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-28T09:31:20.756Z",
+  "timestamp": "2026-06-29T05:15:13.216Z",
   "input": "C:\\final-year\\presentation\\index.html",
-  "url": "http://127.0.0.1:52732/index.html",
+  "url": "http://127.0.0.1:64160/index.html",
   "viewports": [
     {
       "viewport": {
@@ -9,7 +9,7 @@
         "height": 1080,
         "name": "1920x1080"
       },
-      "slideCount": 22,
+      "slideCount": 42,
       "consoleErrors": [],
       "pageErrors": [],
       "failedRequests": [],
@@ -128,6 +128,106 @@
           "index": 22,
           "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-22.png",
           "issues": []
+        },
+        {
+          "index": 23,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-23.png",
+          "issues": []
+        },
+        {
+          "index": 24,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-24.png",
+          "issues": []
+        },
+        {
+          "index": 25,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-25.png",
+          "issues": []
+        },
+        {
+          "index": 26,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-26.png",
+          "issues": []
+        },
+        {
+          "index": 27,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-27.png",
+          "issues": []
+        },
+        {
+          "index": 28,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-28.png",
+          "issues": []
+        },
+        {
+          "index": 29,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-29.png",
+          "issues": []
+        },
+        {
+          "index": 30,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-30.png",
+          "issues": []
+        },
+        {
+          "index": 31,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-31.png",
+          "issues": []
+        },
+        {
+          "index": 32,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-32.png",
+          "issues": []
+        },
+        {
+          "index": 33,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-33.png",
+          "issues": []
+        },
+        {
+          "index": 34,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-34.png",
+          "issues": []
+        },
+        {
+          "index": 35,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-35.png",
+          "issues": []
+        },
+        {
+          "index": 36,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-36.png",
+          "issues": []
+        },
+        {
+          "index": 37,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-37.png",
+          "issues": []
+        },
+        {
+          "index": 38,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-38.png",
+          "issues": []
+        },
+        {
+          "index": 39,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-39.png",
+          "issues": []
+        },
+        {
+          "index": 40,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-40.png",
+          "issues": []
+        },
+        {
+          "index": 41,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-41.png",
+          "issues": []
+        },
+        {
+          "index": 42,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-42.png",
+          "issues": []
         }
       ]
     },
@@ -137,7 +237,7 @@
         "height": 768,
         "name": "1366x768"
       },
-      "slideCount": 22,
+      "slideCount": 42,
       "consoleErrors": [],
       "pageErrors": [],
       "failedRequests": [],
@@ -255,6 +355,106 @@
         {
           "index": 22,
           "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-22.png",
+          "issues": []
+        },
+        {
+          "index": 23,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-23.png",
+          "issues": []
+        },
+        {
+          "index": 24,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-24.png",
+          "issues": []
+        },
+        {
+          "index": 25,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-25.png",
+          "issues": []
+        },
+        {
+          "index": 26,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-26.png",
+          "issues": []
+        },
+        {
+          "index": 27,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-27.png",
+          "issues": []
+        },
+        {
+          "index": 28,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-28.png",
+          "issues": []
+        },
+        {
+          "index": 29,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-29.png",
+          "issues": []
+        },
+        {
+          "index": 30,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-30.png",
+          "issues": []
+        },
+        {
+          "index": 31,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-31.png",
+          "issues": []
+        },
+        {
+          "index": 32,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-32.png",
+          "issues": []
+        },
+        {
+          "index": 33,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-33.png",
+          "issues": []
+        },
+        {
+          "index": 34,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-34.png",
+          "issues": []
+        },
+        {
+          "index": 35,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-35.png",
+          "issues": []
+        },
+        {
+          "index": 36,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-36.png",
+          "issues": []
+        },
+        {
+          "index": 37,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-37.png",
+          "issues": []
+        },
+        {
+          "index": 38,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-38.png",
+          "issues": []
+        },
+        {
+          "index": 39,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-39.png",
+          "issues": []
+        },
+        {
+          "index": 40,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-40.png",
+          "issues": []
+        },
+        {
+          "index": 41,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-41.png",
+          "issues": []
+        },
+        {
+          "index": 42,
+          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-42.png",
           "issues": []
         }
       ]

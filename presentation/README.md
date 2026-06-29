@@ -1,12 +1,8 @@
-# Inventory MS — Graduation Defense Deck
-
-A self-contained, browser-native 16:9 presentation for the **Inventory MS** (Supply-Chain & Inventory Management System) graduation defense.
+A self-contained, browser-native 16:9 presentation for the **Inventory MS** graduation defense.
 
 - **Team:** Yossef Ashraf · John Samhan · Maryam Hamdy · Momen Abdelmonam
 - **Supervisor:** Prof. Mohamed Abdelbaky
 - **Faculty of Science · 2026**
-
-## Launch
 
 Open the file directly:
 
@@ -14,63 +10,64 @@ Open the file directly:
 presentation/index.html
 ```
 
-Double-click it, or serve the folder (recommended, so local image assets always resolve):
+Or serve the folder so local image assets resolve consistently:
 
 ```bash
 node presentation/qa/static-server.mjs    # http://127.0.0.1:4321/
 ```
 
-Designed at **1920×1080**; the whole stage scales uniformly to any viewport and stays centered. No network access required — fonts fall back to the system sans stack and all assets are local.
-
-## Controls
+The deck is designed at **1920x1080** and scales uniformly to the current viewport. It requires no network access; fonts fall back to the system sans stack and all screenshots are local assets.
 
 | Action | Keys / gesture |
 |--------|----------------|
-| Next | `→` · `Space` · `PageDown` · swipe left · `›` button |
-| Previous | `←` · `PageUp` · swipe right · `‹` button |
-| First / last slide | `Home` / `End` |
-| Fullscreen | `F` · ⛶ button |
-| Jump to slide N | URL hash `#N` (e.g. `…/index.html#14`) — also restored on reload |
+| Next | Right arrow, Space, PageDown, swipe left, next button |
+| Previous | Left arrow, PageUp, swipe right, previous button |
+| First / last slide | Home / End |
+| Fullscreen | F or fullscreen button |
+| Jump to slide N | URL hash `#N`, for example `index.html#14` |
 
-A progress bar (top) and slide counter (bottom-right) track position. Reduced-motion preference is respected.
+## Structure
 
-## Print / PDF
+**Narrative (1-13):** Cover, Roadmap, Problem, Objectives, Solution, Three Roles, Role Access, Inventory Flow, Lifecycles, System Architecture, Frontend Pattern, Data Domains, Security.
 
-Browser **Print** → *Save as PDF*, landscape, **Background graphics ON**. Each slide is one page; no clipping.
+**Role evidence (14-33):** one application screen per slide.
 
-## Structure (22 slides)
+- **System Admin (14-16):** Users, Reports, Audit Logs.
+- **Operational Manager (17-26):** Dashboard, Products, Suppliers, Stock, Warehouses, Approve, Distribute Products, Stock Requests, Reports, Audit Logs.
+- **Warehouse Manager (27-33):** Dashboard, Stock, Customers, Manage Sales, Sales Returns, Receive Orders, Request Stock Edit.
 
-**Main deck (1–19):** Cover · Problem · Objectives · Solution · Users & Scope · Inventory Flow · Lifecycles · System Architecture · Code Architecture (front-to-back) · Data Domains · Security · Application UI · Auditability · Demo Plan · Testing · Challenges · Limitations & Future · Conclusion · Q&A.
+**Close (34-39):** Demo Plan, Testing, Challenges, Limitations and Future Work, Conclusion, Q&A.
 
-**Appendix (20–22):** ERD · Permission matrix + API groups · Migrations + Deployment + Stock-movement ledger.
+**Appendix (40-42):** ERD domains, permission matrix, engineering facts and stock-movement shape.
 
-## Motion
-
-Tasteful, projector-safe animation (all disabled under `prefers-reduced-motion`):
-
-- Staggered entrance reveals (`riseIn`) replay each time a slide is shown.
-- Slow Ken-Burns drift on the two UI screenshots.
-- Floating brand mark + ambient blur orbs and a shimmering title on the cover/Q&A.
-- Pulsing flow arrows and a soft glow on accent (stock-changing) nodes.
-- Hover lift on cards and slide-in on layer/callout rows.
+The deck keeps the three-role explanation unchanged and separates every role screen onto its own slide. Each role screen slide pairs a cropped screenshot with a purpose panel explaining why the page exists and what it proves. Operational Manager appears after System Admin and before Warehouse Manager, and the Receive Orders page is included under Warehouse Manager.
 
 ## Assets
 
-- `assets/ims-mark.svg` — IMS brand mark.
-- `assets/ui-sales-invoices.png`, `assets/ui-audit-logs.png` — real application screenshots used as evidence.
+- `assets/ims-mark.svg` - IMS brand mark.
+- `assets/admin-users.png`, `assets/admin-reports.png`, `assets/admin-audit-logs.png` - System Admin screenshots.
+- `assets/op-dashboard.png`, `assets/op-products.png`, `assets/op-suppliers.png`, `assets/op-stock.png`, `assets/op-warehouses.png`, `assets/op-approve.png`, `assets/op-distribute-products.png`, `assets/op-stock-requests.png`, `assets/op-reports.png`, `assets/op-audit-logs.png` - Operational Manager screenshots.
+- `assets/om-dashboard.png`, `assets/om-stock.png`, `assets/om-customers.png`, `assets/om-sales.png`, `assets/om-sales-returns.png`, `assets/wm-receive-orders.png`, `assets/om-stock-edit.png` - Warehouse Manager screenshots.
+- `assets/ui-audit-logs.png`, `assets/ui-sales-invoices.png` - retained supporting/legacy evidence assets.
 
-## QA
+## Visual QA
 
-Visual QA was run at **1920×1080** and **1366×768** (Playwright). Result: **PASS** — 0 console errors, 0 page errors, 0 failed requests, 0 overflow findings across all 31 slides. See `qa/report.json`, `qa/summary.md`, and `qa/screens/`.
-
-Re-run:
+Visual QA is run at **1920x1080** and **1366x768** with Playwright.
 
 ```bash
-node .claude/skills/inventory-ms-html-deck/scripts/qa-slides.mjs presentation/index.html presentation/qa
+node .agents/skills/inventory-ms-html-deck/scripts/qa-slides.mjs presentation/index.html presentation/qa
 ```
 
-(Requires `playwright` + chromium installed locally.)
+Expected gates:
 
-## Content provenance
+- No slide scrollbars.
+- No clipped content or broken images.
+- 0 console errors and 0 page errors.
+- Working keyboard, button, hash, fullscreen, and touch navigation.
+- Print/PDF mode keeps each slide on one page.
 
-Every technical claim traces to the repository: Flyway migrations `V1–V14`, `SecurityConfig.java`, `roles.ts`, backend controllers/entities, and the two UI screenshots. Items labeled *future work* are proposals, not implemented features.
+See `presentation/qa/report.json`, `presentation/qa/summary.md`, and `presentation/qa/screens/` for the latest QA run.
+
+## Source Traceability
+
+Technical claims are grounded in the current repository: `src/constants/roles.ts`, `src/constants/routes.ts`, frontend page/hook/service patterns, Spring Boot backend structure, PostgreSQL/Flyway migrations `V1` through `V14`, and the supplied application screenshots. Items labeled future work are proposals, not completed implementation.

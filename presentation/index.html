@@ -108,6 +108,36 @@ ul.lst.dim li{color:var(--ims-text-secondary);}
 .shot{border:1px solid var(--ims-border); border-radius:12px; overflow:hidden; box-shadow:0 6px 24px rgba(16,24,40,.10); background:#fff;}
 .shot img{display:block; width:100%; height:auto; transform-origin:center center;}
 .shot.kb img{animation:kenburns 18s ease-in-out infinite alternate;}
+.screen-grid{display:grid; grid-template-columns:minmax(0,1fr) 420px; gap:24px; align-items:center;}
+.screen-shot{height:636px;}
+.screen-shot img{width:100%; height:100%; object-fit:cover; object-position:left top;}
+.solo-shot{height:735px;}
+.solo-shot img{width:100%; height:100%; object-fit:contain; object-position:left top; background:#fff;}
+.role-screen{height:735px; display:grid; grid-template-columns:minmax(0,1fr) 372px; gap:22px; align-items:stretch;}
+.role-screen .solo-shot{height:100%;}
+.role-screen .solo-shot img{width:100%; height:100%; object-fit:cover; object-position:left top;}
+.role-purpose{background:var(--ims-surface); border:1px solid var(--ims-border); border-radius:12px; padding:24px 24px 22px; box-shadow:0 4px 18px rgba(16,24,40,.08); display:flex; flex-direction:column; gap:18px;}
+.role-purpose .label{font-size:13px; font-weight:700; color:var(--ims-primary); letter-spacing:1.1px; text-transform:uppercase;}
+.role-purpose h3{font-size:24px; line-height:1.15; margin:0;}
+.role-purpose p{font-size:17px; line-height:1.45; color:var(--ims-text-secondary);}
+.role-purpose ul{list-style:none; display:flex; flex-direction:column; gap:12px; margin-top:2px;}
+.role-purpose li{font-size:16px; line-height:1.38; color:var(--ims-text); display:flex; gap:10px; align-items:flex-start;}
+.role-purpose li::before{content:""; flex:0 0 8px; width:8px; height:8px; border-radius:50%; background:var(--ims-primary); margin-top:7px;}
+.screen-notes{display:flex; flex-direction:column; gap:12px;}
+.screen-notes .callout{padding:13px 15px;}
+.screen-notes .callout .ct b{font-size:17px;}
+.screen-notes .callout .ct span{font-size:14.5px;}
+.mosaic{display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;}
+.mosaic.two{grid-template-columns:repeat(2, 1fr);}
+.tile{background:var(--ims-surface); border:1px solid var(--ims-border); border-radius:12px; overflow:hidden; box-shadow:0 4px 18px rgba(16,24,40,.08);}
+.tile img{display:block; width:100%; height:170px; object-fit:cover; object-position:left top;}
+.tile .cap{padding:12px 14px; border-top:1px solid var(--ims-border);}
+.tile .cap b{font-size:16px; display:block;}
+.tile .cap span{font-size:13px; color:var(--ims-text-secondary);}
+.proof-strip{display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;}
+.proof-strip .card{padding:18px 20px;}
+.mini-shot{height:295px;}
+.mini-shot img{width:100%; height:100%; object-fit:cover; object-position:left top;}
 
 .callout{display:flex; gap:14px; align-items:flex-start; padding:14px 16px; background:var(--ims-surface);
   border:1px solid var(--ims-border); border-radius:10px; transition:transform .2s ease, border-color .2s ease;}
@@ -128,7 +158,7 @@ table.t code{font-family:ui-monospace,monospace; font-size:15px; background:#f3f
 code{font-family:ui-monospace,monospace;}
 
 .codebox{background:#171A25; color:#e6e8f0; border-radius:12px; padding:22px 26px; font-family:ui-monospace,SFMono-Regular,monospace;
-  font-size:17px; line-height:1.7; overflow:hidden;}
+  font-size:17px; line-height:1.7; overflow:hidden; white-space:pre-line;}
 .codebox .k{color:#c4b5fd;} .codebox .s{color:#86efac;} .codebox .c{color:#64748b;} .codebox .f{color:#7dd3fc;}
 
 .note{font-size:16px; color:var(--ims-text-muted); margin-top:12px; font-style:italic;}
@@ -177,6 +207,45 @@ code{font-family:ui-monospace,monospace;}
 
 .center-hero{height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; position:relative; z-index:2;}
 
+/* polished app-screen recreations — match the real screenshot style */
+.appwin{display:flex; background:#fff; border:1px solid #edeef3; border-radius:16px; overflow:hidden;
+  box-shadow:0 22px 60px -12px rgba(16,24,40,.22), 0 6px 16px rgba(16,24,40,.06); width:100%;}
+.appwin .sb{width:214px; flex:0 0 214px; background:#fff; border-right:1px solid #f0f1f5; padding:22px 16px; display:flex; flex-direction:column; gap:5px;}
+.appwin .sb .lg{display:flex; align-items:center; gap:11px; margin-bottom:22px;}
+.appwin .sb .lg img{width:36px; height:36px; border-radius:10px;}
+.appwin .sb .lg b{font-size:17px; font-weight:700; line-height:1.15;}
+.appwin .sb .lg b span{display:block; font-size:10px; color:var(--ims-text-muted); font-weight:500; letter-spacing:.2px;}
+.appwin .sb a{display:flex; align-items:center; gap:12px; font-size:15.5px; color:var(--ims-text-secondary); padding:12px 14px; border-radius:10px; font-weight:500;}
+.appwin .sb a.on{background:var(--ims-primary-soft); color:var(--ims-primary-dark); font-weight:600;}
+.appwin .sb .who{margin-top:auto; display:flex; align-items:center; gap:11px; padding-top:16px; border-top:1px solid #f0f1f5;}
+.appwin .sb .who .av{width:34px; height:34px; border-radius:50%; background:#171A25; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700;}
+.appwin .sb .who b{font-size:13px; font-weight:600; line-height:1.2;}
+.appwin .sb .who b span{display:block; font-size:11px; color:var(--ims-text-muted); font-weight:400;}
+.appwin .mn{flex:1; min-width:0; background:#fbfbfd; padding:30px 34px;}
+.appwin .mh{font-size:28px; font-weight:700; letter-spacing:-.4px;}
+.appwin .mhs{font-size:14.5px; color:var(--ims-text-muted); margin-top:4px;}
+.appwin .ctl{display:flex; gap:13px; align-items:center; margin-top:24px;}
+.appwin .inp{flex:1; border:1px solid var(--ims-border); border-radius:10px; padding:13px 16px; font-size:14.5px; color:var(--ims-text-muted); background:#fff;}
+.appwin .btn{background:var(--ims-primary); color:#fff; font-size:14.5px; font-weight:600; padding:13px 20px; border-radius:10px; white-space:nowrap; box-shadow:0 4px 12px rgba(91,76,240,.32);}
+.appwin .btn.gho{background:#fff; color:var(--ims-text-secondary); border:1px solid var(--ims-border); box-shadow:none; font-weight:500;}
+.appwin table{width:100%; border-collapse:collapse; margin-top:22px; font-size:15.5px; background:#fff; border:1px solid #f0f1f5; border-radius:14px; overflow:hidden;}
+.appwin th{text-align:left; padding:15px 20px; font-size:11px; letter-spacing:.7px; text-transform:uppercase; color:var(--ims-text-muted); font-weight:600; border-bottom:1px solid #f0f1f5;}
+.appwin td{padding:17px 20px; border-bottom:1px solid #f4f5f8; color:var(--ims-text);}
+.appwin tr:last-child td{border-bottom:none;}
+.appwin tbody tr:hover{background:#fafaff;}
+.appwin .pill{display:inline-block; font-size:11.5px; font-weight:600; padding:5px 13px; border-radius:999px; letter-spacing:.2px;}
+.appwin .chips{display:flex; flex-wrap:wrap; gap:10px; margin-top:20px;}
+.appwin .chip{font-size:14.5px; border:1px solid var(--ims-border); border-radius:10px; padding:11px 16px; background:#fff; color:var(--ims-text-secondary);}
+.appwin .chip.on{background:var(--ims-primary-soft); border-color:#cfd2ff; color:var(--ims-primary-dark); font-weight:600;}
+.appwin .ep{font-size:12.5px; font-family:ui-monospace,monospace; color:var(--ims-primary-dark); background:var(--ims-primary-soft); padding:6px 12px; border-radius:8px;}
+.appwin .lnk{color:var(--ims-primary); font-weight:600;}
+.appwin .mut{color:var(--ims-text-muted);}
+
+/* horizontal callout strip beneath a full-width screen */
+.cstrip{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:22px;}
+.cstrip .callout{padding:15px 17px;}
+.cstrip .callout .ct b{font-size:17px;} .cstrip .callout .ct span{font-size:14.5px;}
+
 /* progress + controls */
 #progress{position:fixed; top:0; left:0; height:4px; background:linear-gradient(90deg,var(--ims-primary),#8b7bff);
   z-index:50; transition:width .35s ease;}
@@ -188,7 +257,7 @@ code{font-family:ui-monospace,monospace;}
 #counter{color:#fff; font-size:14px; font-weight:600; padding:0 8px; min-width:54px; text-align:center; font-variant-numeric:tabular-nums;}
 #hint{position:fixed; bottom:20px; left:22px; z-index:50; color:rgba(255,255,255,.55); font-size:13px;}
 
-.appx{position:absolute; top:80px; right:96px; font-size:13px; font-weight:700; letter-spacing:1.5px;
+.appx{position:absolute; top:34px; right:96px; font-size:13px; font-weight:700; letter-spacing:1.5px;
   color:var(--ims-primary); background:var(--ims-primary-soft); padding:5px 12px; border-radius:6px;}
 
 @media (prefers-reduced-motion: reduce){
@@ -213,7 +282,6 @@ code{font-family:ui-monospace,monospace;}
 <body>
 <div id="progress"></div>
 <div id="viewport"><div id="stage">
-
 <!-- ===== 1. COVER ===== -->
 <section class="slide" id="s-cover" data-sec="Title">
   <div class="orb-wrap"><div class="orb orb1"></div><div class="orb orb2"></div></div>
@@ -221,7 +289,7 @@ code{font-family:ui-monospace,monospace;}
     <div class="cvbrand reveal"><img src="assets/ims-mark.svg" alt="Inventory MS logo" /><div><b>Inventory MS</b><span>Management System</span></div></div>
     <div class="ck reveal">Graduation Project · Faculty of Science · 2026</div>
     <h1 class="reveal">Inventory MS</h1>
-    <div class="csub reveal">A Supply-Chain &amp; Inventory Management System with controlled stock movement, role-based access, and full auditability.</div>
+    <div class="csub reveal">A supply-chain and inventory management system with controlled stock movement, role-based access, and full auditability.</div>
     <div class="cmeta">
       <div class="blk reveal"><div class="lab">Team</div><div class="team">Yossef Ashraf &nbsp;·&nbsp; John Samhan<br/>Maryam Hamdy &nbsp;·&nbsp; Momen Abdelmonam</div></div>
       <div class="blk reveal"><div class="lab">Supervisor</div><div class="one">Prof. Mohamed Abdelbaky</div><div class="sm">Faculty of Science · 2026</div></div>
@@ -229,494 +297,876 @@ code{font-family:ui-monospace,monospace;}
     <div class="stackchips">
       <span class="reveal">Next.js · React · TypeScript</span>
       <span class="reveal">Spring Boot · Java 21 · JWT</span>
-      <span class="reveal">PostgreSQL · Flyway · Docker</span>
+      <span class="reveal">PostgreSQL · Flyway</span>
     </div>
   </div>
 </section>
 
-<!-- ===== 2. PROBLEM ===== -->
-<section class="slide" data-sec="Problem">
+<section class="slide" data-sec="Roadmap">
+
   <div class="s-head">
-    <div><div class="kicker reveal">The problem</div><h1 class="title reveal">Inventory operations break without a controlled system</h1>
-      <div class="subtitle reveal">Spreadsheets and disconnected tools lose the one thing warehouses depend on: trustworthy stock.</div></div>
+    <div><div class="kicker reveal">Review plan</div><h1 class="title reveal">A clearer defense story with complete role evidence</h1><div class="subtitle reveal">The presentation explains the system once, then shows each role screen on its own slide.</div></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
-    <div class="grid g4">
-      <div class="card reveal"><h3 style="font-size:22px;">Fragmented data</h3><p>Products, stock, suppliers, and sales live in separate sheets that drift out of sync.</p></div>
-      <div class="card reveal"><h3 style="font-size:22px;">Weak traceability</h3><p>Quantities are overwritten in place — no record of <b>who</b> changed <b>what</b>, or <b>why</b>.</p></div>
-      <div class="card reveal"><h3 style="font-size:22px;">Manual transactions</h3><p>Receiving, sales, returns, and transfers are handled by memory and ad-hoc edits.</p></div>
-      <div class="card reveal"><h3 style="font-size:22px;">No access control</h3><p>Everyone can touch everything — no roles, no per-warehouse boundaries, no approvals.</p></div>
+
+    <div class="grid g3">
+      <div class="card reveal"><h3>1. Problem</h3><p>Why inventory needs controlled transactions, warehouse scope, and traceability.</p></div>
+      <div class="card reveal"><h3>2. Solution</h3><p>How Inventory MS centralizes master data and stock movement.</p></div>
+      <div class="card reveal"><h3>3. Roles</h3><p>The three role model: System Admin, Operational Manager, Warehouse Manager.</p></div>
+      <div class="card reveal"><h3>4. Workflows</h3><p>Receiving, sales, returns, transfers, stock corrections, reports, and audit.</p></div>
+      <div class="card reveal"><h3>5. Engineering</h3><p>Next.js frontend, Spring Boot backend, PostgreSQL, Flyway, JWT, service-layer logic.</p></div>
+      <div class="card reveal"><h3>6. Evidence</h3><p>Current application screens shown separately for each role.</p></div>
     </div>
-    <div class="card soft reveal" style="margin-top:24px;"><p style="font-size:21px; color:var(--ims-text);"><b>Consequence:</b> stockouts, phantom inventory, disputed numbers, and zero accountability when something goes wrong.</p></div>
+
+  </div>
+  <div class="footer"><span class="sec">Roadmap</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Problem">
+
+  <div class="s-head">
+    <div><div class="kicker reveal">The problem</div><h1 class="title reveal">Inventory operations break when stock is edited without control</h1><div class="subtitle reveal">The project solves operational trust, not only CRUD screens.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+
+    <div class="grid g4">
+      <div class="card reveal"><h3>Untrusted stock</h3><p>Manual edits make available quantity hard to defend.</p></div>
+      <div class="card reveal"><h3>No custody</h3><p>A branch warehouse must only act on its own stock.</p></div>
+      <div class="card reveal"><h3>Weak approvals</h3><p>Transfers, receiving, and corrections need review points.</p></div>
+      <div class="card reveal"><h3>No trace</h3><p>Managers need to know who changed inventory and from which transaction.</p></div>
+    </div>
+    <div class="card soft reveal" style="margin-top:24px;"><p style="font-size:22px; color:var(--ims-text);"><b>Design target:</b> every stock change should come from a named business workflow and leave an audit trail.</p></div>
+
   </div>
   <div class="footer"><span class="sec">Problem</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 3. OBJECTIVES ===== -->
 <section class="slide" data-sec="Objectives">
+
   <div class="s-head">
     <div><div class="kicker reveal">Objectives</div><h1 class="title reveal">Five goals the system is designed to meet</h1></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
+
     <div class="grid" style="grid-template-columns:repeat(5,1fr); gap:18px;">
-      <div class="card tight reveal"><div class="badge b-primary">01</div><h3 style="font-size:21px; margin-top:14px;">Centralize</h3><p>One source of truth for master data and stock.</p></div>
-      <div class="card tight reveal"><div class="badge b-primary">02</div><h3 style="font-size:21px; margin-top:14px;">Control movement</h3><p>Stock changes only through tracked transactions.</p></div>
-      <div class="card tight reveal"><div class="badge b-primary">03</div><h3 style="font-size:21px; margin-top:14px;">Multi-warehouse</h3><p>Per-warehouse stock with scoped access.</p></div>
-      <div class="card tight reveal"><div class="badge b-primary">04</div><h3 style="font-size:21px; margin-top:14px;">Authorize</h3><p>Role + method-level permission enforcement.</p></div>
-      <div class="card tight reveal"><div class="badge b-primary">05</div><h3 style="font-size:21px; margin-top:14px;">Report &amp; audit</h3><p>Dashboards, reports, and an immutable log.</p></div>
+      <div class="card tight reveal"><div class="badge b-primary">01</div><h3 style="margin-top:14px;">Centralize</h3><p>One source of truth for products, suppliers, customers, warehouses, and users.</p></div>
+      <div class="card tight reveal"><div class="badge b-primary">02</div><h3 style="margin-top:14px;">Control</h3><p>Stock changes through receiving, sales, returns, transfers, or approved edits.</p></div>
+      <div class="card tight reveal"><div class="badge b-primary">03</div><h3 style="margin-top:14px;">Scope</h3><p>Warehouse managers work inside their assigned warehouse.</p></div>
+      <div class="card tight reveal"><div class="badge b-primary">04</div><h3 style="margin-top:14px;">Authorize</h3><p>Role permissions decide what pages and actions are available.</p></div>
+      <div class="card tight reveal"><div class="badge b-primary">05</div><h3 style="margin-top:14px;">Trace</h3><p>Reports and audit logs explain current numbers and sensitive actions.</p></div>
     </div>
-    <div class="card reveal" style="margin-top:26px;"><p style="font-size:21px; color:var(--ims-text);">Design principle &nbsp;—&nbsp; <b>the system models inventory <i>movement and state</i>, not just rows in a table.</b> Quantities are a consequence of transactions, never an input that can be silently overwritten.</p></div>
+    <div class="card reveal" style="margin-top:26px;"><p style="font-size:21px; color:var(--ims-text);">The system models inventory as <b>movement plus state</b>: quantities are the result of transactions, not silent overwrites.</p></div>
+
   </div>
   <div class="footer"><span class="sec">Objectives</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 4. SOLUTION ===== -->
 <section class="slide" data-sec="Solution">
+
   <div class="s-head">
-    <div><div class="kicker reveal">Proposed solution</div><h1 class="title reveal">One platform around a controlled inventory core</h1>
-      <div class="subtitle reveal">Master data, transactions, and governance orbit a single stock ledger.</div></div>
+    <div><div class="kicker reveal">Proposed solution</div><h1 class="title reveal">A controlled inventory core surrounded by operational modules</h1><div class="subtitle reveal">The UI and backend both revolve around product, warehouse, and transaction records.</div></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
+
     <div class="grid g3" style="align-items:stretch;">
-      <div class="card reveal"><h3 style="font-size:22px;">📦 Master data</h3><ul class="lst dim" style="margin-top:8px;"><li>Products &amp; categories</li><li>Suppliers &amp; customers</li><li>Warehouses &amp; staff</li></ul></div>
-      <div class="card soft reveal" style="display:flex; flex-direction:column; justify-content:center; text-align:center; border:2px solid var(--ims-primary);">
-        <div style="font-size:28px; font-weight:750; color:var(--ims-primary-dark);">Inventory Core</div>
-        <p style="font-size:19px; color:var(--ims-text); margin-top:10px;">Per-warehouse stock &amp; an append-only <b>stock-movement ledger</b></p>
-        <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:14px;"><span class="badge b-primary">products_warehouses</span><span class="badge b-primary">stock_movements</span></div>
-      </div>
-      <div class="card reveal"><h3 style="font-size:22px;">🔁 Transactions</h3><ul class="lst dim" style="margin-top:8px;"><li>Purchases &amp; receiving</li><li>Sales &amp; returns</li><li>Internal transfers</li></ul></div>
+      <div class="card reveal"><h3>Master data</h3><ul class="lst dim"><li>Products and categories</li><li>Suppliers and customers</li><li>Warehouses and user assignments</li></ul></div>
+      <div class="card reveal soft"><h3>Inventory core</h3><ul class="lst dim"><li>Product-by-warehouse stock</li><li>Stock movements</li><li>Low-stock alerts</li></ul></div>
+      <div class="card reveal"><h3>Transactions</h3><ul class="lst dim"><li>Purchase receiving</li><li>Sales invoices and returns</li><li>Transfers and stock edit requests</li></ul></div>
     </div>
-    <div class="grid g4" style="margin-top:22px;">
-      <div class="card tight reveal"><h3 style="font-size:19px;">🛡 Governance</h3><p style="font-size:17px;">Approvals &amp; stock-edit requests</p></div>
-      <div class="card tight reveal"><h3 style="font-size:19px;">📊 Reporting</h3><p style="font-size:17px;">Dashboards &amp; financial reports</p></div>
-      <div class="card tight reveal"><h3 style="font-size:19px;">🧾 Audit</h3><p style="font-size:17px;">Immutable action log</p></div>
-      <div class="card tight reveal"><h3 style="font-size:19px;">🔔 Notifications</h3><p style="font-size:17px;">Low-stock &amp; workflow alerts</p></div>
-    </div>
+    <div style="margin-top:34px;"><div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">Input</div><div class="nv">Orders</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Control</div><div class="nv">Approve</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Effect</div><div class="nv">Stock movement</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Output</div><div class="nv">Reports</div></div></div></div>
+
   </div>
   <div class="footer"><span class="sec">Solution</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 5. USERS & SCOPE ===== -->
-<section class="slide" data-sec="Users & Scope">
+<section class="slide" data-sec="Roles">
+
   <div class="s-head">
-    <div><div class="kicker reveal">Users &amp; functional scope</div><h1 class="title reveal">Three roles, scoped to what they operate</h1>
-      <div class="subtitle reveal">Verified in <code style="font-size:16px;">roles.ts</code> (frontend matrix) and the seeded backend roles.</div></div>
+    <div><div class="kicker reveal">Users and scope</div><h1 class="title reveal">The three roles are the spine of the system</h1><div class="subtitle reveal">This section is intentionally preserved: it explains why each user sees a different product.</div></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
+
     <div class="grid g3">
-      <div class="card reveal"><div class="badge b-danger">SYSTEM_ADMIN</div><h3 style="font-size:21px; margin-top:14px;">Governance &amp; identity</h3><ul class="lst" style="margin-top:6px;"><li>Users &amp; roles</li><li>Reports</li><li>Audit logs</li></ul></div>
-      <div class="card reveal"><div class="badge b-warning">OPERATIONAL_MANAGER</div><h3 style="font-size:21px; margin-top:14px;">Master data &amp; oversight</h3><ul class="lst" style="margin-top:6px;"><li>Products, suppliers, warehouses</li><li>Transfers &amp; receive approvals</li><li>Reports, audit, low-stock</li></ul></div>
-      <div class="card reveal"><div class="badge b-info">WAREHOUSE_MANAGER</div><h3 style="font-size:21px; margin-top:14px;">Floor operations</h3><ul class="lst" style="margin-top:6px;"><li>Customers &amp; warehouse stock</li><li>Sales &amp; sales returns</li><li>Receive orders · stock-edit requests</li></ul></div>
+      <div class="card reveal"><div class="badge b-danger">SYSTEM_ADMIN</div><h3 style="margin-top:14px;">System Admin</h3><p>Governance role. Manages users and role assignment, reviews audit logs, and can access reporting. It is not the day-to-day warehouse operator.</p></div>
+      <div class="card reveal soft"><div class="badge b-warning">OPERATIONAL_MANAGER</div><h3 style="margin-top:14px;">Operational Manager</h3><p>Control role. Owns products, suppliers, warehouses, full stock visibility, approvals, transfers, reports, and audit review.</p></div>
+      <div class="card reveal"><div class="badge b-info">WAREHOUSE_MANAGER</div><h3 style="margin-top:14px;">Warehouse Manager</h3><p>Execution role. Handles warehouse stock, customers, sales invoices, sales returns, receiving, and local correction requests.</p></div>
     </div>
-    <div class="card soft reveal" style="margin-top:22px;"><p style="font-size:20px; color:var(--ims-text);"><b>Functional scope groups:</b> &nbsp; Master Data &nbsp;·&nbsp; Inventory Operations &nbsp;·&nbsp; Transactions &nbsp;·&nbsp; Governance &amp; Reporting — each gated by the role's permission set.</p></div>
+    <div class="card reveal" style="margin-top:26px;"><p style="font-size:21px; color:var(--ims-text);"><b>Important distinction:</b> frontend route visibility improves usability; backend authorization remains the security boundary.</p></div>
+
   </div>
-  <div class="footer"><span class="sec">Users &amp; Scope</span><span class="pg"></span></div>
+  <div class="footer"><span class="sec">Roles</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 6. INVENTORY FLOW ===== -->
-<section class="slide" data-sec="Inventory Flow">
+<section class="slide" data-sec="Roles">
+
   <div class="s-head">
-    <div><div class="kicker reveal">End-to-end inventory flow</div><h1 class="title reveal">How goods move from supplier to customer</h1>
-      <div class="subtitle reveal">Stock only changes at the highlighted points — each writes a movement record.</div></div>
+    <div><div class="kicker reveal">Role access</div><h1 class="title reveal">Same system, three different workspaces</h1><div class="subtitle reveal">The route map was reviewed against the current frontend role configuration.</div></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
-    <div class="flow" style="justify-content:center; align-items:center;">
-      <div class="node reveal"><div class="nl">source</div><div class="nv">Supplier</div></div><div class="arrow">→</div>
-      <div class="node reveal"><div class="nl">create</div><div class="nv">Purchase</div></div><div class="arrow">→</div>
-      <div class="node reveal"><div class="nl">approve</div><div class="nv">Approval</div></div><div class="arrow">→</div>
-      <div class="node accent reveal"><div class="nl">+ stock</div><div class="nv">Receiving</div></div><div class="arrow">→</div>
-      <div class="node reveal"><div class="nl">custody</div><div class="nv">Warehouse</div></div><div class="arrow">→</div>
-      <div class="node accent reveal"><div class="nl">− stock</div><div class="nv">Sale</div></div><div class="arrow">→</div>
-      <div class="node reveal"><div class="nl">dest</div><div class="nv">Customer</div></div>
+
+    <table class="t reveal">
+      <thead><tr><th>Role</th><th>Landing route</th><th>Main access</th><th>Blocked / outside scope</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge b-danger">System Admin</span></td><td><code>/users</code></td><td>Users, reports, audit logs</td><td>Operational stock, products, sales, receiving</td></tr>
+        <tr><td><span class="badge b-warning">Operational Manager</span></td><td><code>/dashboard</code></td><td>Products, suppliers, warehouses, all stock, approvals, transfers, reports, audit</td><td>Warehouse-only sales execution</td></tr>
+        <tr><td><span class="badge b-info">Warehouse Manager</span></td><td><code>/stock</code></td><td>Assigned stock, customers, sales, sales returns, receive orders, stock edit requests</td><td>System users, global warehouse management, audit logs</td></tr>
+      </tbody>
+    </table>
+    <div class="grid g3" style="margin-top:22px;">
+      <div class="card reveal"><h3>Route guard</h3><p>`canAccessRoute` checks role permissions before protected pages render.</p></div>
+      <div class="card reveal"><h3>Landing route</h3><p>`getLandingRoute` sends each role to its actual workspace.</p></div>
+      <div class="card reveal"><h3>Action scope</h3><p>Buttons and workflows are exposed only where the role has permission.</p></div>
     </div>
-    <div class="grid g3" style="margin-top:42px;">
-      <div class="card tight reveal"><h3 style="font-size:20px;">↩ Returns</h3><p>Sales &amp; purchase returns branch off and restore/reduce stock by the rules.</p></div>
-      <div class="card tight reveal"><h3 style="font-size:20px;">🔀 Transfers</h3><p>Internal transfers move stock between two warehouses (source ≠ destination).</p></div>
-      <div class="card tight reveal"><h3 style="font-size:20px;">📝 Adjustments</h3><p>Stock-edit requests create movement history instead of silent overwrites.</p></div>
-    </div>
+
   </div>
-  <div class="footer"><span class="sec">Inventory Flow</span><span class="pg"></span></div>
+  <div class="footer"><span class="sec">Roles</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 7. LIFECYCLES ===== -->
-<section class="slide" data-sec="Lifecycles">
+<section class="slide" data-sec="Workflow">
+
   <div class="s-head">
-    <div><div class="kicker reveal">Transaction lifecycles</div><h1 class="title reveal">State machines, not free-form edits</h1>
-      <div class="subtitle reveal">State names taken directly from the Flyway migrations (V7, V8).</div></div>
+    <div><div class="kicker reveal">Inventory flow</div><h1 class="title reveal">Stock moves through business events</h1><div class="subtitle reveal">The core demo path can be explained without jumping between many similar pages.</div></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
+
+    <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">Supplier</div><div class="nv">Source</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Purchase</div><div class="nv">Order</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Operational</div><div class="nv">Approve</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Warehouse</div><div class="nv">Receive</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Stock</div><div class="nv">Increase</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Customer</div><div class="nv">Sale</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Stock</div><div class="nv">Decrease</div></div></div>
+    <div class="grid g3" style="margin-top:34px;">
+      <div class="card reveal"><h3>Returns</h3><p>Customer returns record refund/restock states and add stock back only when restocked.</p></div>
+      <div class="card reveal"><h3>Transfers</h3><p>Operational Manager distributes products from central to branch warehouses.</p></div>
+      <div class="card reveal"><h3>Corrections</h3><p>Warehouse users request edits; manager review prevents silent quantity changes.</p></div>
+    </div>
+
+  </div>
+  <div class="footer"><span class="sec">Workflow</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Workflow">
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Transaction lifecycles</div><h1 class="title reveal">The system separates request, approval, and stock effect</h1><div class="subtitle reveal">This is the business logic that makes the stock numbers defensible.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+
     <div class="grid g2">
-      <div class="card reveal"><h3 style="font-size:22px;">Purchase receiving <span class="badge b-muted" style="font-size:12px;">V8</span></h3>
-        <div class="flow" style="margin-top:16px; align-items:center;">
-          <div class="node" style="min-width:130px;"><div class="nv" style="font-size:16px;">PENDING_<br/>RECEIPT</div></div><div class="arrow">→</div>
-          <div class="node accent" style="min-width:130px;"><div class="nv" style="font-size:16px;">RECEIVED</div></div>
-        </div>
-        <p style="margin-top:16px;">Per line: <code style="font-size:15px;">received_quantity</code> &amp; <code style="font-size:15px;">damaged_quantity</code>. Receiving is what increases warehouse stock — creation does not.</p></div>
-      <div class="card reveal"><h3 style="font-size:22px;">Sales return <span class="badge b-muted" style="font-size:12px;">V7</span></h3>
-        <div style="display:flex; flex-direction:column; gap:10px; margin-top:14px;">
-          <div class="layer" style="padding:11px 16px;"><span class="lname" style="width:auto; font-size:17px;">Return</span><span class="ltag" style="margin-left:auto;">PENDING_REVIEW → APPROVED / REJECTED</span></div>
-          <div class="layer" style="padding:11px 16px;"><span class="lname" style="width:auto; font-size:17px;">Restock</span><span class="ltag" style="margin-left:auto;">PENDING_RESTOCK → RESTOCKED</span></div>
-          <div class="layer" style="padding:11px 16px;"><span class="lname" style="width:auto; font-size:17px;">Refund</span><span class="ltag" style="margin-left:auto;">PENDING_REFUND → REFUNDED</span></div>
-        </div>
-        <p style="margin-top:14px;">Three independent sub-states + per-item <code style="font-size:15px;">condition</code> &amp; <code style="font-size:15px;">restock_decision</code>.</p></div>
+      <div class="card reveal">
+        <h3>Purchase receiving</h3>
+        <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">PO</div><div class="nv">Created</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Manager</div><div class="nv">Approved</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Warehouse</div><div class="nv">Received</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Stock</div><div class="nv">+ Quantity</div></div></div>
+        <p style="margin-top:20px;">Warehouse receiving records what actually arrived and updates inventory when the receipt is accepted.</p>
+      </div>
+      <div class="card reveal">
+        <h3>Sales return</h3>
+        <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">Return</div><div class="nv">Created</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Review</div><div class="nv">Approved</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Refund</div><div class="nv">Status</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Restock</div><div class="nv">+ Quantity</div></div></div>
+        <p style="margin-top:20px;">Refund state and restock state are separate, so finance and inventory can be audited independently.</p>
+      </div>
     </div>
-    <div class="card soft reveal" style="margin-top:20px;"><p style="font-size:19px; color:var(--ims-text);">Sales invoices carry a <code style="font-size:15px;">status</code> (default <b>PAID</b>) with void fields (<code style="font-size:15px;">voided_at</code>, <code style="font-size:15px;">voided_by_user_id</code>) — compensating actions, not deletes.</p></div>
+
   </div>
-  <div class="footer"><span class="sec">Lifecycles</span><span class="pg"></span></div>
+  <div class="footer"><span class="sec">Workflow</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 8. SYSTEM ARCHITECTURE ===== -->
 <section class="slide" data-sec="Architecture">
+
   <div class="s-head">
-    <div><div class="kicker reveal">System architecture</div><h1 class="title reveal">A layered request, end to end</h1>
-      <div class="subtitle reveal">Three containers orchestrated by Docker Compose.</div></div>
+    <div><div class="kicker reveal">System architecture</div><h1 class="title reveal">A standard layered web application</h1><div class="subtitle reveal">The implementation keeps UI, API, business logic, and persistence responsibilities separate.</div></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
-    <div class="layers">
-      <div class="layer reveal"><span class="lname"><span class="ic">🖥</span>Browser</span><span class="ldesc">User interacts with the Next.js UI</span><span class="ltag">Frontend container · :3000</span></div>
-      <div class="layer reveal"><span class="lname"><span class="ic">⚛</span>Next.js</span><span class="ldesc">App Router pages → feature components → React Query hooks → Axios services</span><span class="ltag">React · TypeScript · Tailwind</span></div>
-      <div class="layer reveal" style="border-color:var(--ims-primary); border-width:2px;"><span class="lname" style="color:var(--ims-primary-dark);">REST / JSON</span><span class="ldesc">Stateless HTTP with JWT bearer token</span><span class="ltag">Authorization: Bearer …</span></div>
-      <div class="layer reveal"><span class="lname"><span class="ic">☕</span>Spring</span><span class="ldesc">Controller → business service → repository, with validation &amp; transactions</span><span class="ltag">Backend container · Java 21 · :8080</span></div>
-      <div class="layer reveal"><span class="lname"><span class="ic">🗄</span>PostgreSQL</span><span class="ldesc">Relational store; schema evolved by Flyway migrations</span><span class="ltag">DB container · Flyway V1–V14</span></div>
+
+    <div class="layers reveal">
+      <div class="layer"><div class="lname">Browser UI</div><div class="ldesc">Next.js App Router pages, reusable components, React Query hooks.</div><div class="ltag">localhost:3000</div></div>
+      <div class="layer"><div class="lname">API client</div><div class="ldesc">Services wrap Axios calls and keep API details out of pages.</div><div class="ltag">src/services</div></div>
+      <div class="layer"><div class="lname">REST API</div><div class="ldesc">Spring controllers receive requests and delegate to services.</div><div class="ltag">localhost:9090</div></div>
+      <div class="layer"><div class="lname">Business layer</div><div class="ldesc">Services enforce workflow rules, permissions, and stock calculations.</div><div class="ltag">Spring Boot</div></div>
+      <div class="layer"><div class="lname">Persistence</div><div class="ldesc">JPA repositories, PostgreSQL schema, Flyway migrations.</div><div class="ltag">PostgreSQL</div></div>
     </div>
+
   </div>
   <div class="footer"><span class="sec">Architecture</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 9. CODE ARCHITECTURE (FE + BE merged) ===== -->
-<section class="slide" data-sec="Code Architecture">
+<section class="slide" data-sec="Architecture">
+
   <div class="s-head">
-    <div><div class="kicker reveal">Code architecture</div><h1 class="title reveal">One vertical slice, front to back</h1>
-      <div class="subtitle reveal">Every domain follows the same shape — Products shown end to end.</div></div>
+    <div><div class="kicker reveal">Frontend pattern</div><h1 class="title reveal">Each feature follows the same page -> hook -> service chain</h1><div class="subtitle reveal">This keeps screens thin and makes API behavior traceable during review.</div></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
+
     <div class="grid g2" style="align-items:center;">
-      <div class="reveal">
-        <div class="flow" style="flex-direction:column; gap:0; align-items:stretch;">
-          <div class="node" style="text-align:left;"><div class="nl">page</div><div class="nv">products/page.tsx</div></div>
-          <div class="arrow" style="justify-content:center;">↓</div>
-          <div class="node" style="text-align:left;"><div class="nl">hook · React Query</div><div class="nv">useProducts()</div></div>
-          <div class="arrow" style="justify-content:center;">↓</div>
-          <div class="node" style="text-align:left;"><div class="nl">service · Axios</div><div class="nv">product.service.ts</div></div>
-          <div class="arrow" style="justify-content:center;">↓</div>
-          <div class="node accent" style="text-align:left;"><div class="nl">REST · JWT</div><div class="nv">GET /products</div></div>
-          <div class="arrow" style="justify-content:center;">↓</div>
-          <div class="node" style="text-align:left;"><div class="nl">controller → service → repository</div><div class="nv">ProductController → JPA → PostgreSQL</div></div>
-        </div>
+      <div>
+        <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">Route</div><div class="nv">page.tsx</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">State</div><div class="nv">useFeature</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">API</div><div class="nv">service.ts</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">DTO</div><div class="nv">types.ts</div></div></div>
+        <div class="card reveal" style="margin-top:28px;"><p style="font-size:21px; color:var(--ims-text);">Example: <code>products/page.tsx</code> calls <code>useProducts</code>, which calls <code>product.service.ts</code>, which talks to the backend <code>/products</code> endpoints.</p></div>
       </div>
-      <div class="reveal">
-        <ul class="lst">
-          <li><b>React Query</b> owns server cache, loading/error states, and invalidation after mutations.</li>
-          <li><b>Typed services</b> — one <code style="font-size:15px;">*.service.ts</code> + <code style="font-size:15px;">*.types.ts</code> per domain.</li>
-          <li><b>Layered backend</b> — controller (HTTP + <code style="font-size:15px;">@PreAuthorize</code>) → service (<code style="font-size:15px;">@Transactional</code> rules) → repository.</li>
-          <li><b>Integrity</b> — a receive/sale updates stock <i>and</i> writes a movement atomically; DB CHECK constraints enforce invariants.</li>
-          <li><b>Flyway only</b> changes the schema — no <code style="font-size:15px;">ddl-auto=update</code>.</li>
-        </ul>
-      </div>
+      <div class="codebox reveal"><span class="c">// repeated feature shape</span>
+page.tsx
+  &rarr; hook in src/hooks/
+    &rarr; service in src/services/
+      &rarr; backend API
+        &rarr; controller
+          &rarr; service
+            &rarr; repository</div>
     </div>
+
   </div>
-  <div class="footer"><span class="sec">Code Architecture</span><span class="pg"></span></div>
+  <div class="footer"><span class="sec">Architecture</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 10. DATA DOMAINS ===== -->
-<section class="slide" data-sec="Data Domains">
+<section class="slide" data-sec="Data">
+
   <div class="s-head">
-    <div><div class="kicker reveal">Database domains</div><h1 class="title reveal">25 core tables across four domains</h1>
-      <div class="subtitle reveal">Full ERD lives in the appendix — this is the map.</div></div>
+    <div><div class="kicker reveal">Data integrity</div><h1 class="title reveal">The database is organized around operational domains</h1><div class="subtitle reveal">The presentation avoids showing the full ERD too early; the defense story starts with the domains.</div></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
-    <div class="grid g4" style="align-items:stretch;">
-      <div class="card reveal"><h3 style="font-size:20px;">👤 Identity</h3><ul class="lst dim" style="margin-top:8px; font-size:17px;"><li>roles</li><li>users</li><li>users_warehouses</li></ul></div>
-      <div class="card reveal"><h3 style="font-size:20px;">📦 Master &amp; stock</h3><ul class="lst dim" style="margin-top:8px; font-size:17px;"><li>products · categories</li><li>suppliers · customers</li><li>warehouses</li><li>products_warehouses</li><li>stock_movements</li></ul></div>
-      <div class="card reveal"><h3 style="font-size:20px;">🔁 Transactions</h3><ul class="lst dim" style="margin-top:8px; font-size:17px;"><li>sales / purchase invoices</li><li>return invoices (×2)</li><li>internal_invoices</li><li>…_products line items</li></ul></div>
-      <div class="card reveal"><h3 style="font-size:20px;">🛡 Governance</h3><ul class="lst dim" style="margin-top:8px; font-size:17px;"><li>audit_logs</li><li>stock_edit_requests</li><li>warehouse_stock_requests</li><li>notifications</li></ul></div>
-    </div>
-    <div class="card soft reveal" style="margin-top:22px;"><p style="font-size:19px; color:var(--ims-text);">Composite keys model real relationships: <code style="font-size:15px;">products_warehouses(product_id, warehouse_id)</code> is the per-warehouse stock level; invoice line items key on <code style="font-size:15px;">(invoice_id, product_id)</code>.</p></div>
-  </div>
-  <div class="footer"><span class="sec">Data Domains</span><span class="pg"></span></div>
-</section>
 
-<!-- ===== 11. SECURITY ===== -->
-<section class="slide" data-sec="Security">
-  <div class="s-head">
-    <div><div class="kicker reveal">Security model</div><h1 class="title reveal">The backend is the authority — not the UI</h1>
-      <div class="subtitle reveal">Hiding a button is UX. Every request is independently authorized server-side.</div></div>
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
     <div class="grid g4">
-      <div class="card tight reveal"><h3 style="font-size:19px;">🔑 Stateless JWT</h3><p style="font-size:17px;">No server sessions; token carries identity &amp; role.</p></div>
-      <div class="card tight reveal"><h3 style="font-size:19px;">🔒 BCrypt</h3><p style="font-size:17px;">Password hashes only — never plaintext.</p></div>
-      <div class="card tight reveal"><h3 style="font-size:19px;">🚧 URL guards</h3><p style="font-size:17px;"><code style="font-size:14px;">/users</code>, <code style="font-size:14px;">/audit-logs</code>, <code style="font-size:14px;">/reports</code> by role.</p></div>
-      <div class="card tight reveal"><h3 style="font-size:19px;">🎯 Method security</h3><p style="font-size:17px;"><code style="font-size:14px;">@PreAuthorize</code> for fine-grained rules.</p></div>
+      <div class="card reveal"><h3>Identity</h3><p>Users, roles, permissions, authentication, audit actor.</p></div>
+      <div class="card reveal"><h3>Master data</h3><p>Products, categories, suppliers, customers, warehouses.</p></div>
+      <div class="card reveal"><h3>Inventory</h3><p>Product-warehouse stock, movements, stock edit requests, transfers.</p></div>
+      <div class="card reveal"><h3>Transactions</h3><p>Purchase invoices, receiving, sales invoices, returns.</p></div>
     </div>
-    <div class="grid g2" style="margin-top:22px;">
-      <div class="card reveal"><h3 style="font-size:20px;">Warehouse scope</h3><p>Scoped users only act on their assigned warehouses — checked in a dedicated <code style="font-size:15px;">WarehouseAccessService</code>, enforced on the server.</p></div>
-      <div class="card reveal"><h3 style="font-size:20px;">Audit &amp; CORS</h3><p>Sensitive actions are logged with actor, entity &amp; timestamp. CORS locks the API to the configured frontend origin only.</p></div>
+    <div class="codebox reveal" style="margin-top:26px;">Stock movement = product + warehouse + movement type + quantity + source transaction + actor + timestamp</div>
+
+  </div>
+  <div class="footer"><span class="sec">Data</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Security">
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Security</div><h1 class="title reveal">Authentication, authorization, and audit are separate concerns</h1><div class="subtitle reveal">The system uses role-aware UI, JWT-backed API calls, and backend enforcement.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+
+    <div class="grid g3">
+      <div class="card reveal"><h3>Authentication</h3><p>JWT token stored client-side after login; authenticated API calls include the token.</p></div>
+      <div class="card reveal"><h3>Authorization</h3><p>Frontend route checks guide navigation; backend method and endpoint permissions protect data.</p></div>
+      <div class="card reveal"><h3>Auditability</h3><p>Sensitive actions are logged with actor, entity, action, time, and metadata.</p></div>
     </div>
+    <div class="card reveal soft" style="margin-top:26px;"><p style="font-size:22px; color:var(--ims-text);"><b>Defense point:</b> hiding a menu is not security. Security belongs to backend permission checks and auditable service behavior.</p></div>
+
   </div>
   <div class="footer"><span class="sec">Security</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 12. APPLICATION UI ===== -->
-<section class="slide" data-sec="Application UI">
+<section class="slide" data-sec="System Admin">
   <div class="s-head">
-    <div><div class="kicker reveal">Application UI</div><h1 class="title reveal">Manage Sales — a real operational screen</h1></div>
+    <div><div class="kicker reveal">Admin screen</div><h1 class="title reveal">System Admin: Users</h1><div class="subtitle reveal">Manage system users and permissions.</div></div>
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
-    <div class="grid g32" style="align-items:center;">
-      <div class="shot kb reveal"><img src="assets/ui-sales-invoices.png" alt="Manage Sales screen with KPI strip, filters, sales invoice table with PAID badges, and recent returns with PENDING_RESTOCK status" /></div>
-      <div style="display:flex; flex-direction:column; gap:12px;">
-        <div class="callout reveal"><div class="num">1</div><div class="ct"><b>Role-aware sidebar</b><span>Only permitted modules render (warehouse manager view).</span></div></div>
-        <div class="callout reveal"><div class="num">2</div><div class="ct"><b>Operational KPIs</b><span>Today's sales, pending orders, returns, low-stock alerts.</span></div></div>
-        <div class="callout reveal"><div class="num">3</div><div class="ct"><b>Low-stock warning</b><span>Amber banner drives a stock-edit request, not a silent fix.</span></div></div>
-        <div class="callout reveal"><div class="num">4</div><div class="ct"><b>Warehouse + status filters</b><span>Scoped to the user's warehouse; status badges show state.</span></div></div>
-      </div>
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/admin-users.png" alt="Users screen for System Admin"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Control who can access the system</h3>
+        <p>This page is where the System Admin creates users, assigns roles, and keeps account ownership separate from inventory work.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Role badges show each user's permission level.</li><li>Admin can add or edit users from one controlled list.</li><li>Inventory operations remain outside the admin workspace.</li></ul>
+      </aside>
     </div>
   </div>
-  <div class="footer"><span class="sec">Application UI</span><span class="pg"></span></div>
+  <div class="footer"><span class="sec">System Admin</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 13. AUDITABILITY ===== -->
-<section class="slide" data-sec="Auditability">
+<section class="slide" data-sec="System Admin">
   <div class="s-head">
-    <div><div class="kicker reveal">Auditability &amp; reporting</div><h1 class="title reveal">Every sensitive action is on the record</h1></div>
+    <div><div class="kicker reveal">Admin screen</div><h1 class="title reveal">System Admin: Reports</h1><div class="subtitle reveal">Admin access to operational reports.</div></div>
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
-    <div class="grid g32" style="align-items:center;">
-      <div class="shot kb reveal"><img src="assets/ui-audit-logs.png" alt="Audit Logs listing time, actor, action (LOGIN, CREATE, APPROVE), entity (AUTH, PURCHASE_INVOICE, SALES_INVOICE, RETURN_SALES_INVOICE), entity id" /></div>
-      <div style="display:flex; flex-direction:column; gap:14px;">
-        <div class="card tight reveal"><h3 style="font-size:19px;">Who · what · when</h3><p style="font-size:17px;">Actor, action, entity type, entity id, timestamp, and details per event.</p></div>
-        <div class="card tight reveal"><h3 style="font-size:19px;">Real actions captured</h3><p style="font-size:17px;"><span class="badge b-info">LOGIN</span> <span class="badge b-success">CREATE</span> <span class="badge b-warning">APPROVE</span> on purchases, sales &amp; returns.</p></div>
-        <div class="card tight reveal"><h3 style="font-size:19px;">Restricted access</h3><p style="font-size:17px;">Log is visible only to <b>SYSTEM_ADMIN</b> &amp; <b>OPERATIONAL_MANAGER</b>.</p></div>
-      </div>
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/admin-reports.png" alt="Reports screen for System Admin"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Oversight without daily operation</h3>
+        <p>Reports give the System Admin visibility into stock and transaction results without making warehouse changes directly.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Stock-on-hand data can be filtered and exported.</li><li>Reports aggregate operational data across modules.</li><li>The page supports review and governance decisions.</li></ul>
+      </aside>
     </div>
   </div>
-  <div class="footer"><span class="sec">Auditability</span><span class="pg"></span></div>
+  <div class="footer"><span class="sec">System Admin</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 14. DEMO PLAN ===== -->
-<section class="slide" data-sec="Live Demo">
+<section class="slide" data-sec="System Admin">
   <div class="s-head">
-    <div><div class="kicker reveal">Live demo plan</div><h1 class="title reveal">A deterministic stock round-trip</h1>
-      <div class="subtitle reveal">Watch the same product's quantity move up, then down — with evidence.</div></div>
+    <div><div class="kicker reveal">Admin screen</div><h1 class="title reveal">System Admin: Audit Logs</h1><div class="subtitle reveal">Admin review of sensitive operational and security events.</div></div>
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
-    <div class="flow" style="justify-content:space-between; align-items:stretch;">
-      <div class="node reveal"><div class="nl">1</div><div class="nv">Login</div></div><div class="arrow">→</div>
-      <div class="node reveal"><div class="nl">2</div><div class="nv">Stock baseline</div></div><div class="arrow">→</div>
-      <div class="node accent reveal"><div class="nl">3 · +</div><div class="nv">Receive</div></div><div class="arrow">→</div>
-      <div class="node reveal"><div class="nl">4</div><div class="nv">Stock ↑</div></div><div class="arrow">→</div>
-      <div class="node accent reveal"><div class="nl">5 · −</div><div class="nv">Sell</div></div><div class="arrow">→</div>
-      <div class="node reveal"><div class="nl">6</div><div class="nv">Stock ↓</div></div><div class="arrow">→</div>
-      <div class="node reveal"><div class="nl">7</div><div class="nv">Movement + audit</div></div>
-    </div>
-    <div class="grid g2" style="margin-top:40px;">
-      <div class="card reveal"><h3 style="font-size:20px;">Why this order</h3><p>It proves the core claim end-to-end: stock is a function of transactions, and each one leaves a trail.</p></div>
-      <div class="card reveal"><h3 style="font-size:20px;">Fallback</h3><p>Data &amp; account prepared in advance; screenshots stand in if the live environment fails.</p></div>
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/admin-audit-logs.png" alt="Audit Logs screen for System Admin"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Trace accountability</h3>
+        <p>Audit Logs show who performed sensitive actions, when they happened, and which entity was affected.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Filters help isolate actor, action, entity type, and dates.</li><li>Each event keeps actor and entity references visible.</li><li>This is the evidence layer for security and operational review.</li></ul>
+      </aside>
     </div>
   </div>
-  <div class="footer"><span class="sec">Live Demo</span><span class="pg"></span></div>
+  <div class="footer"><span class="sec">System Admin</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 15. TESTING ===== -->
+<section class="slide" data-sec="Operational Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Operational Manager screen</div><h1 class="title reveal">Operational Manager: Dashboard</h1><div class="subtitle reveal">Overview of the whole inventory system.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/op-dashboard.png" alt="Dashboard screen for Operational Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Monitor the operation</h3>
+        <p>The dashboard gives the Operational Manager a global snapshot of inventory, purchasing, sales, returns, and alerts.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Shows cross-system totals in one place.</li><li>Highlights low-stock pressure early.</li><li>Supports daily management decisions before drilling into modules.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Operational Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Operational Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Operational Manager screen</div><h1 class="title reveal">Operational Manager: Products</h1><div class="subtitle reveal">Create and maintain inventory items.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/op-products.png" alt="Products screen for Operational Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Own the item catalog</h3>
+        <p>Products are controlled by the Operational Manager so item definitions, prices, categories, and supplier links stay consistent.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Central product setup avoids branch-level duplication.</li><li>Filters support catalog review.</li><li>Product status and stock status are visible before operational use.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Operational Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Operational Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Operational Manager screen</div><h1 class="title reveal">Operational Manager: Suppliers</h1><div class="subtitle reveal">Manage supplier relationships and linked products.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/op-suppliers.png" alt="Suppliers screen for Operational Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Manage purchase sources</h3>
+        <p>This page stores supplier records and links suppliers to products used in purchasing and receiving workflows.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Supplier activity and linked products are visible.</li><li>New suppliers can be added from the manager workspace.</li><li>Filtering helps review active supplier relationships.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Operational Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Operational Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Operational Manager screen</div><h1 class="title reveal">Operational Manager: Stock</h1><div class="subtitle reveal">Warehouse-level quantity, availability, reorder status, and valuation.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/op-stock.png" alt="Stock screen for Operational Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>See inventory across warehouses</h3>
+        <p>Operational Manager stock view is global, so it can compare quantities, reorder status, and value across all warehouses.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Shows on-hand, reserved, available, and reorder level.</li><li>Warehouse filter supports cross-warehouse review.</li><li>Low-stock status is visible before approvals or transfers.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Operational Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Operational Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Operational Manager screen</div><h1 class="title reveal">Operational Manager: Warehouses</h1><div class="subtitle reveal">Manage warehouse locations, managers, visibility, and branch structure.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/op-warehouses.png" alt="Warehouses screen for Operational Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Control warehouse structure</h3>
+        <p>This page manages central and branch warehouses, their status, and the managers responsible for them.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Separates central and branch warehouse types.</li><li>Shows manager assignment and stock totals.</li><li>Supports adding and maintaining warehouse records.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Operational Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Operational Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Operational Manager screen</div><h1 class="title reveal">Operational Manager: Approve</h1><div class="subtitle reveal">Approve warehouse manager orders and add them to stock.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/op-approve.png" alt="Approve screen for Operational Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Gate stock-changing orders</h3>
+        <p>Approval prevents warehouse orders from becoming stock updates until an Operational Manager reviews them.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Pending orders are reviewed before stock update.</li><li>The screen documents that approval is a management action.</li><li>It separates request creation from inventory impact.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Operational Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Operational Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Operational Manager screen</div><h1 class="title reveal">Operational Manager: Distribute Products</h1><div class="subtitle reveal">Create and track transfers from central to branch warehouses.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/op-distribute-products.png" alt="Distribute Products screen for Operational Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Move stock between warehouses</h3>
+        <p>Distribution controls transfers from a source warehouse to destination branches while keeping transfer records visible.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Source warehouse is explicit.</li><li>Transfer status and quantities are tracked.</li><li>Branch replenishment is handled as a managed workflow.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Operational Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Operational Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Operational Manager screen</div><h1 class="title reveal">Operational Manager: Stock Requests</h1><div class="subtitle reveal">Review stock corrections and warehouse product requests.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/op-stock-requests.png" alt="Stock Requests screen for Operational Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Review correction requests</h3>
+        <p>Warehouse users cannot silently change stock; their correction requests are reviewed here before inventory changes.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Shows requested quantity and difference.</li><li>Reason and status support review decisions.</li><li>Prevents unapproved stock edits.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Operational Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Operational Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Operational Manager screen</div><h1 class="title reveal">Operational Manager: Reports</h1><div class="subtitle reveal">Operational reports for stock, sales, purchases, returns, and warehouses.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/op-reports.png" alt="Reports screen for Operational Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Analyze operational performance</h3>
+        <p>Reports help the Operational Manager inspect stock, sales, purchase, return, supplier, warehouse, and customer history.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Report type selector changes the analysis view.</li><li>Date and warehouse filters narrow the result set.</li><li>CSV export supports external review.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Operational Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Operational Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Operational Manager screen</div><h1 class="title reveal">Operational Manager: Audit Logs</h1><div class="subtitle reveal">Trace sensitive operational and security events.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/op-audit-logs.png" alt="Audit Logs screen for Operational Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Audit operational actions</h3>
+        <p>Operational audit access lets managers trace approvals, refunds, restocks, logins, and other sensitive events.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Actor, action, entity, and date are searchable.</li><li>Event rows provide accountable history.</li><li>Supports investigation of stock-affecting actions.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Operational Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Warehouse Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Warehouse Manager screen</div><h1 class="title reveal">Warehouse Manager: Dashboard</h1><div class="subtitle reveal">Warehouse manager overview of inventory activity.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/om-dashboard.png" alt="Dashboard screen for Warehouse Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Start from assigned work</h3>
+        <p>The Warehouse Manager dashboard summarizes the activity and alerts relevant to daily branch execution.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Shows stock and activity indicators.</li><li>Keeps the user inside warehouse-level work.</li><li>Provides a quick entry point to operational tasks.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Warehouse Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Warehouse Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Warehouse Manager screen</div><h1 class="title reveal">Warehouse Manager: Stock</h1><div class="subtitle reveal">Assigned-warehouse quantity, availability, reorder status, and valuation.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/om-stock.png" alt="Stock screen for Warehouse Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>View local stock only</h3>
+        <p>This stock page is scoped to the manager's assigned warehouse and focuses on availability, reorder status, and value.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Warehouse filter is restricted to the assigned branch.</li><li>Low-stock badges show items needing attention.</li><li>Actions are local to warehouse execution.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Warehouse Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Warehouse Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Warehouse Manager screen</div><h1 class="title reveal">Warehouse Manager: Customers</h1><div class="subtitle reveal">View, create, and manage customer records.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/om-customers.png" alt="Customers screen for Warehouse Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Maintain customer records</h3>
+        <p>Warehouse Managers manage customers used by sales invoices and returns without accessing system-wide administration.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Search and filters support customer lookup.</li><li>Sales and return totals are visible.</li><li>Details panel supports focused customer review.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Warehouse Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Warehouse Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Warehouse Manager screen</div><h1 class="title reveal">Warehouse Manager: Manage Sales</h1><div class="subtitle reveal">Create, track, and control sales transactions.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/om-sales.png" alt="Manage Sales screen for Warehouse Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Execute customer sales</h3>
+        <p>This page lets the Warehouse Manager create sales invoices, track payment/status, and see low-stock warnings before selling.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Sales invoices are filtered by status, date, warehouse, and customer.</li><li>New Sale is the main execution action.</li><li>Completed sales are the workflow that reduces available stock.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Warehouse Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Warehouse Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Warehouse Manager screen</div><h1 class="title reveal">Warehouse Manager: Sales Returns</h1><div class="subtitle reveal">Review, approve, and process customer return transactions.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/om-sales-returns.png" alt="Sales Returns screen for Warehouse Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Handle returned sales</h3>
+        <p>Sales Returns separate refund state from restock state so customer service and inventory updates can be tracked clearly.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Return, refund, and restock statuses are visible.</li><li>Pending restock items can be reviewed.</li><li>Returned items can affect stock only through the return workflow.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Warehouse Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Warehouse Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Warehouse Manager screen</div><h1 class="title reveal">Warehouse Manager: Receive Orders</h1><div class="subtitle reveal">Review supplier orders and record received stock.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/wm-receive-orders.png" alt="Receive Orders screen for Warehouse Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Record incoming stock</h3>
+        <p>Receive Orders is where a warehouse confirms supplier order receipts and turns approved orders into received inventory.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Pending, received, partial, and damaged states are visible.</li><li>Receiving is tied to a warehouse and supplier.</li><li>Print/export actions support goods received documentation.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Warehouse Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Warehouse Manager">
+  <div class="s-head">
+    <div><div class="kicker reveal">Warehouse Manager screen</div><h1 class="title reveal">Warehouse Manager: Request Stock Edit</h1><div class="subtitle reveal">Request stock corrections and warehouse-to-warehouse actions.</div></div>
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+    <div class="role-screen">
+      <div class="shot solo-shot reveal"><img src="assets/om-stock-edit.png" alt="Request Stock Edit screen for Warehouse Manager"/></div>
+      <aside class="role-purpose reveal">
+        <div class="label">Purpose</div>
+        <h3>Correct stock safely</h3>
+        <p>Warehouse users request stock edits instead of directly changing quantities, keeping corrections controlled and reviewable.</p>
+        <div class="label">What it proves</div>
+        <ul><li>Current quantity, requested quantity, difference, and reason are shown.</li><li>Pending, approved, and cancelled states are visible.</li><li>Corrections remain locked to the assigned warehouse.</li></ul>
+      </aside>
+    </div>
+  </div>
+  <div class="footer"><span class="sec">Warehouse Manager</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Demo">
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Live demo path</div><h1 class="title reveal">A short demo can prove the whole system</h1><div class="subtitle reveal">The demo should follow one stock item instead of touring every page.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+
+    <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">Login</div><div class="nv">By role</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Inspect</div><div class="nv">Stock</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Receive</div><div class="nv">+ Qty</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Sell</div><div class="nv">- Qty</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Return</div><div class="nv">Restock</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Audit</div><div class="nv">Trace</div></div></div>
+    <div class="grid g3" style="margin-top:34px;">
+      <div class="card reveal"><h3>Before</h3><p>Show stock level and low-stock status for a selected product/warehouse.</p></div>
+      <div class="card reveal"><h3>During</h3><p>Perform receiving or sale through the proper role workflow.</p></div>
+      <div class="card reveal"><h3>After</h3><p>Show updated stock, movement/report evidence, and the audit trail.</p></div>
+    </div>
+
+  </div>
+  <div class="footer"><span class="sec">Demo</span><span class="pg"></span></div>
+</section>
+
 <section class="slide" data-sec="Testing">
+
   <div class="s-head">
-    <div><div class="kicker reveal">Testing &amp; verification</div><h1 class="title reveal">How we gained confidence</h1>
-      <div class="subtitle reveal">Tooling is in place; present only the evidence actually produced on the branch.</div></div>
+    <div><div class="kicker reveal">Validation</div><h1 class="title reveal">Testing focuses on business rules and presentation readiness</h1><div class="subtitle reveal">Project checks and deck QA are separate, so the defense can show both implementation confidence and presentation quality.</div></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
+
     <div class="grid g3">
-      <div class="card reveal"><h3 style="font-size:21px;">Backend</h3><p>JUnit / Spring test scope present; service-layer tests target stock &amp; lifecycle rules.</p><div class="badge b-muted" style="margin-top:12px;">Maven test</div></div>
-      <div class="card reveal"><h3 style="font-size:21px;">Frontend</h3><p>Vitest configured (<code style="font-size:14px;">vitest.config.mts</code>) for component &amp; logic tests.</p><div class="badge b-muted" style="margin-top:12px;">Vitest</div></div>
-      <div class="card reveal"><h3 style="font-size:21px;">Build &amp; smoke</h3><p>Production builds for both apps; Docker Compose brings the full stack up for smoke checks.</p><div class="badge b-muted" style="margin-top:12px;">Docker Compose</div></div>
+      <div class="card reveal"><h3>Frontend</h3><p>TypeScript, linting, build checks, React Query driven data flows, and route-level role checks.</p></div>
+      <div class="card reveal"><h3>Backend</h3><p>Spring service behavior, repository access, Flyway migrations, JWT security, and workflow state changes.</p></div>
+      <div class="card reveal"><h3>Deck QA</h3><p>Every slide rendered at 1920x1080 and 1366x768 with screenshot, overflow, and console checks.</p></div>
     </div>
-    <div class="card soft reveal" style="margin-top:22px;"><p style="font-size:19px; color:var(--ims-text);"><b>Honesty note for the panel:</b> show live test runs / counts during the defense rather than asserting a coverage number here. Tooling is wired; quote real output.</p></div>
+    <div class="card reveal soft" style="margin-top:26px;"><p style="font-size:21px; color:var(--ims-text);">For the presentation itself, the mandatory gate is simple: no broken assets, no clipped content, no slide scrollbars, and working navigation.</p></div>
+
   </div>
   <div class="footer"><span class="sec">Testing</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 16. CHALLENGES ===== -->
 <section class="slide" data-sec="Challenges">
+
   <div class="s-head">
-    <div><div class="kicker reveal">Challenges &amp; engineering decisions</div><h1 class="title reveal">The hard parts — and how we resolved them</h1></div>
+    <div><div class="kicker reveal">Implementation challenges</div><h1 class="title reveal">The hard part was not drawing screens; it was keeping inventory trustworthy</h1></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
-    <div class="grid g3">
-      <div class="card tight reveal"><h3 style="font-size:19px;">Stock consistency</h3><p style="font-size:17px;">Transactional writes + movement ledger; receiving — not creation — adds stock (V8).</p></div>
-      <div class="card tight reveal"><h3 style="font-size:19px;">Lifecycle modeling</h3><p style="font-size:17px;">Explicit status columns &amp; sub-states instead of booleans or deletes.</p></div>
-      <div class="card tight reveal"><h3 style="font-size:19px;">Warehouse scoping</h3><p style="font-size:17px;">Centralized access service so scope is enforced once, server-side.</p></div>
-      <div class="card tight reveal"><h3 style="font-size:19px;">Schema evolution</h3><p style="font-size:17px;">14 ordered Flyway migrations; back-fill scripts protect existing data.</p></div>
-      <div class="card tight reveal"><h3 style="font-size:19px;">UI ↔ server sync</h3><p style="font-size:17px;">React Query invalidation keeps the UI truthful after every mutation.</p></div>
-      <div class="card tight reveal"><h3 style="font-size:19px;">Traceability</h3><p style="font-size:17px;">Audit log + stock movements give a complete operational record.</p></div>
+
+    <div class="grid g2">
+      <div class="card reveal"><ul class="lst "><li><b>Stock consistency:</b> sales, receiving, returns, transfers, and corrections all affect the same quantity.</li><li><b>Lifecycle modeling:</b> refund, restock, approval, and receipt states are related but not identical.</li><li><b>Warehouse scope:</b> branch execution must not become global administration.</li></ul></div>
+      <div class="card reveal"><ul class="lst "><li><b>UI evidence:</b> similar workflows are separated by role so the audience can see each permission surface.</li><li><b>Schema evolution:</b> Flyway migrations preserve a reproducible database history.</li><li><b>Traceability:</b> operational events need enough metadata to explain the final number.</li></ul></div>
     </div>
+
   </div>
   <div class="footer"><span class="sec">Challenges</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 17. LIMITATIONS & FUTURE ===== -->
-<section class="slide" data-sec="Limitations">
+<section class="slide" data-sec="Future Work">
+
   <div class="s-head">
-    <div><div class="kicker reveal">Limitations &amp; future work</div><h1 class="title reveal">Honest about today; clear about tomorrow</h1></div>
+    <div><div class="kicker reveal">Limitations and future work</div><h1 class="title reveal">The current project is defense-ready, with clear next steps</h1></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
-    <div class="grid g2">
-      <div class="card reveal"><h3 style="font-size:22px;">Current limitations <span class="badge b-warning">today</span></h3>
-        <ul class="lst" style="margin-top:8px;"><li>Registration flow vs. seeded roles need careful pairing before deployment.</li><li>Seeded admin hash must be rotated before any real use.</li><li>Reporting covers core metrics; advanced analytics not yet built.</li><li>Single-currency, single-language as implemented.</li></ul></div>
-      <div class="card reveal"><h3 style="font-size:22px;">Future work <span class="badge b-info">proposed</span></h3>
-        <ul class="lst" style="margin-top:8px;"><li>Barcode / scanner-driven receiving and counts.</li><li>Reorder points with automatic purchase suggestions.</li><li>Richer analytics &amp; exportable financial dashboards.</li><li>Refresh-token rotation &amp; per-permission UI gating.</li></ul></div>
+
+    <div class="grid g4">
+      <div class="card reveal"><h3>More tests</h3><p>Increase backend workflow and frontend component coverage.</p></div>
+      <div class="card reveal"><h3>Barcode flow</h3><p>Add scanner-first receiving and stock count workflows.</p></div>
+      <div class="card reveal"><h3>Notifications</h3><p>Escalate pending approvals and low-stock thresholds.</p></div>
+      <div class="card reveal"><h3>Forecasting</h3><p>Use sales history to forecast reorder quantities.</p></div>
     </div>
-    <div class="note reveal">Limitations are stated as current; future items are explicitly proposals, not claims of completed work.</div>
+    <div class="card reveal" style="margin-top:26px;"><p style="font-size:21px; color:var(--ims-text);">The architecture leaves room for these features because master data, transactions, roles, and audit are already separated.</p></div>
+
   </div>
-  <div class="footer"><span class="sec">Limitations</span><span class="pg"></span></div>
+  <div class="footer"><span class="sec">Future Work</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 18. CONCLUSION ===== -->
 <section class="slide" data-sec="Conclusion">
+
   <div class="s-head">
-    <div><div class="kicker reveal">Conclusion</div><h1 class="title reveal">What Inventory MS delivers</h1></div>
+    <div><div class="kicker reveal">Conclusion</div><h1 class="title reveal">Inventory MS turns inventory into controlled, auditable operations</h1></div>
+
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
   <div class="body">
+
     <div class="grid g3">
-      <div class="card reveal"><div style="font-size:44px;">🎯</div><h3 style="font-size:22px; margin-top:10px;">Controlled inventory</h3><p>Stock moves only through tracked, transactional workflows.</p></div>
-      <div class="card reveal"><div style="font-size:44px;">🛡</div><h3 style="font-size:22px; margin-top:10px;">Enforced governance</h3><p>Role &amp; warehouse scope authoritative on the backend.</p></div>
-      <div class="card reveal"><div style="font-size:44px;">🧾</div><h3 style="font-size:22px; margin-top:10px;">Full accountability</h3><p>Movement ledger + audit log answer who, what, and when.</p></div>
+      <div class="card reveal"><h3>Business value</h3><p>Teams can trust stock, understand changes, and separate responsibilities.</p></div>
+      <div class="card reveal"><h3>Technical value</h3><p>The stack uses clear layers: Next.js, Spring Boot, PostgreSQL, Flyway, and JWT.</p></div>
+      <div class="card reveal"><h3>Defense value</h3><p>The rebuilt deck proves roles and workflows without repeating the same screens.</p></div>
     </div>
-    <div class="card soft reveal" style="margin-top:26px; text-align:center;"><p style="font-size:22px; color:var(--ims-text);">A modular, migration-driven, secure system — <b>built and demonstrable</b>, not just diagrammed.</p></div>
+    <div class="card soft reveal" style="margin-top:28px;"><p style="font-size:24px; color:var(--ims-text); text-align:center;"><b>Final message:</b> the project is not only an inventory list; it is a controlled inventory workflow system.</p></div>
+
   </div>
   <div class="footer"><span class="sec">Conclusion</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 19. Q&A ===== -->
-<section class="slide" id="s-questions" data-sec="Q&amp;A" style="background:radial-gradient(1100px 700px at 20% 110%, #2a2470, #171a25 60%); color:#fff; overflow:hidden;">
-  <div class="orb-wrap"><div class="orb" style="width:420px; height:420px; opacity:.4; background:#8b7bff; top:18px; right:18px; animation:floaty 10s ease-in-out infinite;"></div></div>
-  <div class="center-hero">
-    <img src="assets/ims-mark.svg" alt="Inventory MS" style="width:84px; height:84px; border-radius:20px; margin-bottom:30px; animation:floaty 6s ease-in-out infinite;" />
-    <div class="kicker reveal" style="color:#a8a3e0;">Thank you</div>
-    <h1 class="reveal" style="font-size:76px; font-weight:800; letter-spacing:-1.5px; margin:14px 0;">Questions &amp; Discussion</h1>
-    <div class="reveal" style="font-size:24px; color:#d7d5f2;">Inventory MS &nbsp;·&nbsp; Faculty of Science &nbsp;·&nbsp; 2026</div>
-    <div class="reveal" style="font-size:18px; color:#8983c9; margin-top:30px;">Yossef Ashraf · John Samhan · Maryam Hamdy · Momen Abdelmonam &nbsp;—&nbsp; Supervisor: Prof. Mohamed Abdelbaky</div>
+<section class="slide" data-sec="Questions">
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Discussion</div><h1 class="title reveal">Questions</h1><div class="subtitle reveal">Appendix slides are available for database, API, and engineering details.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
+  <div class="body">
+
+    <div class="center-hero">
+      <div class="brand reveal" style="margin-bottom:30px;"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+      <h1 class="title reveal" style="font-size:78px;">Thank you</h1>
+      <div class="subtitle reveal" style="font-size:28px; max-width:900px;">Ready for questions about the system, roles, workflow logic, architecture, or data model.</div>
+    </div>
+
+  </div>
+  <div class="footer"><span class="sec">Questions</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 20. APPENDIX A · ERD ===== -->
-<section class="slide" data-sec="Appendix · ERD">
-  <div class="appx">APPENDIX A</div>
-  <div class="s-head"><div><div class="kicker reveal">Data model</div><h1 class="title reveal">Entity relationships (core)</h1></div></div>
+<section class="slide" data-sec="Appendix">
+  <div class="appx">APPENDIX</div>
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Data model</div><h1 class="title reveal">Core ERD domains</h1><div class="subtitle reveal">A compact view of the database responsibilities.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
   <div class="body">
-    <div class="grid g4" style="font-size:16px;">
-      <div class="card tight reveal"><h3 style="font-size:18px;">users</h3><p style="font-size:15px;">id · username · email · password_hash · <b>user_role→roles</b> · left_at</p></div>
-      <div class="card tight reveal"><h3 style="font-size:18px;">products</h3><p style="font-size:15px;">id · name · current_price · <b>supplier_id→suppliers</b></p></div>
-      <div class="card tight reveal"><h3 style="font-size:18px;">warehouses</h3><p style="font-size:15px;">id · address · is_central · created_at</p></div>
-      <div class="card tight reveal"><h3 style="font-size:18px;">products_warehouses</h3><p style="font-size:15px;"><b>(product_id, warehouse_id)</b> · amount ≥ 0</p></div>
-      <div class="card tight reveal"><h3 style="font-size:18px;">sales_invoices</h3><p style="font-size:15px;">user · customer · warehouse · total · status · voided_*</p></div>
-      <div class="card tight reveal"><h3 style="font-size:18px;">purchase_invoices</h3><p style="font-size:15px;">user · supplier · warehouse · receipt_status · received_*</p></div>
-      <div class="card tight reveal"><h3 style="font-size:18px;">internal_invoices</h3><p style="font-size:15px;">source_wh ≠ destination_wh</p></div>
-      <div class="card tight reveal"><h3 style="font-size:18px;">stock_movements</h3><p style="font-size:15px;">product · warehouse · movement_type · qty · reference_* · actor</p></div>
-      <div class="card tight reveal"><h3 style="font-size:18px;">return_sales_invoices</h3><p style="font-size:15px;">→sales_invoice · return/restock/refund_status</p></div>
-      <div class="card tight reveal"><h3 style="font-size:18px;">return_purchase_invoices</h3><p style="font-size:15px;">→purchase_invoice · supplier · warehouse</p></div>
-      <div class="card tight reveal"><h3 style="font-size:18px;">audit_logs</h3><p style="font-size:15px;">actor · action · entity · entity_id · created_at</p></div>
-      <div class="card tight reveal"><h3 style="font-size:18px;">…_invoices_products</h3><p style="font-size:15px;">composite line items: (invoice_id, product_id) · amount · price</p></div>
+    <div class="grid g3">
+      <div class="card reveal"><h3>Identity</h3><p><code>users</code>, <code>roles</code>, warehouse assignment, login identity.</p></div>
+      <div class="card reveal"><h3>Catalog</h3><p><code>products</code>, categories, suppliers, customers, warehouses.</p></div>
+      <div class="card reveal"><h3>Stock</h3><p>Product-warehouse rows plus movement history and edit requests.</p></div>
+      <div class="card reveal"><h3>Purchasing</h3><p>Purchase invoices and receiving workflow records.</p></div>
+      <div class="card reveal"><h3>Sales</h3><p>Sales invoices, return invoices, refund and restock statuses.</p></div>
+      <div class="card reveal"><h3>Governance</h3><p>Reports read from operational data; audit logs capture sensitive events.</p></div>
     </div>
-    <div class="note reveal">Bold = foreign key / composite key. Junction tables also include users_warehouses &amp; categories_products.</div>
   </div>
   <div class="footer"><span class="sec">Appendix · ERD</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 21. APPENDIX B · PERMISSIONS + API ===== -->
-<section class="slide" data-sec="Appendix · Auth & API">
-  <div class="appx">APPENDIX B</div>
-  <div class="s-head"><div><div class="kicker reveal">Authorization &amp; REST surface</div><h1 class="title reveal">Permission matrix · endpoint groups</h1></div></div>
-  <div class="body">
-    <div class="grid g2" style="align-items:start;">
-      <div class="reveal">
-        <table class="t" style="font-size:16px;">
-          <thead><tr><th>Capability</th><th>ADMIN</th><th>OP. MGR</th><th>WH. MGR</th></tr></thead>
-          <tbody>
-            <tr><td>Users &amp; roles</td><td><span class="badge b-success">✓</span></td><td>—</td><td>—</td></tr>
-            <tr><td>Reports &amp; audit</td><td><span class="badge b-success">✓</span></td><td><span class="badge b-success">✓</span></td><td>—</td></tr>
-            <tr><td>Products / suppliers / warehouses</td><td>—</td><td><span class="badge b-success">✓</span></td><td>view</td></tr>
-            <tr><td>Transfers &amp; receive approval</td><td>—</td><td><span class="badge b-success">✓</span></td><td>—</td></tr>
-            <tr><td>Sales &amp; sales returns</td><td>—</td><td>—</td><td><span class="badge b-success">✓</span></td></tr>
-            <tr><td>Receive orders · stock-edit</td><td>—</td><td>request</td><td><span class="badge b-success">✓</span></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="grid g2 reveal" style="gap:16px;">
-        <div class="card tight"><h3 style="font-size:18px;">Auth &amp; identity</h3><ul class="lst dim" style="font-size:15px;"><li>/auth · /profile</li><li>/users · /roles</li></ul></div>
-        <div class="card tight"><h3 style="font-size:18px;">Master data</h3><ul class="lst dim" style="font-size:15px;"><li>/products · /categories</li><li>/suppliers · /customers · /warehouses</li></ul></div>
-        <div class="card tight"><h3 style="font-size:18px;">Inventory &amp; txns</h3><ul class="lst dim" style="font-size:15px;"><li>/stock · /sales-invoices</li><li>/orders · /internal-invoices · /returns</li></ul></div>
-        <div class="card tight"><h3 style="font-size:18px;">Governance</h3><ul class="lst dim" style="font-size:15px;"><li>/audit-logs · /reports</li><li>/stock-edit-requests · /notifications</li></ul></div>
-      </div>
-    </div>
-    <div class="note reveal">25 controllers; frontend visibility is convenience — Spring Security URL rules &amp; <code style="font-size:14px;">@PreAuthorize</code> are authoritative.</div>
+<section class="slide" data-sec="Appendix">
+  <div class="appx">APPENDIX</div>
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Permissions</div><h1 class="title reveal">Role-to-capability matrix</h1><div class="subtitle reveal">Condensed from the frontend role configuration.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
   </div>
-  <div class="footer"><span class="sec">Appendix · Auth &amp; API</span><span class="pg"></span></div>
+  <div class="body">
+    <table class="t reveal" style="font-size:16px;">
+      <thead><tr><th>Capability</th><th>System Admin</th><th>Operational Manager</th><th>Warehouse Manager</th></tr></thead>
+      <tbody>
+        <tr><td>Users and role assignment</td><td><span class="badge b-success">Yes</span></td><td>-</td><td>-</td></tr>
+        <tr><td>Products, suppliers, warehouses</td><td>-</td><td><span class="badge b-success">Yes</span></td><td>-</td></tr>
+        <tr><td>All warehouse stock</td><td>-</td><td><span class="badge b-success">Yes</span></td><td>-</td></tr>
+        <tr><td>Assigned warehouse stock</td><td>-</td><td>-</td><td><span class="badge b-success">Yes</span></td></tr>
+        <tr><td>Sales and customer returns</td><td>-</td><td>-</td><td><span class="badge b-success">Yes</span></td></tr>
+        <tr><td>Approvals, transfers, stock request review</td><td>-</td><td><span class="badge b-success">Yes</span></td><td>Create requests only</td></tr>
+        <tr><td>Reports and audit logs</td><td><span class="badge b-success">Yes</span></td><td><span class="badge b-success">Yes</span></td><td>-</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="footer"><span class="sec">Appendix · Permissions</span><span class="pg"></span></div>
 </section>
 
-<!-- ===== 22. APPENDIX C · MIGRATIONS + DEPLOY + STOCK ===== -->
-<section class="slide" data-sec="Appendix · Engineering">
-  <div class="appx">APPENDIX C</div>
-  <div class="s-head"><div><div class="kicker reveal">Engineering reference</div><h1 class="title reveal">Migrations · deployment · stock ledger</h1></div></div>
+<section class="slide" data-sec="Appendix">
+  <div class="appx">APPENDIX</div>
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Engineering</div><h1 class="title reveal">Repository facts used in the deck</h1><div class="subtitle reveal">These details are reviewed from the current project files.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
   <div class="body">
     <div class="grid g2" style="align-items:start;">
       <div class="reveal">
         <table class="t" style="font-size:15px;">
-          <thead><tr><th>Version</th><th>Adds</th></tr></thead>
+          <thead><tr><th>Area</th><th>Current implementation</th></tr></thead>
           <tbody>
-            <tr><td><code>V1–V2</code></td><td>Core 20 tables + seeded roles &amp; admin</td></tr>
-            <tr><td><code>V3–V5</code></td><td>audit_logs · stock_movements · notifications</td></tr>
-            <tr><td><code>V6</code></td><td>seed mock data</td></tr>
-            <tr><td><code>V7–V8</code></td><td>sales states + receiving workflow (stock on receive)</td></tr>
-            <tr><td><code>V9</code></td><td>stock_edit_requests</td></tr>
-            <tr><td><code>V10–V14</code></td><td>customer/supplier/warehouse refinements</td></tr>
+            <tr><td>Frontend</td><td>Next.js App Router, React, TypeScript, React Query, Axios</td></tr>
+            <tr><td>Backend</td><td>Spring Boot, Java 21, service-layer business logic</td></tr>
+            <tr><td>Database</td><td>PostgreSQL schema evolved by Flyway migrations <code>V1</code> through <code>V14</code></td></tr>
+            <tr><td>Local ports</td><td>Frontend <code>:3000</code>, backend <code>:9090</code>, local DB guide <code>:5433</code></td></tr>
           </tbody>
         </table>
-        <div class="flow reveal" style="margin-top:18px; justify-content:center; align-items:center;">
-          <div class="node tight" style="min-width:120px; padding:11px 14px;"><div class="nl">:3000</div><div class="nv" style="font-size:16px;">Frontend</div></div><div class="arrow">→</div>
-          <div class="node accent tight" style="min-width:120px; padding:11px 14px;"><div class="nl">:8080</div><div class="nv" style="font-size:16px;">Backend</div></div><div class="arrow">→</div>
-          <div class="node tight" style="min-width:120px; padding:11px 14px;"><div class="nl">:5432</div><div class="nv" style="font-size:16px;">PostgreSQL</div></div>
-        </div>
-        <div class="note" style="text-align:center;">Docker Compose · <code style="font-size:13px;">docker compose up</code> · Flyway runs on boot</div>
       </div>
-      <div class="reveal">
-        <div class="codebox"><span class="c">-- V4__stock_movements.sql</span>
-<span class="k">CREATE TABLE</span> stock_movements(
-  id            <span class="f">SERIAL</span> PRIMARY KEY,
-  product_id    <span class="f">→ products</span>,
-  warehouse_id  <span class="f">→ warehouses</span>,
-  movement_type <span class="f">VARCHAR(40)</span>,
-  quantity      <span class="f">INTEGER</span>,
-  reference_type/_id  <span class="c">-- src txn</span>,
-  actor_user_id <span class="f">→ users</span>,
-  created_at    <span class="f">TIMESTAMPTZ</span>
-);</div>
-        <ul class="lst" style="margin-top:16px; font-size:17px;">
-          <li><b>Append-only</b>, <b>typed</b> by movement, <b>linked</b> to source txn, <b>attributed</b> to a user.</li>
-          <li>Indexed on product, warehouse, type &amp; date — quantities stay trustworthy &amp; reportable.</li>
-        </ul>
-      </div>
+      <div class="codebox reveal"><span class="c">// stock movement audit shape</span>
+product_id
+warehouse_id
+movement_type
+quantity
+reference_type / reference_id
+actor_user_id
+created_at</div>
     </div>
   </div>
   <div class="footer"><span class="sec">Appendix · Engineering</span><span class="pg"></span></div>
 </section>
-
 </div></div>
 
 <div id="hint">← → navigate · F fullscreen · Home/End jump</div>
