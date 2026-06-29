@@ -19,7 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCustomers } from '@/hooks/useCustomers';
 import { useWarehouses } from '@/hooks/useWarehouses';
 import { useSalesInvoices } from '@/hooks/useSalesInvoices';
-import { useApproveReturnInvoice, useCreateReturnInvoice, useRefundReturnInvoice, useRejectReturnInvoice, useRestockReturnInvoice, useReturnInvoices, useReturnSalesSummary } from '@/hooks/useReturnInvoices';
+import { useApproveReturnInvoice, useCreateReturnInvoice, useRefundReturnInvoice, useRestockReturnInvoice, useReturnInvoices, useReturnSalesSummary } from '@/hooks/useReturnInvoices';
 import { useDebounce } from '@/hooks/useDebounce';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { SalesInvoice } from '@/types/sales-invoice.types';
@@ -56,7 +56,6 @@ export default function ReturnInvoicesPage() {
   const { data: warehouses } = useWarehouses({ page: 0, size: 200 }, { enabled: !isGuest });
   const createReturn = useCreateReturnInvoice();
   const approveReturn = useApproveReturnInvoice();
-  const rejectReturn = useRejectReturnInvoice();
   const restockReturn = useRestockReturnInvoice();
   const refundReturn = useRefundReturnInvoice();
   const [selected, setSelected] = useState<ReturnInvoice | null>(null);
@@ -193,7 +192,16 @@ export default function ReturnInvoicesPage() {
                   <tbody className="divide-y divide-gray-100">
                     {isLoading ? <tr><td className="px-4 py-12 text-center text-gray-500" colSpan={12}>Loading sales returns...</td></tr> : returns.length === 0 ? <tr><td className="px-4 py-12 text-center text-gray-500" colSpan={12}>No sales returns found</td></tr> : returns.map((ret) => (
                       <tr key={ret.id} className="hover:bg-indigo-50/30">
-                        <td className="px-4 py-3 font-semibold text-indigo-700">{returnCode(ret.id)}</td>
+                        <td className="px-4 py-3">
+                          <button
+                            type="button"
+                            className="font-semibold text-indigo-700 hover:underline"
+                            onClick={() => setSelected(ret)}
+                            aria-label={`View return ${returnCode(ret.id)}`}
+                          >
+                            {returnCode(ret.id)}
+                          </button>
+                        </td>
                         <td className="px-4 py-3">{invoiceCode(ret.salesInvoiceId)}</td>
                         <td className="px-4 py-3">{ret.customer?.name ?? 'N/A'}</td>
                         <td className="px-4 py-3">{ret.items?.length ?? 0} items</td>
@@ -204,7 +212,7 @@ export default function ReturnInvoicesPage() {
                         <td className="px-4 py-3"><Badge variant={badgeFor(ret.restockStatus)}>{ret.restockStatus ?? 'PENDING_RESTOCK'}</Badge></td>
                         <td className="px-4 py-3"><Badge variant={badgeFor(ret.refundStatus)}>{ret.refundStatus ?? 'PENDING_REFUND'}</Badge></td>
                         <td className="px-4 py-3">{formatDate(ret.returnedAt)}</td>
-                        <td className="px-4 py-3"><div className="flex gap-2"><button title="View" onClick={() => setSelected(ret)}><Eye className="h-4 w-4" /></button><button title="Print" onClick={printPage}><Printer className="h-4 w-4" /></button><button title={ret.returnStatus === 'PENDING_REVIEW' ? 'Approve this return' : 'Approval unavailable'} disabled={ret.returnStatus !== 'PENDING_REVIEW' || actionReturnId === ret.id} onClick={() => void runReturnAction(ret.id, 'Return approved', approveReturn.mutateAsync)}><Check className="h-4 w-4 text-green-600" /></button><button title="Reject this return" disabled={ret.returnStatus !== 'PENDING_REVIEW' || actionReturnId === ret.id} onClick={() => void runReturnAction(ret.id, 'Return rejected', rejectReturn.mutateAsync)}><X className="h-4 w-4 text-red-500" /></button></div></td>
+                        <td className="px-4 py-3"><div className="flex gap-2"><button title="View" onClick={() => setSelected(ret)}><Eye className="h-4 w-4" /></button><button title="Print" onClick={printPage}><Printer className="h-4 w-4" /></button></div></td>
                       </tr>
                     ))}
                   </tbody>
