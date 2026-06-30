@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-30T08:06:24.173Z",
+  "timestamp": "2026-06-30T10:23:42.374Z",
   "input": "C:\\final-year\\presentation\\index.html",
-  "url": "http://127.0.0.1:64842/index.html",
+  "url": "http://127.0.0.1:62329/index.html",
   "viewports": [
     {
       "viewport": {
@@ -9,7 +9,7 @@
         "height": 1080,
         "name": "1920x1080"
       },
-      "slideCount": 37,
+      "slideCount": 36,
       "consoleErrors": [],
       "pageErrors": [],
       "failedRequests": [],
@@ -198,11 +198,6 @@
           "index": 36,
           "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-36.png",
           "issues": []
-        },
-        {
-          "index": 37,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-37.png",
-          "issues": []
         }
       ]
     },
@@ -212,7 +207,7 @@
         "height": 768,
         "name": "1366x768"
       },
-      "slideCount": 37,
+      "slideCount": 36,
       "consoleErrors": [],
       "pageErrors": [],
       "failedRequests": [],
@@ -400,11 +395,6 @@
         {
           "index": 36,
           "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-36.png",
-          "issues": []
-        },
-        {
-          "index": 37,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-37.png",
           "issues": []
         }
       ]

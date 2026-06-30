@@ -883,27 +883,6 @@ code{font-family:ui-monospace,monospace;}
 <section class="slide" data-sec="Architecture">
 
   <div class="s-head">
-    <div><div class="kicker reveal">System architecture</div><h1 class="title reveal">A standard layered web application</h1><div class="subtitle reveal">The implementation keeps UI, API, business logic, and persistence responsibilities separate.</div></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-
-    <div class="layers reveal">
-      <div class="layer"><div class="lname">Browser UI</div><div class="ldesc">Next.js App Router pages, reusable components, React Query hooks.</div><div class="ltag">localhost:3000</div></div>
-      <div class="layer"><div class="lname">API client</div><div class="ldesc">Services wrap Axios calls and keep API details out of pages.</div><div class="ltag">src/services</div></div>
-      <div class="layer"><div class="lname">REST API</div><div class="ldesc">Spring controllers receive requests and delegate to services.</div><div class="ltag">localhost:9090</div></div>
-      <div class="layer"><div class="lname">Business layer</div><div class="ldesc">Services enforce workflow rules, permissions, and stock calculations.</div><div class="ltag">Spring Boot</div></div>
-      <div class="layer"><div class="lname">Persistence</div><div class="ldesc">JPA repositories, PostgreSQL schema, Flyway migrations.</div><div class="ltag">PostgreSQL</div></div>
-    </div>
-
-  </div>
-  <div class="footer"><span class="sec">Architecture</span><span class="pg"></span></div>
-</section>
-
-<section class="slide" data-sec="Architecture">
-
-  <div class="s-head">
     <div><div class="kicker reveal">Frontend pattern</div><h1 class="title reveal">Each feature follows the same page -> hook -> service chain</h1><div class="subtitle reveal">This keeps screens thin and makes API behavior traceable during review.</div></div>
 
     <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>

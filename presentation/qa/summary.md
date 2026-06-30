@@ -3,7 +3,7 @@
 - Status: **PASS**
 - Input: `C:\final-year\presentation\index.html`
 - Viewports: 1920×1080, 1366×768
-- Slides: 37
+- Slides: 36
 - Console errors: 0
 - Page errors: 0
 - Failed requests: 0
