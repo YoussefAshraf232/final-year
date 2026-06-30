@@ -434,142 +434,6 @@ code{font-family:ui-monospace,monospace;}
   <div class="footer"><span class="sec">Roles</span><span class="pg"></span></div>
 </section>
 
-<section class="slide" data-sec="Workflow">
-
-  <div class="s-head">
-    <div><div class="kicker reveal">Inventory flow</div><h1 class="title reveal">Stock moves through business events</h1><div class="subtitle reveal">The core demo path can be explained without jumping between many similar pages.</div></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-
-    <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">Supplier</div><div class="nv">Source</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Purchase</div><div class="nv">Order</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Operational</div><div class="nv">Approve</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Warehouse</div><div class="nv">Receive</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Stock</div><div class="nv">Increase</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Customer</div><div class="nv">Sale</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Stock</div><div class="nv">Decrease</div></div></div>
-    <div class="grid g3" style="margin-top:34px;">
-      <div class="card reveal"><h3>Returns</h3><p>Customer returns record refund/restock states and add stock back only when restocked.</p></div>
-      <div class="card reveal"><h3>Transfers</h3><p>Operational Manager distributes products from central to branch warehouses.</p></div>
-      <div class="card reveal"><h3>Corrections</h3><p>Warehouse users request edits; manager review prevents silent quantity changes.</p></div>
-    </div>
-
-  </div>
-  <div class="footer"><span class="sec">Workflow</span><span class="pg"></span></div>
-</section>
-
-<section class="slide" data-sec="Workflow">
-
-  <div class="s-head">
-    <div><div class="kicker reveal">Transaction lifecycles</div><h1 class="title reveal">The system separates request, approval, and stock effect</h1><div class="subtitle reveal">This is the business logic that makes the stock numbers defensible.</div></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-
-    <div class="grid g2">
-      <div class="card reveal">
-        <h3>Purchase receiving</h3>
-        <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">PO</div><div class="nv">Created</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Manager</div><div class="nv">Approved</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Warehouse</div><div class="nv">Received</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Stock</div><div class="nv">+ Quantity</div></div></div>
-        <p style="margin-top:20px;">Warehouse receiving records what actually arrived and updates inventory when the receipt is accepted.</p>
-      </div>
-      <div class="card reveal">
-        <h3>Sales return</h3>
-        <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">Return</div><div class="nv">Created</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Review</div><div class="nv">Approved</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Refund</div><div class="nv">Status</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Restock</div><div class="nv">+ Quantity</div></div></div>
-        <p style="margin-top:20px;">Refund state and restock state are separate, so finance and inventory can be audited independently.</p>
-      </div>
-    </div>
-
-  </div>
-  <div class="footer"><span class="sec">Workflow</span><span class="pg"></span></div>
-</section>
-
-<section class="slide" data-sec="Architecture">
-
-  <div class="s-head">
-    <div><div class="kicker reveal">System architecture</div><h1 class="title reveal">A standard layered web application</h1><div class="subtitle reveal">The implementation keeps UI, API, business logic, and persistence responsibilities separate.</div></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-
-    <div class="layers reveal">
-      <div class="layer"><div class="lname">Browser UI</div><div class="ldesc">Next.js App Router pages, reusable components, React Query hooks.</div><div class="ltag">localhost:3000</div></div>
-      <div class="layer"><div class="lname">API client</div><div class="ldesc">Services wrap Axios calls and keep API details out of pages.</div><div class="ltag">src/services</div></div>
-      <div class="layer"><div class="lname">REST API</div><div class="ldesc">Spring controllers receive requests and delegate to services.</div><div class="ltag">localhost:9090</div></div>
-      <div class="layer"><div class="lname">Business layer</div><div class="ldesc">Services enforce workflow rules, permissions, and stock calculations.</div><div class="ltag">Spring Boot</div></div>
-      <div class="layer"><div class="lname">Persistence</div><div class="ldesc">JPA repositories, PostgreSQL schema, Flyway migrations.</div><div class="ltag">PostgreSQL</div></div>
-    </div>
-
-  </div>
-  <div class="footer"><span class="sec">Architecture</span><span class="pg"></span></div>
-</section>
-
-<section class="slide" data-sec="Architecture">
-
-  <div class="s-head">
-    <div><div class="kicker reveal">Frontend pattern</div><h1 class="title reveal">Each feature follows the same page -> hook -> service chain</h1><div class="subtitle reveal">This keeps screens thin and makes API behavior traceable during review.</div></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-
-    <div class="grid g2" style="align-items:center;">
-      <div>
-        <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">Route</div><div class="nv">page.tsx</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">State</div><div class="nv">useFeature</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">API</div><div class="nv">service.ts</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">DTO</div><div class="nv">types.ts</div></div></div>
-        <div class="card reveal" style="margin-top:28px;"><p style="font-size:21px; color:var(--ims-text);">Example: <code>products/page.tsx</code> calls <code>useProducts</code>, which calls <code>product.service.ts</code>, which talks to the backend <code>/products</code> endpoints.</p></div>
-      </div>
-      <div class="codebox reveal"><span class="c">// repeated feature shape</span>
-page.tsx
-  &rarr; hook in src/hooks/
-    &rarr; service in src/services/
-      &rarr; backend API
-        &rarr; controller
-          &rarr; service
-            &rarr; repository</div>
-    </div>
-
-  </div>
-  <div class="footer"><span class="sec">Architecture</span><span class="pg"></span></div>
-</section>
-
-<section class="slide" data-sec="Data">
-
-  <div class="s-head">
-    <div><div class="kicker reveal">Data integrity</div><h1 class="title reveal">The database is organized around operational domains</h1><div class="subtitle reveal">The presentation avoids showing the full ERD too early; the defense story starts with the domains.</div></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-
-    <div class="grid g4">
-      <div class="card reveal"><h3>Identity</h3><p>Users, roles, permissions, authentication, audit actor.</p></div>
-      <div class="card reveal"><h3>Master data</h3><p>Products, categories, suppliers, customers, warehouses.</p></div>
-      <div class="card reveal"><h3>Inventory</h3><p>Product-warehouse stock, movements, stock edit requests, transfers.</p></div>
-      <div class="card reveal"><h3>Transactions</h3><p>Purchase invoices, receiving, sales invoices, returns.</p></div>
-    </div>
-    <div class="codebox reveal" style="margin-top:26px;">Stock movement = product + warehouse + movement type + quantity + source transaction + actor + timestamp</div>
-
-  </div>
-  <div class="footer"><span class="sec">Data</span><span class="pg"></span></div>
-</section>
-
-<section class="slide" data-sec="Security">
-
-  <div class="s-head">
-    <div><div class="kicker reveal">Security</div><h1 class="title reveal">Authentication, authorization, and audit are separate concerns</h1><div class="subtitle reveal">The system uses role-aware UI, JWT-backed API calls, and backend enforcement.</div></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-
-    <div class="grid g3">
-      <div class="card reveal"><h3>Authentication</h3><p>JWT token stored client-side after login; authenticated API calls include the token.</p></div>
-      <div class="card reveal"><h3>Authorization</h3><p>Frontend route checks guide navigation; backend method and endpoint permissions protect data.</p></div>
-      <div class="card reveal"><h3>Auditability</h3><p>Sensitive actions are logged with actor, entity, action, time, and metadata.</p></div>
-    </div>
-    <div class="card reveal soft" style="margin-top:26px;"><p style="font-size:22px; color:var(--ims-text);"><b>Defense point:</b> hiding a menu is not security. Security belongs to backend permission checks and auditable service behavior.</p></div>
-
-  </div>
-  <div class="footer"><span class="sec">Security</span><span class="pg"></span></div>
-</section>
-
 <section class="slide" data-sec="System Admin">
   <div class="s-head">
     <div><div class="kicker reveal">Admin screen</div><h1 class="title reveal">System Admin: Users</h1><div class="subtitle reveal">Manage system users and permissions.</div></div>
@@ -970,6 +834,142 @@ page.tsx
   <div class="footer"><span class="sec">Warehouse Manager</span><span class="pg"></span></div>
 </section>
 
+<section class="slide" data-sec="Workflow">
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Inventory flow</div><h1 class="title reveal">Stock moves through business events</h1><div class="subtitle reveal">The core demo path can be explained without jumping between many similar pages.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+
+    <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">Supplier</div><div class="nv">Source</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Purchase</div><div class="nv">Order</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Operational</div><div class="nv">Approve</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Warehouse</div><div class="nv">Receive</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Stock</div><div class="nv">Increase</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Customer</div><div class="nv">Sale</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Stock</div><div class="nv">Decrease</div></div></div>
+    <div class="grid g3" style="margin-top:34px;">
+      <div class="card reveal"><h3>Returns</h3><p>Customer returns record refund/restock states and add stock back only when restocked.</p></div>
+      <div class="card reveal"><h3>Transfers</h3><p>Operational Manager distributes products from central to branch warehouses.</p></div>
+      <div class="card reveal"><h3>Corrections</h3><p>Warehouse users request edits; manager review prevents silent quantity changes.</p></div>
+    </div>
+
+  </div>
+  <div class="footer"><span class="sec">Workflow</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Workflow">
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Transaction lifecycles</div><h1 class="title reveal">The system separates request, approval, and stock effect</h1><div class="subtitle reveal">This is the business logic that makes the stock numbers defensible.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+
+    <div class="grid g2">
+      <div class="card reveal">
+        <h3>Purchase receiving</h3>
+        <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">PO</div><div class="nv">Created</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Manager</div><div class="nv">Approved</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Warehouse</div><div class="nv">Received</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Stock</div><div class="nv">+ Quantity</div></div></div>
+        <p style="margin-top:20px;">Warehouse receiving records what actually arrived and updates inventory when the receipt is accepted.</p>
+      </div>
+      <div class="card reveal">
+        <h3>Sales return</h3>
+        <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">Return</div><div class="nv">Created</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Review</div><div class="nv">Approved</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">Refund</div><div class="nv">Status</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">Restock</div><div class="nv">+ Quantity</div></div></div>
+        <p style="margin-top:20px;">Refund state and restock state are separate, so finance and inventory can be audited independently.</p>
+      </div>
+    </div>
+
+  </div>
+  <div class="footer"><span class="sec">Workflow</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Architecture">
+
+  <div class="s-head">
+    <div><div class="kicker reveal">System architecture</div><h1 class="title reveal">A standard layered web application</h1><div class="subtitle reveal">The implementation keeps UI, API, business logic, and persistence responsibilities separate.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+
+    <div class="layers reveal">
+      <div class="layer"><div class="lname">Browser UI</div><div class="ldesc">Next.js App Router pages, reusable components, React Query hooks.</div><div class="ltag">localhost:3000</div></div>
+      <div class="layer"><div class="lname">API client</div><div class="ldesc">Services wrap Axios calls and keep API details out of pages.</div><div class="ltag">src/services</div></div>
+      <div class="layer"><div class="lname">REST API</div><div class="ldesc">Spring controllers receive requests and delegate to services.</div><div class="ltag">localhost:9090</div></div>
+      <div class="layer"><div class="lname">Business layer</div><div class="ldesc">Services enforce workflow rules, permissions, and stock calculations.</div><div class="ltag">Spring Boot</div></div>
+      <div class="layer"><div class="lname">Persistence</div><div class="ldesc">JPA repositories, PostgreSQL schema, Flyway migrations.</div><div class="ltag">PostgreSQL</div></div>
+    </div>
+
+  </div>
+  <div class="footer"><span class="sec">Architecture</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Architecture">
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Frontend pattern</div><h1 class="title reveal">Each feature follows the same page -> hook -> service chain</h1><div class="subtitle reveal">This keeps screens thin and makes API behavior traceable during review.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+
+    <div class="grid g2" style="align-items:center;">
+      <div>
+        <div class="flow" style="justify-content:center;"><div class="node reveal" style="min-width:170px;"><div class="nl">Route</div><div class="nv">page.tsx</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">State</div><div class="nv">useFeature</div></div><div class="arrow">&rarr;</div><div class="node accent reveal" style="min-width:170px;"><div class="nl">API</div><div class="nv">service.ts</div></div><div class="arrow">&rarr;</div><div class="node reveal" style="min-width:170px;"><div class="nl">DTO</div><div class="nv">types.ts</div></div></div>
+        <div class="card reveal" style="margin-top:28px;"><p style="font-size:21px; color:var(--ims-text);">Example: <code>products/page.tsx</code> calls <code>useProducts</code>, which calls <code>product.service.ts</code>, which talks to the backend <code>/products</code> endpoints.</p></div>
+      </div>
+      <div class="codebox reveal"><span class="c">// repeated feature shape</span>
+page.tsx
+  &rarr; hook in src/hooks/
+    &rarr; service in src/services/
+      &rarr; backend API
+        &rarr; controller
+          &rarr; service
+            &rarr; repository</div>
+    </div>
+
+  </div>
+  <div class="footer"><span class="sec">Architecture</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Data">
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Data integrity</div><h1 class="title reveal">The database is organized around operational domains</h1><div class="subtitle reveal">The presentation avoids showing the full ERD too early; the defense story starts with the domains.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+
+    <div class="grid g4">
+      <div class="card reveal"><h3>Identity</h3><p>Users, roles, permissions, authentication, audit actor.</p></div>
+      <div class="card reveal"><h3>Master data</h3><p>Products, categories, suppliers, customers, warehouses.</p></div>
+      <div class="card reveal"><h3>Inventory</h3><p>Product-warehouse stock, movements, stock edit requests, transfers.</p></div>
+      <div class="card reveal"><h3>Transactions</h3><p>Purchase invoices, receiving, sales invoices, returns.</p></div>
+    </div>
+    <div class="codebox reveal" style="margin-top:26px;">Stock movement = product + warehouse + movement type + quantity + source transaction + actor + timestamp</div>
+
+  </div>
+  <div class="footer"><span class="sec">Data</span><span class="pg"></span></div>
+</section>
+
+<section class="slide" data-sec="Security">
+
+  <div class="s-head">
+    <div><div class="kicker reveal">Security</div><h1 class="title reveal">Authentication, authorization, and audit are separate concerns</h1><div class="subtitle reveal">The system uses role-aware UI, JWT-backed API calls, and backend enforcement.</div></div>
+
+    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
+  </div>
+  <div class="body">
+
+    <div class="grid g3">
+      <div class="card reveal"><h3>Authentication</h3><p>JWT token stored client-side after login; authenticated API calls include the token.</p></div>
+      <div class="card reveal"><h3>Authorization</h3><p>Frontend route checks guide navigation; backend method and endpoint permissions protect data.</p></div>
+      <div class="card reveal"><h3>Auditability</h3><p>Sensitive actions are logged with actor, entity, action, time, and metadata.</p></div>
+    </div>
+    <div class="card reveal soft" style="margin-top:26px;"><p style="font-size:22px; color:var(--ims-text);"><b>Defense point:</b> hiding a menu is not security. Security belongs to backend permission checks and auditable service behavior.</p></div>
+
+  </div>
+  <div class="footer"><span class="sec">Security</span><span class="pg"></span></div>
+</section>
+
 <section class="slide" data-sec="Demo">
 
   <div class="s-head">
@@ -1010,65 +1010,6 @@ page.tsx
   <div class="footer"><span class="sec">Testing</span><span class="pg"></span></div>
 </section>
 
-<section class="slide" data-sec="Challenges">
-
-  <div class="s-head">
-    <div><div class="kicker reveal">Implementation challenges</div><h1 class="title reveal">The hard part was not drawing screens; it was keeping inventory trustworthy</h1></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-
-    <div class="grid g2">
-      <div class="card reveal"><ul class="lst "><li><b>Stock consistency:</b> sales, receiving, returns, transfers, and corrections all affect the same quantity.</li><li><b>Lifecycle modeling:</b> refund, restock, approval, and receipt states are related but not identical.</li><li><b>Warehouse scope:</b> branch execution must not become global administration.</li></ul></div>
-      <div class="card reveal"><ul class="lst "><li><b>UI evidence:</b> similar workflows are separated by role so the audience can see each permission surface.</li><li><b>Schema evolution:</b> Flyway migrations preserve a reproducible database history.</li><li><b>Traceability:</b> operational events need enough metadata to explain the final number.</li></ul></div>
-    </div>
-
-  </div>
-  <div class="footer"><span class="sec">Challenges</span><span class="pg"></span></div>
-</section>
-
-<section class="slide" data-sec="Future Work">
-
-  <div class="s-head">
-    <div><div class="kicker reveal">Limitations and future work</div><h1 class="title reveal">The current project is defense-ready, with clear next steps</h1></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-
-    <div class="grid g4">
-      <div class="card reveal"><h3>More tests</h3><p>Increase backend workflow and frontend component coverage.</p></div>
-      <div class="card reveal"><h3>Barcode flow</h3><p>Add scanner-first receiving and stock count workflows.</p></div>
-      <div class="card reveal"><h3>Notifications</h3><p>Escalate pending approvals and low-stock thresholds.</p></div>
-      <div class="card reveal"><h3>Forecasting</h3><p>Use sales history to forecast reorder quantities.</p></div>
-    </div>
-    <div class="card reveal" style="margin-top:26px;"><p style="font-size:21px; color:var(--ims-text);">The architecture leaves room for these features because master data, transactions, roles, and audit are already separated.</p></div>
-
-  </div>
-  <div class="footer"><span class="sec">Future Work</span><span class="pg"></span></div>
-</section>
-
-<section class="slide" data-sec="Conclusion">
-
-  <div class="s-head">
-    <div><div class="kicker reveal">Conclusion</div><h1 class="title reveal">Inventory MS turns inventory into controlled, auditable operations</h1></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-
-    <div class="grid g3">
-      <div class="card reveal"><h3>Business value</h3><p>Teams can trust stock, understand changes, and separate responsibilities.</p></div>
-      <div class="card reveal"><h3>Technical value</h3><p>The stack uses clear layers: Next.js, Spring Boot, PostgreSQL, Flyway, and JWT.</p></div>
-      <div class="card reveal"><h3>Defense value</h3><p>The rebuilt deck proves roles and workflows without repeating the same screens.</p></div>
-    </div>
-    <div class="card soft reveal" style="margin-top:28px;"><p style="font-size:24px; color:var(--ims-text); text-align:center;"><b>Final message:</b> the project is not only an inventory list; it is a controlled inventory workflow system.</p></div>
-
-  </div>
-  <div class="footer"><span class="sec">Conclusion</span><span class="pg"></span></div>
-</section>
-
 <section class="slide" data-sec="Questions">
 
   <div class="s-head">
@@ -1086,27 +1027,6 @@ page.tsx
 
   </div>
   <div class="footer"><span class="sec">Questions</span><span class="pg"></span></div>
-</section>
-
-<section class="slide" data-sec="Appendix">
-  <div class="appx">APPENDIX</div>
-
-  <div class="s-head">
-    <div><div class="kicker reveal">Data model</div><h1 class="title reveal">Core ERD domains</h1><div class="subtitle reveal">A compact view of the database responsibilities.</div></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-    <div class="grid g3">
-      <div class="card reveal"><h3>Identity</h3><p><code>users</code>, <code>roles</code>, warehouse assignment, login identity.</p></div>
-      <div class="card reveal"><h3>Catalog</h3><p><code>products</code>, categories, suppliers, customers, warehouses.</p></div>
-      <div class="card reveal"><h3>Stock</h3><p>Product-warehouse rows plus movement history and edit requests.</p></div>
-      <div class="card reveal"><h3>Purchasing</h3><p>Purchase invoices and receiving workflow records.</p></div>
-      <div class="card reveal"><h3>Sales</h3><p>Sales invoices, return invoices, refund and restock statuses.</p></div>
-      <div class="card reveal"><h3>Governance</h3><p>Reports read from operational data; audit logs capture sensitive events.</p></div>
-    </div>
-  </div>
-  <div class="footer"><span class="sec">Appendix · ERD</span><span class="pg"></span></div>
 </section>
 
 <section class="slide" data-sec="Appendix">
@@ -1134,39 +1054,6 @@ page.tsx
   <div class="footer"><span class="sec">Appendix · Permissions</span><span class="pg"></span></div>
 </section>
 
-<section class="slide" data-sec="Appendix">
-  <div class="appx">APPENDIX</div>
-
-  <div class="s-head">
-    <div><div class="kicker reveal">Engineering</div><h1 class="title reveal">Repository facts used in the deck</h1><div class="subtitle reveal">These details are reviewed from the current project files.</div></div>
-
-    <div class="brand"><img src="assets/ims-mark.svg" alt=""/><div class="bt"><b>Inventory MS</b><span>Management System</span></div></div>
-  </div>
-  <div class="body">
-    <div class="grid g2" style="align-items:start;">
-      <div class="reveal">
-        <table class="t" style="font-size:15px;">
-          <thead><tr><th>Area</th><th>Current implementation</th></tr></thead>
-          <tbody>
-            <tr><td>Frontend</td><td>Next.js App Router, React, TypeScript, React Query, Axios</td></tr>
-            <tr><td>Backend</td><td>Spring Boot, Java 21, service-layer business logic</td></tr>
-            <tr><td>Database</td><td>PostgreSQL schema evolved by Flyway migrations <code>V1</code> through <code>V14</code></td></tr>
-            <tr><td>Local ports</td><td>Frontend <code>:3000</code>, backend <code>:9090</code>, local DB guide <code>:5433</code></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="codebox reveal"><span class="c">// stock movement audit shape</span>
-product_id
-warehouse_id
-movement_type
-quantity
-reference_type / reference_id
-actor_user_id
-created_at</div>
-    </div>
-  </div>
-  <div class="footer"><span class="sec">Appendix · Engineering</span><span class="pg"></span></div>
-</section>
 </div></div>
 
 <div id="hint">← → navigate · F fullscreen · Home/End jump</div>

@@ -1,7 +1,7 @@
 {
-  "timestamp": "2026-06-29T05:15:13.216Z",
+  "timestamp": "2026-06-30T08:06:24.173Z",
   "input": "C:\\final-year\\presentation\\index.html",
-  "url": "http://127.0.0.1:64160/index.html",
+  "url": "http://127.0.0.1:64842/index.html",
   "viewports": [
     {
       "viewport": {
@@ -9,7 +9,7 @@
         "height": 1080,
         "name": "1920x1080"
       },
-      "slideCount": 42,
+      "slideCount": 37,
       "consoleErrors": [],
       "pageErrors": [],
       "failedRequests": [],
@@ -203,31 +203,6 @@
           "index": 37,
           "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-37.png",
           "issues": []
-        },
-        {
-          "index": 38,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-38.png",
-          "issues": []
-        },
-        {
-          "index": 39,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-39.png",
-          "issues": []
-        },
-        {
-          "index": 40,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-40.png",
-          "issues": []
-        },
-        {
-          "index": 41,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-41.png",
-          "issues": []
-        },
-        {
-          "index": 42,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1920x1080\\slide-42.png",
-          "issues": []
         }
       ]
     },
@@ -237,7 +212,7 @@
         "height": 768,
         "name": "1366x768"
       },
-      "slideCount": 42,
+      "slideCount": 37,
       "consoleErrors": [],
       "pageErrors": [],
       "failedRequests": [],
@@ -430,31 +405,6 @@
         {
           "index": 37,
           "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-37.png",
-          "issues": []
-        },
-        {
-          "index": 38,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-38.png",
-          "issues": []
-        },
-        {
-          "index": 39,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-39.png",
-          "issues": []
-        },
-        {
-          "index": 40,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-40.png",
-          "issues": []
-        },
-        {
-          "index": 41,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-41.png",
-          "issues": []
-        },
-        {
-          "index": 42,
-          "screenshot": "C:\\final-year\\presentation\\qa\\screens\\1366x768\\slide-42.png",
           "issues": []
         }
       ]
